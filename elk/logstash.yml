@@ -1,0 +1,12 @@
+http.host: "0.0.0.0"
+#xpack:
+#  monitoring:
+##    enable: true
+#    elasticsearch:
+#      hosts: [ "https://elasticsearch:9200" ]
+#      username: "elastic"
+#      password: "W09plPykBuYHh8ZhkQhO"
+#      ssl: 1e27bf08e4aae405b72b80329ac514415a264c9bd6eb2f7a5aa451708449fbae
+log.level: debug
+#monitoring:
+#  enlabled: false

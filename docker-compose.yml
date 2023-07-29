@@ -1,0 +1,70 @@
+version: "3.9"
+services:
+    logstash:
+      image: logstash:8.7.1
+      container_name: logstash
+      hostname: logstash
+      networks:
+        - elastic
+      ports:
+        - "5044:5044"
+        - "9600:9600"
+      volumes:
+        - ./elk/pipeline:/usr/share/logstash/pipeline:rw,Z
+        - ./http_ca.crt:/http_ca.crt:rw
+        - ./elk/logstash.yml:/usr/share/logstash/config/logstash.yml:rw
+      restart: no
+    kibana:
+      image: kibana:8.7.1
+      container_name: kibana
+      hostname: kibana
+      networks:
+        - elastic
+      ports:
+        - "5601:5601"
+      restart: always
+      depends_on:
+        - logstash
+        - metricbeat
+    postgresql:
+      image: postgres:15.3
+      container_name: postgres
+      hostname: postgres
+      ports:
+        - "5433:5432"
+      environment:
+        POSTGRES_PASSWORD: "123"
+      volumes:
+        - postgres:/var/lib/postgresql/data
+    metricbeat:
+      image: docker.elastic.co/beats/metricbeat:8.7.1
+      container_name: metricbeat
+      hostname: metricbeat
+      networks:
+        - elastic
+      volumes:
+        - ./http_ca.crt:/http_ca.crt:ro
+        - ./elk/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      restart: always
+#    elasticsearch:
+#      image: elasticsearch:8.7.1
+#      hostname: elasticsearch
+#      container_name: elasticsearch
+#      ports:
+#        - "9200:9200"
+#        - "9300:9300"
+#      environment:
+#        discovery.type: single-node
+#        cluster.routing.allocation.disk.watermark.high: 95%
+#        cluster.routing.allocation.disk.watermark.low: 90%
+#      volumes:
+#        - esdata:/usr/share/elasticsearch/data
+
+volumes:
+  postgres:
+#  esdata:
+
+networks:
+  elastic:
+    name: elastic
+    external: true

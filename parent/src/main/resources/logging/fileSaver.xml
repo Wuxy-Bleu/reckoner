@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+
+    <appender name="SAVE-TO-FILE" class="ch.qos.logback.core.FileAppender">
+
+        <file>logs/logback2.log</file>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>UTF-8</charset>
+            <outputPatternAsHeader>true</outputPatternAsHeader>
+            <Pattern>
+                ${CONSOLE_LOG_PATTERN}
+            </Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${LOG_PATH}/archived/log_%d{dd-MM-yyyy}.log
+            </fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>1KB</maxFileSize>
+        </triggeringPolicy>
+
+    </appender>
+</included>

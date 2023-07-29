@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="logging/fileSaver.xml"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+
+            </pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="SAVE-TO-FILE"/>
+    </root>
+
+</configuration>

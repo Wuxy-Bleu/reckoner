@@ -1,0 +1,69 @@
+metricbeat:
+  config.modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: true
+  modules:
+    - module: logstash
+      metricsets: [ "node", "node_stats" ]
+      period: 10s
+      hosts: [ "http://logstash:9600" ]
+      enabled: true
+      processors:
+        - add_fields:
+            target: ''
+            fields:
+              whoAmI: "logstash"
+    - module: elasticsearch
+      xpack.enabled: true
+      enabled: true
+      metricsets:
+        - node
+        - node_stats
+        #- index
+        #- index_recovery
+        #- index_summary
+        #- ingest_pipeline
+        #- shard
+        #- ml_job
+      period: 10s
+      hosts: [ "https://elasticsearch:9200" ]
+      username: "elastic"
+      password: "Xpu8tr73Rcr0jnx*+VJH"
+      ssl.certificate_authorities: [ "/http_ca.crt" ]
+      processors:
+        - add_fields:
+            target: ''
+            fields:
+              whoAmI: "elasticsearch"
+#    - module: kibana
+#      metricsets: ["status", "stats", "node_rules", "node_actions"]
+#      period: 10s
+#      hosts: ["http://kibana:5601"]
+#      basepath: ""
+#      enabled: true
+#      processors:
+#        - add_fields:
+#            target: ''
+#            fields:
+#              whoAmI: "logstash"
+output:
+  logstash:
+    enabled: false
+  elasticsearch:
+    hosts: [ "https://elasticsearch:9200" ]
+    username: "elastic"
+    password: "Xpu8tr73Rcr0jnx*+VJH"
+    ssl:
+      enable: true
+      ca_trusted_fingerprint: "fa5d81aeb43b089051df76efe5d2b7dbabb185af572ea4965051c08faf80f18d"
+#    index: "heyitsme-%{[fields.log_type]}-%{[agent.version]}-%{+yyyy.MM.dd}"
+setup:
+  kibana:
+    host: "http://kibana:5601"
+#  template:
+#    name: yyy
+#    pattern: "heyitsme-*"
+#  ilm:
+#    check_exists: false
+#    enabled: false
+logging.level: debug

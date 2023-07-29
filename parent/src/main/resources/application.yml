@@ -1,0 +1,15 @@
+
+
+server:
+  port: 6666
+
+
+#spring:
+#  output:
+#    ansi:
+#      enabled: always
+
+#debug: true
+#logging:
+#  file:
+#    name: test.log
