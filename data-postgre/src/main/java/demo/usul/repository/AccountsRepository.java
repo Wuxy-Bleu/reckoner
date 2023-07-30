@@ -15,4 +15,8 @@ public interface AccountsRepository extends JpaRepository<AccountsEntity, UUID> 
     @Override
     List<AccountsEntity> findAll();
 
+
+//    @Query("select r from AccountsEntity r join fetch r.cardTypeEntity entity")
+//    List<AccountsEntity> all();
+
 }

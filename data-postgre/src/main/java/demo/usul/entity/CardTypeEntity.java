@@ -3,20 +3,25 @@ package demo.usul.entity;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(name = "card_type", schema = "public")
+@ToString
 public class CardTypeEntity {
 
     @Id
@@ -36,6 +41,10 @@ public class CardTypeEntity {
     @Basic
     @Column(name = "last_updated_at", nullable = false)
     private OffsetDateTime lastUpdatedAt;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "cardTypeEntity2", orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<AccountsEntity> accountsEntities;
 
     @Override
     public boolean equals(Object o) {

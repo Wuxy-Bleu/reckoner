@@ -1,5 +1,6 @@
 package demo.usul.entity;
 
+import demo.usul.anno.JpaExclude;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,17 +9,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import java.math.BigDecimal;
@@ -32,34 +31,33 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "accounts", schema = "public")
-@NamedEntityGraph(
-        name = "accounts-with-cardType",
-        attributeNodes = {
-                @NamedAttributeNode("cardTypeEntity")
-        }
-)
+@ToString
 public class AccountsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     @Setter(AccessLevel.NONE)
+    @JpaExclude
     private UUID id;
 
     @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @JpaExclude
     private OffsetDateTime createdAt;
 
     @Column(name = "last_updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @JpaExclude
     private OffsetDateTime lastUpdatedAt;
 
     @Column(name = "is_active", nullable = false)
-    @Transient
+    @JpaExclude
     private boolean isActive;
 
     @Column(name = "type_id", nullable = false)
+    @JpaExclude
     private short typeId;
 
     @Column(name = "balance", nullable = false, precision = 18, scale = 8)
@@ -68,9 +66,24 @@ public class AccountsEntity {
     @Column(name = "currency", nullable = false, length = -1)
     private String currency;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "type_id", insertable = false, updatable = false)
+    @ToString.Exclude
+    @JpaExclude
     private CardTypeEntity cardTypeEntity;
+
+    @Column(name = "credit_card_limit", precision = 18, scale = 8)
+    private BigDecimal creditCardLimit;
+
+    @Column(name = "billing_cycle")
+    private String billingCycle;
+
+    @Column(name = "due_date")
+    private String dueDate;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "type_id")
+    private CardTypeEntity cardTypeEntity2;
 
     @Override
     public boolean equals(Object o) {

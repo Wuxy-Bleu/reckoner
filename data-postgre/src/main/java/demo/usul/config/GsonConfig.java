@@ -1,11 +1,14 @@
 package demo.usul.config;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import demo.usul.anno.JpaExclude;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,7 +38,22 @@ public class GsonConfig {
                                 return null;
                             }
                         })
+                .addSerializationExclusionStrategy(GsonConfig.excludeWithAnnoJpaExclude())
                 .create();
+    }
+
+    public static ExclusionStrategy excludeWithAnnoJpaExclude() {
+        return new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes f) {
+                return f.getAnnotation(JpaExclude.class) != null;
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+        };
     }
 
 }
