@@ -1,0 +1,23 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: webapp-demo
+build:
+  artifacts:
+    - image: webapp-demo/data-postgre
+      context: data-postgre-all/data-postgre
+      jib:
+        type: maven
+        project: demo.usul:data-postgre
+    - image: webapp-demo/hello
+      context: ./hello
+    - image: webapp-demo/config
+      context: config
+      jib:
+        type: maven
+manifests:
+  rawYaml:
+    - hello/deployment.yaml
+    - data-postgre-all/data-postgre/deployment.yaml
+    - config/deployment.yaml
+

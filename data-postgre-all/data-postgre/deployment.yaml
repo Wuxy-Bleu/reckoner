@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-postgre
+spec:
+  selector:
+    matchLabels:
+      app: data-postgre
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: data-postgre
+    spec:
+      containers:
+        - name: data-postgres
+          image: webapp-demo/data-postgre
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+      initContainers:
+        - name: wait-for-config-server
+          image: appropriate/curl:latest
+          command: [ 'sh', '-c', 'until curl -s http://config-service:80/actuator/health; do echo waiting for other pod; sleep 2; done;' ]
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-postgres-service
+spec:
+  selector:
+    app: data-postgre
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30002
+  type: NodePort

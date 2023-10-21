@@ -1,0 +1,41 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: data-postgre
+  datasource:
+    url: jdbc:postgresql://${postgre-url:192.168.31.47:5433}/postgres
+    username: ${username:postgres}
+    password: ${ps:123}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  # not recommended
+  #        enable_lazy_load_no_trans: true
+  profiles:
+    active: k8s
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+#debug: true
+logging:
+  level:
+    org.hibernate.sql: debug
+    org.hibernate.type: trace
+    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.stat: trace
+    org.hibernate.SQL_SLOW: trace
+    org.hibernate.cache: trace
+    org.springframework.data.*.*: trace
+    org.springframework.cache.*: trace
+    org.springframework.data.redis.cache.*: trace
+

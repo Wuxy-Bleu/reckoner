@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config
+spec:
+  selector:
+    matchLabels:
+      app: config
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: config
+    spec:
+      containers:
+        - name: config
+          image: webapp-demo/config
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8888
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+spec:
+  selector:
+    app: config
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8888
+  type: NodePort
