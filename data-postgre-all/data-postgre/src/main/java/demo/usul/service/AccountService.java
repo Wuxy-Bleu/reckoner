@@ -5,6 +5,7 @@ import demo.usul.dto.AccountDto;
 import demo.usul.entity.AccountEntity;
 import demo.usul.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class AccountService {
 
     private final AccountMapper accountMapper;
 
-    @Cacheable(cacheNames = "accountsActivated", sync = true)
+    @Cacheable(cacheNames = "accountsActivated", sync = true, key = "#root.methodName")
     public List<AccountDto> retrieveActivatedCacheable() {
         Optional<List<AccountEntity>> accountsActivated = accountRepository.findByIsActive(true);
         if (accountsActivated.isPresent()) {
@@ -31,9 +32,17 @@ public class AccountService {
         }
     }
 
+    @CacheEvict(cacheNames = "accountsActivated", allEntries = true)
     public List<AccountDto> createBatch(List<AccountDto> accountDtos) {
         List<AccountEntity> accountsInserted = accountRepository.saveAll(accountMapper.accountDtos2Entities(accountDtos));
         return accountMapper.accountEntities2Dtos(accountsInserted);
+    }
+
+    @CacheEvict(cacheNames = "accountsActivated", allEntries = true)
+    public AccountDto create(AccountDto accountDto) {
+        return accountMapper.accountEntity2Dto(
+                accountRepository.save(
+                        accountMapper.accountDto2Entity(accountDto)));
     }
 
     public AccountDto retrieveActivatedByName(String name) {

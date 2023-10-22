@@ -4,7 +4,7 @@ spring:
   application:
     name: data-postgre
   datasource:
-    url: jdbc:postgresql://${postgre-url:192.168.31.47:5433}/postgres
+    url: jdbc:postgresql://${postgre-url:localhost:5433}/postgres
     username: ${username:postgres}
     password: ${ps:123}
     driver-class-name: org.postgresql.Driver
@@ -14,6 +14,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   jackson:
     serialization:
       fail-on-empty-beans: false
