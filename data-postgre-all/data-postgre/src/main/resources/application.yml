@@ -39,4 +39,6 @@ logging:
     org.springframework.data.*.*: trace
     org.springframework.cache.*: trace
     org.springframework.data.redis.cache.*: trace
+    org.springframework.orm.jpa.*.*: debug
+    org.springframework.transaction.*.*: debug
 

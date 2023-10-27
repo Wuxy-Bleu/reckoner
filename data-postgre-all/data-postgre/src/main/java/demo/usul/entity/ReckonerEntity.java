@@ -1,5 +1,6 @@
 package demo.usul.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,10 +10,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -56,15 +59,17 @@ public class ReckonerEntity {
 
 
     @Id
+    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = COLUMN_ID_NAME, nullable = false)
+    @Column(name = COLUMN_ID_NAME, nullable = false, updatable = false)
     private UUID id;
+
 
     @Column(name = COLUMN_AMOUNT_NAME, nullable = false, precision = 18, scale = 8)
     private BigDecimal amount;
 
     @Column(name = COLUMN_INNOUT_NAME, nullable = false)
-    private Short innout;
+    private Short inOut;
 
     @Column(name = COLUMN_FROMACCT_NAME)
     private UUID fromAcct;
@@ -96,15 +101,15 @@ public class ReckonerEntity {
     @Column(name = COLUMN_TYPEID_NAME)
     private UUID typeId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = COLUMN_TYPEID_NAME, nullable = false, unique = true, insertable = false, updatable = false)
     private ReckonerTypeEntity reckonerTypeEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = COLUMN_FROMACCT_NAME, nullable = false, unique = true, insertable = false, updatable = false)
     private AccountEntity fromAcctEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = COLUMN_TOACCT_NAME, insertable = false, updatable = false)
     private AccountEntity toAcctEntity;
 }

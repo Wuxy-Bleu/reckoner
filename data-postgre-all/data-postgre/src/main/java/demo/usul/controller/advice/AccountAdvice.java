@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// feign server 其实没必要处理这些异常，应该让client去处理
 @RestControllerAdvice
 public class AccountAdvice {
 

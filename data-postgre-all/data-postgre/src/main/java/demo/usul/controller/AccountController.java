@@ -1,5 +1,6 @@
 package demo.usul.controller;
 
+import demo.usul.convert.AccountMapper;
 import demo.usul.dto.AccountDto;
 import demo.usul.service.AccountService;
 import jakarta.validation.Valid;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
@@ -24,13 +24,15 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    private final AccountMapper accountMapper;
+
     // 其实这里复杂的查询过滤最好使用 自定义的requestObj
     // 或者criteria 更通用
     @GetMapping
     public List<AccountDto> retrieveActivatedByConditionsOrNot(
             @RequestParam(required = false) Optional<String> type,
             @RequestParam(required = false) Optional<String> currency) {
-        List<AccountDto> accountDtos = accountService.retrieveActivatedCacheable();
+        List<AccountDto> accountDtos = accountMapper.accountEntities2Dtos(accountService.retrieveActivatedCacheable());
         Stream<AccountDto> cachedStream = accountDtos.stream();
         if (type.isPresent()) {
             if (currency.isPresent())
@@ -64,7 +66,7 @@ public class AccountController {
 
     @PostMapping()
     public AccountDto createOne(@Valid @RequestBody AccountDto accountDto) {
-        return accountService.createBatch(List.of(accountDto)).get(0);
+        return accountService.create(accountDto);
     }
 
 }
