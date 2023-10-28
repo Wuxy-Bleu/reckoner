@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-cluster
+  namespace: redis-namespace
+spec:
+  serviceName: redis-cluster-service
+  replicas: 9
+  selector:
+    matchLabels:
+      app: redis-cluster

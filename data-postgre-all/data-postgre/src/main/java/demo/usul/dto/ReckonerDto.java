@@ -1,6 +1,7 @@
 package demo.usul.dto;
 
-import lombok.Builder;
+import demo.usul.enums.InOutEnum;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,26 +12,23 @@ import java.time.OffsetDateTime;
 
 @Data
 @NoArgsConstructor
-//@Builder
-public class ReckonerDto implements Serializable {
+@AllArgsConstructor
+public class ReckonerDto extends CommonColumn implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = -2066614562456423809L;
+    private static final long serialVersionUID = -5953612981270616981L;
 
-    private AccountDto fromAcct;
-
-    private AccountDto toAcct;
 
     private BigDecimal amount;
 
-    private String inOut;
-
     private String currency;
 
+    private InOutEnum inOut;
+
+    private AccountDto fromAcctObj;
+
+    private AccountDto toAcctObj;
+
     private OffsetDateTime transDate;
-
-    private OffsetDateTime lastUpdatedAt;
-
-    private OffsetDateTime createdAt;
 
 }

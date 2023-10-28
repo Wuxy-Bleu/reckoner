@@ -5,6 +5,8 @@ import demo.usul.dto.AccountDto;
 import demo.usul.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/accounts")
 @RequiredArgsConstructor
@@ -32,7 +35,7 @@ public class AccountController {
     public List<AccountDto> retrieveActivatedByConditionsOrNot(
             @RequestParam(required = false) Optional<String> type,
             @RequestParam(required = false) Optional<String> currency) {
-        List<AccountDto> accountDtos = accountMapper.accountEntities2Dtos(accountService.retrieveActivatedCacheable());
+        List<AccountDto> accountDtos = accountService.retrieveActivatedCacheable();
         Stream<AccountDto> cachedStream = accountDtos.stream();
         if (type.isPresent()) {
             if (currency.isPresent())
@@ -67,6 +70,17 @@ public class AccountController {
     @PostMapping()
     public AccountDto createOne(@Valid @RequestBody AccountDto accountDto) {
         return accountService.create(accountDto);
+    }
+
+    @DeleteMapping()
+    public Integer delete(@RequestBody List<String> delIds) {
+        log.info(delIds.get(0));
+        return 1;
+    }
+
+    @DeleteMapping("/{id}")
+    public Integer deleteOne(@PathVariable String id) {
+        return 1;
     }
 
 }

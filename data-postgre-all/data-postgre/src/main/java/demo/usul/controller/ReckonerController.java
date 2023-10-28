@@ -1,5 +1,7 @@
 package demo.usul.controller;
 
+import demo.usul.convert.ReckonerMapper;
+import demo.usul.dto.ReckonerDto;
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.service.ReckonerService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,8 @@ public class ReckonerController {
 
     private final ReckonerService reckonerService;
 
+    private final ReckonerMapper reckonerMapper;
+
     @GetMapping("/count/{fromAcct}")
     public Long countByFromAcct(@PathVariable UUID fromAcct) {
         return reckonerService.countDistinctByFromAcctAllIgnoreCase(fromAcct);
@@ -32,7 +36,7 @@ public class ReckonerController {
     }
 
     @GetMapping("")
-    public List<ReckonerEntity> retrieveAll(){
-        return reckonerService.retrieveAll();
+    public List<ReckonerDto> retrieveAll() {
+        return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveAll());
     }
 }

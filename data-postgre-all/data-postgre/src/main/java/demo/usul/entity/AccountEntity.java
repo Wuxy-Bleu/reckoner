@@ -96,7 +96,7 @@ public class AccountEntity extends CommonColumn {
     @Column(name = COLUMN_DUEDATE_NAME)
     private String dueDate;
 
-    @OneToMany(mappedBy = "fromAcctEntity")
+    @OneToMany(mappedBy = "fromAcctObj")
     private List<ReckonerEntity> outReckonerEntities;
 
     @OneToMany(mappedBy = "toAcctEntity")

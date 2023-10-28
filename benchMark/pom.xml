@@ -3,19 +3,25 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>demo.usul</groupId>
-        <artifactId>data-postgre-all</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-    <artifactId>data-postgre-feign</artifactId>
+
+    <groupId>demo.usul</groupId>
+    <artifactId>benchMark</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <postgres-feign-version>1.0-SNAPSHOT</postgres-feign-version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>demo.usul</groupId>
+            <artifactId>data-postgre-feign</artifactId>
+            <version>${postgres-feign-version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

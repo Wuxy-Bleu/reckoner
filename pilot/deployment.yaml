@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pilot
+spec:
+  selector:
+    matchLabels:
+      app: pilot
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: pilot
+    spec:
+      containers:
+        - name: pilots
+          image: webapp-demo/pilot
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8111
+      initContainers:
+        - name: wait-for-postgres-server
+          image: appropriate/curl:latest
+          command: [ 'sh', '-c', 'until curl -s http://data-postgres:80/actuator/health; do echo waiting for other pod; sleep 2; done;' ]
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pilots
+spec:
+  selector:
+    app: pilot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8111
+  type: NodePort

@@ -15,9 +15,15 @@ build:
       context: config
       jib:
         type: maven
+    - image: webapp-demo/pilot
+      context: pilot
+      jib:
+        type: maven
 manifests:
   rawYaml:
     - hello/deployment.yaml
     - data-postgre-all/data-postgre/deployment.yaml
     - config/deployment.yaml
+    - pilot/deployment.yaml
+#    - redis-cluster/*.yaml
 

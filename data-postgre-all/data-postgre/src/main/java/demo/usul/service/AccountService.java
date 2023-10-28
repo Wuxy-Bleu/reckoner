@@ -25,9 +25,9 @@ public class AccountService {
 
 
     @Cacheable(cacheNames = "accountsActivated", sync = true, key = "#root.methodName")
-    public List<AccountEntity> retrieveActivatedCacheable() {
+    public List<AccountDto> retrieveActivatedCacheable() {
         Optional<List<AccountEntity>> accountsActivated = accountRepository.findByIsActive(true);
-        return accountsActivated.orElse(Collections.emptyList());
+        return accountMapper.accountEntities2Dtos(accountsActivated.orElse(Collections.emptyList()));
     }
 
     @CacheEvict(cacheNames = "accountsActivated", allEntries = true)

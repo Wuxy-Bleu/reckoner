@@ -37,8 +37,9 @@ public class LabController {
 
     @GetMapping("jackson")
     public String jackson() throws JsonProcessingException {
-        boolean b = objectMapper.canSerialize(OffsetDateTime.class);
-        String s = objectMapper.writeValueAsString(AccountDto.builder().createdAt(OffsetDateTime.now()).build());
-        return s;
+//        boolean b = objectMapper.canSerialize(OffsetDateTime.class);
+//        String s = objectMapper.writeValueAsString(AccountDto.builder().createdAt(OffsetDateTime.now()).build());
+//        return s;
+        return null;
     }
 }

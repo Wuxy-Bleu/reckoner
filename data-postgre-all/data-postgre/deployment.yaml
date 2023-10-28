@@ -28,7 +28,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: data-postgres-service
+  name: data-postgres
 spec:
   selector:
     app: data-postgre
@@ -36,5 +36,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-      nodePort: 30002
   type: NodePort

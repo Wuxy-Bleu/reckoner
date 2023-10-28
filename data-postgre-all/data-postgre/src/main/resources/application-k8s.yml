@@ -1,3 +1,8 @@
 spring:
   config:
     import: configserver:http://config-service:80
+  datasource:
+    url: jdbc:postgresql://${postgre-url:192.168.205.1:5433}/postgres
+  data:
+    redis:
+      host: redis-cluster
