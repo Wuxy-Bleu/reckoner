@@ -5,4 +5,11 @@ spring:
     url: jdbc:postgresql://${postgre-url:192.168.205.1:5433}/postgres
   data:
     redis:
-      host: redis-cluster
+      cluster:
+        nodes:
+          - "redis-cluster-0.redis-cluster.default.svc.cluster.local"
+          - "redis-cluster-1.redis-cluster.default.svc.cluster.local"
+          - "redis-cluster-2.redis-cluster.default.svc.cluster.local"
+          - "redis-cluster-3.redis-cluster.default.svc.cluster.local"
+          - "redis-cluster-4.redis-cluster.default.svc.cluster.local"
+          - "redis-cluster-5.redis-cluster.default.svc.cluster.local"

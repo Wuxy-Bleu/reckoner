@@ -9,8 +9,8 @@ build:
       jib:
         type: maven
         project: demo.usul:data-postgre
-    - image: webapp-demo/hello
-      context: ./hello
+#    - image: webapp-demo/hello
+#      context: ./hello
     - image: webapp-demo/config
       context: config
       jib:
@@ -21,9 +21,9 @@ build:
         type: maven
 manifests:
   rawYaml:
-    - hello/deployment.yaml
+#    - hello/deployment.yaml
     - data-postgre-all/data-postgre/deployment.yaml
     - config/deployment.yaml
     - pilot/deployment.yaml
-#    - redis-cluster/*.yaml
+    - redis-cluster/*.yaml
 

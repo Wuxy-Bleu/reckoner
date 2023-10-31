@@ -28,7 +28,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: data-postgres
+  name: data-postgre
 spec:
   selector:
     app: data-postgre

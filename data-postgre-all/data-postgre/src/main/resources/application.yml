@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   application:
-    name: data-postgre
+    name: data-postgres
   datasource:
     url: jdbc:postgresql://${postgre-url:localhost:5433}/postgres
     username: ${username:postgres}
