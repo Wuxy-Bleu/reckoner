@@ -25,5 +25,5 @@ manifests:
     - data-postgre-all/data-postgre/deployment.yaml
     - config/deployment.yaml
     - pilot/deployment.yaml
-    - redis-cluster/*.yaml
+#    - redis-cluster/*.yaml
 

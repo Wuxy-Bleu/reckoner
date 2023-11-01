@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          postgresClient:
+            url: "http://data-postgre/v1/accounts"

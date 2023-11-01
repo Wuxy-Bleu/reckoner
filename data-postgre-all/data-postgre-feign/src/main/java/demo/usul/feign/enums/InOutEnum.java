@@ -1,4 +1,4 @@
-package demo.usul.enums;
+package demo.usul.feign.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

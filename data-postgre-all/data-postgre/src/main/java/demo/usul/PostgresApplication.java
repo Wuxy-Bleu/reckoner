@@ -30,7 +30,7 @@ import java.util.List;
 @EnableCaching
 @ConfigurationPropertiesScan
 //@EnableDiscoveryClient
-@EnableFeignClients
+//@EnableFeignClients
 @EnableScheduling
 @EnableAsync(mode = AdviceMode.ASPECTJ)
 public class PostgresApplication {

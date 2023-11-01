@@ -1,4 +1,4 @@
-package demo.usul.dto;
+package demo.usul.feign.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +12,6 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 
 /**
- * DTO for {@link demo.usul.entity.ReckonerTypeEntity}
  */
 @Data
 @AllArgsConstructor

@@ -1,9 +1,9 @@
-package demo.usul.feign;
+package demo.usul.feign.acc;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@FeignClient(value = "data-postgres", path = "/lab/v1/")
+@FeignClient(value = "data-hnn", path = "/lab/v1/")
 public interface LabFeign {
 
     @GetMapping

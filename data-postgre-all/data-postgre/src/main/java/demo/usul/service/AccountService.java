@@ -1,7 +1,7 @@
 package demo.usul.service;
 
 import demo.usul.convert.AccountMapper;
-import demo.usul.dto.AccountDto;
+import demo.usul.feign.dto.AccountDto;
 import demo.usul.entity.AccountEntity;
 import demo.usul.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;

@@ -2,16 +2,12 @@ package demo.usul.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import demo.usul.dto.AccountDto;
 import demo.usul.properties.ConfigProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.OffsetDateTime;
 
 @RestController
 @RequestMapping("lab/v1/")

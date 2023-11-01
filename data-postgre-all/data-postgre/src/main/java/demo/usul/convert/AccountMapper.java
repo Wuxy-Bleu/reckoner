@@ -1,6 +1,6 @@
 package demo.usul.convert;
 
-import demo.usul.dto.AccountDto;
+import demo.usul.feign.dto.AccountDto;
 import demo.usul.entity.AccountEntity;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;

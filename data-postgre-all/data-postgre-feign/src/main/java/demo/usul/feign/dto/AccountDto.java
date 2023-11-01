@@ -1,9 +1,7 @@
-package demo.usul.dto;
+package demo.usul.feign.dto;
 
-import demo.usul.entity.AccountEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +12,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
- * DTO for {@link AccountEntity}
+ *
  */
 @Data
 @NoArgsConstructor
@@ -22,7 +20,7 @@ import java.util.UUID;
 public class AccountDto implements Serializable {
 
     @Serial
-    private static final long  serialVersionUID = -5833592436585442860L;
+    private static final long serialVersionUID = -5833592436585442860L;
 
     private UUID id;
 
