@@ -6,6 +6,7 @@ import demo.usul.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -29,23 +30,25 @@ public class AccountController {
 
     private final AccountMapper accountMapper;
 
+    private final List<Converter> converters;
+
     // 其实这里复杂的查询过滤最好使用 自定义的requestObj
     // 或者criteria 更通用
     @GetMapping
     public List<AccountDto> retrieveActivatedByConditionsOrNot(
-            @RequestParam(required = false) Optional<String> type,
-            @RequestParam(required = false) Optional<String> currency) {
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String currency) {
         List<AccountDto> accountDtos = accountService.retrieveActivatedCacheable();
         Stream<AccountDto> cachedStream = accountDtos.stream();
-        if (type.isPresent()) {
-            if (currency.isPresent())
-                return cachedStream.filter(e -> type.get().equalsIgnoreCase(e.getCardType()) && currency.get().equalsIgnoreCase(e.getCurrency())).toList();
+        if (null != type) {
+            if (null != currency)
+                return cachedStream.filter(e -> type.equalsIgnoreCase(e.getCardType()) && currency.equalsIgnoreCase(e.getCurrency())).toList();
             else
-                return cachedStream.filter(e -> type.get().equalsIgnoreCase(e.getCardType())).toList();
+                return cachedStream.filter(e -> type.equalsIgnoreCase(e.getCardType())).toList();
         } else {
-            if (currency.isPresent())
+            if (null != currency)
                 return cachedStream
-                        .filter(e -> currency.get().equalsIgnoreCase(e.getCurrency())).toList();
+                        .filter(e -> currency.equalsIgnoreCase(e.getCurrency())).toList();
             else
                 return cachedStream.toList();
         }
@@ -57,7 +60,7 @@ public class AccountController {
     public AccountDto retrieveActivatedByName(@PathVariable String name) {
         // feign 数据传递，如果查不到是返回null好，还是抛出异常呢
         // 说实话好丑陋啊
-        return this.retrieveActivatedByConditionsOrNot(Optional.empty(), Optional.empty())
+        return this.retrieveActivatedByConditionsOrNot(null, null)
                 .stream().filter(e -> name.equals(e.getName())).findAny().orElse(null);
     }
 
@@ -79,8 +82,8 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    public Integer deleteOne(@PathVariable String id) {
-        return 1;
+    public void deleteById(@PathVariable UUID id) {
+        accountService.deleteById(id);
     }
 
 }

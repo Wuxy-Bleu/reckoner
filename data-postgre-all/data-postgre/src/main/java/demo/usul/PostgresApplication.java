@@ -2,8 +2,6 @@ package demo.usul;
 
 import com.google.gson.Gson;
 import demo.usul.controller.ReckonerController;
-import demo.usul.entity.CardTypeEntity;
-import demo.usul.entity.ReckonerEntity;
 import demo.usul.repository.AccountRepository;
 import demo.usul.repository.CardTypeRepository;
 import demo.usul.repository.ReckonerRepository;
@@ -14,15 +12,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @SpringBootApplication

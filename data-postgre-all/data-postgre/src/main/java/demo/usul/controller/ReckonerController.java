@@ -2,7 +2,6 @@ package demo.usul.controller;
 
 import demo.usul.convert.ReckonerMapper;
 import demo.usul.feign.dto.ReckonerDto;
-import demo.usul.entity.ReckonerEntity;
 import demo.usul.service.ReckonerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +24,24 @@ public class ReckonerController {
 
     private final ReckonerMapper reckonerMapper;
 
-    @GetMapping("/count/{fromAcct}")
-    public Long countByFromAcct(@PathVariable UUID fromAcct) {
-        return reckonerService.countDistinctByFromAcctAllIgnoreCase(fromAcct);
+    @GetMapping("/count/from/{acct}")
+    public Long countByFromAcct(@PathVariable UUID acct) {
+        return reckonerService.countDistinctByFromAcctAllIgnoreCase(acct);
     }
 
-    @GetMapping("/{name}")
-    public List<ReckonerEntity> retrieveByName(@PathVariable String name) {
-        return reckonerService.retrieveByName(name);
+    @GetMapping("/count/to/{acct}")
+    public Long countByToAcct(@PathVariable UUID acct) {
+        return reckonerService.countDistinctByToAcctAllIgnoreCase(acct);
+    }
+
+    @GetMapping("/from/{name}")
+    public List<ReckonerDto> retrieveByFromAcctName(@PathVariable String name) {
+        return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveByFromAcctName(name));
+    }
+
+    @GetMapping("/to/{name}")
+    public List<ReckonerDto> retrieveByToAcctName(@PathVariable String name) {
+        return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveByToAcctName(name));
     }
 
     @GetMapping("")

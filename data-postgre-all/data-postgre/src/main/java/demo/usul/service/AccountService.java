@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -47,5 +48,9 @@ public class AccountService {
     public AccountEntity retrieveActivatedByName(String name) {
         // self-invocation issues, 但是给这个方法添加缓存我觉得没必要，可以写一个无缓存的实现
         return accountRepository.findByNameIgnoreCase(name).orElse(null);
+    }
+
+    public void deleteById(UUID id) {
+        accountRepository.deleteById(id);
     }
 }

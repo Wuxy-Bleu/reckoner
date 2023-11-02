@@ -5,3 +5,5 @@ spring:
         config:
           postgresClient:
             url: "http://127.0.0.1:8080/v1/accounts"
+          postgresReckonerClient:
+            url: "http://127.0.0.1:8080/v1/reckoner"

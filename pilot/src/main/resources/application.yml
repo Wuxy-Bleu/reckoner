@@ -5,3 +5,4 @@ spring:
     name: pilot
   profiles:
     active: k8s
+errMsg: something wrong

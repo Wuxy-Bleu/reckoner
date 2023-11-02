@@ -1,5 +1,6 @@
 package demo.usul.service;
 
+import demo.usul.convert.ReckonerMapper;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.repository.ReckonerRepository;
@@ -20,16 +21,28 @@ public class ReckonerService {
 
     private final AccountService accountService;
 
-    public Long countDistinctByFromAcctAllIgnoreCase(UUID fromAcct) {
-        return reckonerRepository.countDistinctByFromAcctAllIgnoreCase(fromAcct);
+    private final ReckonerMapper reckonerMapper;
+
+    public Long countDistinctByFromAcctAllIgnoreCase(UUID acct) {
+        return reckonerRepository.countDistinctByFromAcctAllIgnoreCase(acct);
     }
 
-    public List<ReckonerEntity> retrieveByName(String name) {
+    public Long countDistinctByToAcctAllIgnoreCase(UUID acct) {
+        return reckonerRepository.countDistinctByToAcctAllIgnoreCase(acct);
+    }
+
+    public List<ReckonerEntity> retrieveByFromAcctName(String name) {
         AccountEntity acct = accountService.retrieveActivatedByName(name);
         return reckonerRepository.findByFromAcct(acct.getId(), Pageable.ofSize(10));
+    }
+
+    public List<ReckonerEntity> retrieveByToAcctName(String name) {
+        AccountEntity acct = accountService.retrieveActivatedByName(name);
+        return reckonerRepository.findByToAcct(acct.getId(), Pageable.ofSize(10));
     }
 
     public List<ReckonerEntity> retrieveAll() {
         return reckonerRepository.findAll();
     }
+
 }

@@ -1,7 +1,7 @@
 package demo.usul.convert;
 
-import demo.usul.feign.dto.ReckonerDto;
 import demo.usul.entity.ReckonerEntity;
+import demo.usul.feign.dto.ReckonerDto;
 import demo.usul.feign.enums.InOutEnum;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -41,4 +41,6 @@ public interface ReckonerMapper {
     ReckonerEntity reckonerDto2Entity(ReckonerDto reckonerDto);
 
     List<ReckonerDto> reckonerEntities2Dtos(List<ReckonerEntity> reckonerEntities);
+
+    List<ReckonerEntity> reckonerDtos2Entities(List<ReckonerDto> reckonerDtos);
 }
