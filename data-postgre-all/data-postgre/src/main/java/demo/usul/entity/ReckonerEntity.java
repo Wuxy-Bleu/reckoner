@@ -60,7 +60,7 @@ public class ReckonerEntity {
     @Id
     @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = COLUMN_ID_NAME, nullable = false, updatable = false)
+    @Column(name = COLUMN_ID_NAME, nullable = false, updatable = false, unique = true)
     private UUID id;
 
 

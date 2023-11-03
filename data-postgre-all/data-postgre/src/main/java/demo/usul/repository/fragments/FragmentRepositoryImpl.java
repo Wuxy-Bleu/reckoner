@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class FragmentRepositoryImpl implements FragmentRepository {
 
     private final EntityManagerFactory emf;

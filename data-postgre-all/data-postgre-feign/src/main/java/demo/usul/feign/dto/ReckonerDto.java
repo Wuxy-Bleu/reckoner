@@ -18,7 +18,6 @@ public class ReckonerDto extends CommonColumn implements Serializable {
     @Serial
     private static final long serialVersionUID = -5953612981270616981L;
 
-
     private BigDecimal amount;
 
     private String currency;
