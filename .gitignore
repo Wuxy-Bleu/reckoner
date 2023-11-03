@@ -55,3 +55,7 @@ gen
 logs/
 http_ca.crt
 .jpb/
+/Generator/.gradle/
+/Generator/gradle
+/Generator/gradlew
+/Generator/gradlew.bat
