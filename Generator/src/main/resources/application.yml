@@ -1,0 +1,33 @@
+server:
+  port: 8777
+#spring:
+#  main:
+#    web-application-type: none
+spring:
+  datasource:
+    url: jdbc:postgresql://${postgre-url:localhost:5433}/postgres
+    username: ${username:postgres}
+    password: ${ps:123}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+logging:
+  level:
+    org.hibernate.sql: debug
+    org.hibernate.type: trace
+    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.stat: trace
+    org.hibernate.SQL_SLOW: trace
+    org.hibernate.cache: trace
+    org.springframework.data.*.*: trace
+    org.springframework.cache.*: trace
+    org.springframework.data.redis.cache.*: trace
+    org.springframework.orm.jpa.*.*: debug
+    org.springframework.transaction.*.*: debug
