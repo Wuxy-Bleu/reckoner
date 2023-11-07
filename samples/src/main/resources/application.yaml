@@ -1,0 +1,6 @@
+ktor:
+  deployment:
+    port: 8666
+  application:
+    modules:
+      - demo.usul.ApplicationKt.module
