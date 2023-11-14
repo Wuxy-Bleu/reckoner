@@ -1,6 +1,6 @@
 spring:
   config:
-    import: configserver:http://127.0.0.1:8888
+    import: configserver:http://127.0.0.1:9222
   devtools:
     restart:
       enabled: false

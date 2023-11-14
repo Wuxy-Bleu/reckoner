@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Slf4j
 @Component
-public class LabAspect {
+public class ReckonerAspect {
 
-    @Pointcut("execution(* demo.usul.controller.LabController.*(..))")
+    @Pointcut("execution(* demo.usul.service.ReckonerService.*(..))")
     private void pointCut(){}
 
     @Before("pointCut()")

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class FragmentRepositoryImpl implements FragmentRepository {
+public class AcctFragRepositoryImpl implements AcctFragRepository {
 
     private final EntityManagerFactory emf;
 

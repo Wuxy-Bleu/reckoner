@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 9222
   tomcat:
     connection-timeout: 2s
     keep-alive-timeout: 15s
@@ -18,3 +18,6 @@ spring:
           timeout: 5
           clone-on-start: true
           force-pull: true
+logging:
+  level:
+    root: debug

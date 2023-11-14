@@ -48,6 +48,7 @@ public class ReckonerService {
 
     public ReckonerDto createOne(ReckonerDto reckoner) {
         ReckonerEntity reckonerEntity = reckonerMapper.reckonerDto2Entity(reckoner);
-        reckonerRepository.cre
+        reckonerRepository.saveAssociations(reckonerEntity);
+        return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findById(reckonerEntity.getId()).orElseThrow());
     }
 }
