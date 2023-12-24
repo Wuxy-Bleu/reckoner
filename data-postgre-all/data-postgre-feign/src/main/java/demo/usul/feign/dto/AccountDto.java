@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDto implements Serializable {
+public class AccountDto extends CommonColumn implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -5833592436585442860L;
@@ -32,12 +33,12 @@ public class AccountDto implements Serializable {
     @NotNull(message = "{errMsg}")
     private String currency;
 
-    private OffsetDateTime createdAt;
-
-    private OffsetDateTime lastUpdatedAt;
-
     @NotNull
     private String cardType;
 
+    private BigDecimal creditCardLimit;
 
+    private String billingCycle;
+
+    private String dueDate;
 }

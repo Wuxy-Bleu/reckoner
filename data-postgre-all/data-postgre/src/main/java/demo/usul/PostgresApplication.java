@@ -5,19 +5,17 @@ import demo.usul.controller.ReckonerController;
 import demo.usul.repository.AccountRepository;
 import demo.usul.repository.CardTypeRepository;
 import demo.usul.repository.ReckonerRepository;
-import demo.usul.repository.fragments.AcctFragRepositoryImpl;
-import demo.usul.repository.fragments.ReckonerFragRepositoryImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootApplication
 @AllArgsConstructor
 @EnableCaching
+@EnableConfigurationProperties
 @ConfigurationPropertiesScan
 @EnableScheduling
 @EnableAsync(mode = AdviceMode.ASPECTJ)
@@ -53,6 +52,7 @@ public class PostgresApplication {
             @Override
             @Transactional
             public void run(String... args) {
+
 //                List<ReckonerEntity> reckoner = reckonerRepository.findAll();
 //                ReckonerEntity reckonerEntity = reckoner.get(0);
 //                AccountsEntity fromAcctEntity = reckonerEntity.getFromAcctEntity();

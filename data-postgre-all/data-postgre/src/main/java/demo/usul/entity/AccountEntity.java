@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.NamedQuery;
 import org.hibernate.validator.constraints.Range;
 
 import java.math.BigDecimal;
@@ -27,14 +28,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-//@SuperBuilder(toBuilder = true)
 @Getter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = AccountEntity.TABLE_NAME, schema = "public", indexes = {
         @Index(name = "accounts_pk2", columnList = "name", unique = true)
 })
+@NamedQuery(name = "acct_findByIds", query = "from AccountEntity where id in :ids and isActive = true ")
+@NamedQuery(name = "soft_delete", query = "update AccountEntity set isActive = false where id in :ids ")
 public class AccountEntity extends CommonColumn {
 
     public static final String TABLE_NAME = "accounts";
@@ -72,9 +74,6 @@ public class AccountEntity extends CommonColumn {
     @Column(name = COLUMN_ISACTIVE_NAME, nullable = false)
     @NotNull
     private Boolean isActive = true;
-
-//    @Column(name = COLUMN_TYPEID_NAME, nullable = false)
-//    private Short typeId;
 
     @Column(name = COLUMN_BALANCE_NAME, nullable = false, precision = 18, scale = 8)
     @NotNull

@@ -103,6 +103,11 @@
             <classifier>jakarta</classifier>
         </dependency>
 
+        <dependency>
+            <groupId>demo.usul</groupId>
+            <artifactId>locale</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -40,7 +40,7 @@ public class ReckonerController {
     }
 
     @GetMapping("")
-    public List<ReckonerDto> retrieveAll() {
-        return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveAll());
+    public ResponseEntity<List<ReckonerDto>> retrieveAll() {
+        return ResponseEntity.ok(reckonerService.retrieveAll());
     }
 }

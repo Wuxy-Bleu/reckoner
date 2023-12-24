@@ -4,3 +4,6 @@ spring:
   devtools:
     restart:
       enabled: false
+  cloud:
+    config:
+      name: data-postgre

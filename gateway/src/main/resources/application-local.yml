@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: reckoner
+          uri: http://127.0.0.1:8080/v1/reckoner
+          filters:
+            - RewritePath=/reckoner(?<segment>.*), /v1/reckoner$\{segment}
+          predicates:
+            - Path=/reckoner**

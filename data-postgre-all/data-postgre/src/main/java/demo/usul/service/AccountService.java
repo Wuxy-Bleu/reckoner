@@ -1,19 +1,24 @@
 package demo.usul.service;
 
 import demo.usul.convert.AccountMapper;
-import demo.usul.feign.dto.AccountDto;
 import demo.usul.entity.AccountEntity;
+import demo.usul.feign.dto.AccountDto;
+import demo.usul.feign.dto.AccountUpdateDto;
 import demo.usul.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -52,5 +57,20 @@ public class AccountService {
 
     public void deleteById(UUID id) {
         accountRepository.deleteById(id);
+    }
+
+    public List<AccountEntity> update(List<AccountUpdateDto> accountUpdateDtos) {
+        final Map<UUID, AccountUpdateDto> toUpdate = accountUpdateDtos.stream()
+                .collect(Collectors.toMap(AccountUpdateDto::getId, Function.identity()));
+        return accountRepository.updateBatch(toUpdate, toUpdate.keySet());
+    }
+
+    @Transactional
+    public List<AccountDto> updateAndReturnDtos(List<AccountUpdateDto> accountUpdateDtos) {
+        return accountMapper.accountEntities2Dtos(this.update(accountUpdateDtos));
+    }
+
+    public int softDelete(List<UUID> delIds) {
+       return accountRepository.softDelete(delIds);
     }
 }

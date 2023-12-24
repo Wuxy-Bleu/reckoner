@@ -27,4 +27,8 @@ public class ReckonerService {
     public List<ReckonerDto> retrieveByToAcctName(String name) {
         return reckonerFeign.retrieveByToAcctName(name);
     }
+
+    public List<ReckonerDto> retrieveAll() {
+        return reckonerFeign.retrieveAll();
+    }
 }
