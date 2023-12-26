@@ -1,6 +1,6 @@
 package demo.usul.pojo;
 
-import demo.usul.feign.dto.AccountDto;
+import demo.usul.dto.AccountDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

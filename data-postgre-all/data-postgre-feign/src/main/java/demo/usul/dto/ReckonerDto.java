@@ -1,6 +1,6 @@
-package demo.usul.feign.dto;
+package demo.usul.dto;
 
-import demo.usul.feign.enums.InOutEnum;
+import demo.usul.enums.InOutEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

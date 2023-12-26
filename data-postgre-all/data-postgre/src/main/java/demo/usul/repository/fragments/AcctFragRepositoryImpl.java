@@ -1,24 +1,26 @@
 package demo.usul.repository.fragments;
 
 import demo.usul.convert.AccountMapper;
+import demo.usul.dto.AccountUpdateDto;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.CardTypeEntity;
-import demo.usul.feign.dto.AccountUpdateDto;
-import jakarta.annotation.Resource;
+import demo.usul.exception.PostgreDeleteException;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static demo.usul.entity.AccountEntity.IF_ENTITIES_EXIST;
 
 @Slf4j
 @Repository
@@ -27,31 +29,22 @@ import java.util.UUID;
 public class AcctFragRepositoryImpl implements AcctFragRepository {
 
     private final AccountMapper accountMapper;
-
-    @Resource
-    private EntityManagerFactory emf;
-
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
     public void saveAssociations(AccountEntity accountEntity) {
-        EntityManager cem = emf.createEntityManager();
-        CardTypeEntity ct = accountEntity.getCardTypeEntity();
-        try {
-            cem.getTransaction().begin();
-            TypedQuery<CardTypeEntity> query = cem.createQuery("select c from CardTypeEntity c where c.typeName = :typeName", CardTypeEntity.class).setParameter("typeName", accountEntity.getTypeName());
-            ct = query.getSingleResult();
-        } catch (NoResultException e) {
-            log.info("xxxxx");
-        }
-        accountEntity.setCardTypeEntity(ct);
-        cem.persist(accountEntity);
-        cem.getTransaction().commit();
+        TypedQuery<CardTypeEntity> query = entityManager
+                .createQuery("select c from CardTypeEntity c where c.typeName = :typeName", CardTypeEntity.class)
+                .setParameter("typeName", accountEntity.getTypeName());
+        CardTypeEntity cardTypeEntity = query.getSingleResult();
+        accountEntity.setCardTypeEntity(cardTypeEntity);
+        entityManager.persist(accountEntity);
     }
 
     public List<AccountEntity> updateBatch(final Map<UUID, AccountUpdateDto> toUpdate, Set<UUID> ids) {
-        TypedQuery<AccountEntity> acctFindByIds = entityManager.createNamedQuery("acct_findByIds", AccountEntity.class);
+        throwWhenEntitiesNotExist(ids);
+        TypedQuery<AccountEntity> acctFindByIds = entityManager.createNamedQuery(AccountEntity.FIND_BY_IDS, AccountEntity.class);
         List<AccountEntity> fetched = acctFindByIds.setParameter("ids", ids).getResultList();
         fetched.forEach(
                 e -> {
@@ -63,6 +56,21 @@ public class AcctFragRepositoryImpl implements AcctFragRepository {
     }
 
     public int softDelete(final List<UUID> ids) {
-        return entityManager.createNamedQuery("soft_delete").setParameter("ids", ids).executeUpdate();
+        throwWhenEntitiesNotExist(ids);
+        return entityManager.createNamedQuery(AccountEntity.SOFT_DELETE).setParameter("ids", ids).executeUpdate();
+    }
+
+    // 可以放到service层，用缓存解决
+    public void throwWhenEntitiesNotExist(final Collection<UUID> ids) {
+        List<AccountEntity> deleted = entityManager
+                .createNamedQuery(IF_ENTITIES_EXIST, AccountEntity.class)
+                .setParameter("ids", ids)
+                .getResultList();
+        if (!CollectionUtils.isEmpty(deleted))
+            throw new PostgreDeleteException(
+                    String.join(",",
+                            deleted.stream().map(AccountEntity::getName).toList())
+                            + " not exist");
+
     }
 }

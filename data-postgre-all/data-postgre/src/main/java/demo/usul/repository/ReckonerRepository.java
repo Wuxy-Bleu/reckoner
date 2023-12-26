@@ -1,7 +1,6 @@
 package demo.usul.repository;
 
 import demo.usul.entity.ReckonerEntity;
-import demo.usul.repository.fragments.AcctFragRepository;
 import demo.usul.repository.fragments.ReckonerFragRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

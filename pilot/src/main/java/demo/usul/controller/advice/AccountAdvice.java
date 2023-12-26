@@ -1,5 +1,6 @@
 package demo.usul.controller.advice;
 
+import demo.usul.exception.PostgreDeleteException;
 import demo.usul.pojo.response.ErrResponseWithLang;
 import demo.usul.properties.I18nMsgProperties;
 import jakarta.validation.ConstraintViolationException;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import static demo.usul.ErrCode.ACCT_ERR_00A;
+import static demo.usul.ErrCode.DB_ERR;
+import static demo.usul.ErrCode.DELETE_NOT_EXIST;
 import static demo.usul.ErrCode.VALID_ERR;
 
 @RestControllerAdvice
@@ -35,7 +38,23 @@ public class AccountAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrResponseWithLang> handleConstraintViolationException(ConstraintViolationException ex) {
         String errMsg = i18nMsgProperties.getErrMsg(ACCT_ERR_00A);
-        return ResponseEntity.badRequest().body(ErrResponseWithLang.builder().errCode(VALID_ERR).message(errMsg).details(ex.getMessage()).build());
+        return ResponseEntity.badRequest().body(
+                ErrResponseWithLang.builder()
+                        .errCode(VALID_ERR)
+                        .message(errMsg)
+                        .details(ex.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(PostgreDeleteException.class)
+    public ResponseEntity<ErrResponseWithLang> handlerPostgreDeleteEx(PostgreDeleteException ex) {
+        String errMsg = i18nMsgProperties.getErrMsg(DELETE_NOT_EXIST);
+        return ResponseEntity.badRequest().body(
+                ErrResponseWithLang.builder()
+                        .errCode(DB_ERR)
+                        .message(errMsg)
+                        .details(ex.getMessage())
+                        .build());
     }
 
     private Map<String, List<String>> getErrorsMap(List<String> errors) {

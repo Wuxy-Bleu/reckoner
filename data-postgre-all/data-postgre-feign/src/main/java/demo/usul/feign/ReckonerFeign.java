@@ -1,6 +1,6 @@
-package demo.usul.feign.acc;
+package demo.usul.feign;
 
-import demo.usul.feign.dto.ReckonerDto;
+import demo.usul.dto.ReckonerDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,4 +1,4 @@
-package demo.usul.feign.dto;
+package demo.usul.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

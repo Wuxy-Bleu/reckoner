@@ -1,7 +1,7 @@
 package demo.usul.service;
 
-import demo.usul.feign.acc.ReckonerFeign;
-import demo.usul.feign.dto.ReckonerDto;
+import demo.usul.feign.ReckonerFeign;
+import demo.usul.dto.ReckonerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

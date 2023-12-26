@@ -1,7 +1,7 @@
 package demo.usul.controller;
 
-import demo.usul.feign.dto.AccountDto;
-import demo.usul.feign.dto.AccountUpdateDto;
+import demo.usul.dto.AccountDto;
+import demo.usul.dto.AccountUpdateDto;
 import demo.usul.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

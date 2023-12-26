@@ -27,6 +27,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static demo.usul.entity.AccountEntity.FIND_BY_IDS;
+import static demo.usul.entity.AccountEntity.IF_ENTITIES_EXIST;
+import static demo.usul.entity.AccountEntity.SOFT_DELETE;
+
 @Setter
 @Getter
 @Entity
@@ -35,9 +39,16 @@ import java.util.UUID;
 @Table(name = AccountEntity.TABLE_NAME, schema = "public", indexes = {
         @Index(name = "accounts_pk2", columnList = "name", unique = true)
 })
-@NamedQuery(name = "acct_findByIds", query = "from AccountEntity where id in :ids and isActive = true ")
-@NamedQuery(name = "soft_delete", query = "update AccountEntity set isActive = false where id in :ids ")
+@NamedQuery(name = FIND_BY_IDS, query = "from AccountEntity where id in :ids and isActive = true ")
+@NamedQuery(name = SOFT_DELETE, query = "update AccountEntity set isActive = false where id in :ids ")
+@NamedQuery(name = IF_ENTITIES_EXIST, query = "from AccountEntity where isActive = false and id in :ids")
 public class AccountEntity extends CommonColumn {
+
+    public static final String FIND_BY_IDS = "acct_findByIds";
+
+    public static final String SOFT_DELETE = "soft_delete";
+
+    public static final String IF_ENTITIES_EXIST = "if_entities_exist";
 
     public static final String TABLE_NAME = "accounts";
 
@@ -108,6 +119,6 @@ public class AccountEntity extends CommonColumn {
     private CardTypeEntity cardTypeEntity;
 
     public String getTypeName() {
-        return cardTypeEntity.getTypeName();
+        return getCardTypeEntity().getTypeName();
     }
 }

@@ -1,8 +1,8 @@
 package demo.usul.convert;
 
 import demo.usul.entity.ReckonerEntity;
-import demo.usul.feign.dto.ReckonerDto;
-import demo.usul.feign.enums.InOutEnum;
+import demo.usul.dto.ReckonerDto;
+import demo.usul.enums.InOutEnum;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

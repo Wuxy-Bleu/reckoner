@@ -1,7 +1,7 @@
 package demo.usul.repository.fragments;
 
+import demo.usul.dto.AccountUpdateDto;
 import demo.usul.entity.AccountEntity;
-import demo.usul.feign.dto.AccountUpdateDto;
 
 import java.util.List;
 import java.util.Map;

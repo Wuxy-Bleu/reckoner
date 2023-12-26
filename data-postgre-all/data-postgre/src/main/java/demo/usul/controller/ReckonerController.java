@@ -1,7 +1,7 @@
 package demo.usul.controller;
 
 import demo.usul.convert.ReckonerMapper;
-import demo.usul.feign.dto.ReckonerDto;
+import demo.usul.dto.ReckonerDto;
 import demo.usul.service.ReckonerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

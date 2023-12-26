@@ -3,7 +3,7 @@ package demo.usul.service;
 import demo.usul.convert.ReckonerMapper;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.ReckonerEntity;
-import demo.usul.feign.dto.ReckonerDto;
+import demo.usul.dto.ReckonerDto;
 import demo.usul.repository.ReckonerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
