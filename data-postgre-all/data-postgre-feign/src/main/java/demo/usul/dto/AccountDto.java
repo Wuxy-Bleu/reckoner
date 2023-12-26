@@ -21,8 +21,6 @@ public class AccountDto extends CommonColumn implements Serializable {
     @Serial
     private static final long serialVersionUID = -5833592436585442860L;
 
-    private UUID id;
-
     @NotNull(message = "======{errMsg}")
     private String name;
 

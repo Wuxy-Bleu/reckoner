@@ -33,7 +33,7 @@ public class AcctFragRepositoryImpl implements AcctFragRepository {
     private EntityManager entityManager;
 
     @Override
-    public void saveAssociations(AccountEntity accountEntity) {
+    public void saveWithAssociations(AccountEntity accountEntity) {
         TypedQuery<CardTypeEntity> query = entityManager
                 .createQuery("select c from CardTypeEntity c where c.typeName = :typeName", CardTypeEntity.class)
                 .setParameter("typeName", accountEntity.getTypeName());

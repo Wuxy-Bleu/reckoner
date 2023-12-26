@@ -69,6 +69,8 @@ public class AccountController {
         return accountService.createBatch(accountDtos);
     }
 
+    // todo 对于valid fail的error handler，暂时懒得管error了
+    // todo 还有对于currency的valid, 然后name已存在的valid...
     @PostMapping()
     public AccountDto createOne(@Valid @RequestBody AccountDto accountDto) {
         return accountService.create(accountDto);

@@ -21,6 +21,7 @@ import static demo.usul.ErrCode.ACCT_ERR_00A;
 import static demo.usul.ErrCode.DB_ERR;
 import static demo.usul.ErrCode.DELETE_NOT_EXIST;
 import static demo.usul.ErrCode.VALID_ERR;
+import static org.springframework.http.HttpStatus.GONE;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -49,7 +50,7 @@ public class AccountAdvice {
     @ExceptionHandler(PostgreDeleteException.class)
     public ResponseEntity<ErrResponseWithLang> handlerPostgreDeleteEx(PostgreDeleteException ex) {
         String errMsg = i18nMsgProperties.getErrMsg(DELETE_NOT_EXIST);
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(GONE).body(
                 ErrResponseWithLang.builder()
                         .errCode(DB_ERR)
                         .message(errMsg)

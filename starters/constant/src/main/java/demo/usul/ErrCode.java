@@ -7,5 +7,6 @@ public class ErrCode {
 
     public static final String ACCT_ERR_00A = "errs";
 
-    public static final String DELETE_NOT_EXIST = "delete_not_exist";
+    //delete_not_exist
+    public static final String DELETE_NOT_EXIST = "delete-not-exist";
 }

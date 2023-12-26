@@ -1,5 +1,6 @@
 package demo.usul.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,9 @@ public abstract class CommonColumn implements Serializable {
 
     private UUID id;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "Asia/Shanghai")
     private OffsetDateTime lastUpdatedAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "Asia/Shanghai")
     private OffsetDateTime createdAt;
 }

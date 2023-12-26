@@ -6,6 +6,7 @@ import demo.usul.pojo.AccountListResponse;
 import demo.usul.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    public Integer deleteById(@PathVariable @NotBlank UUID id) {
+    public Integer deleteById(@PathVariable @NotNull UUID id) {
         return accountService.softDelete(List.of(id));
     }
 

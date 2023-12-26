@@ -13,7 +13,7 @@ import static org.springframework.http.HttpStatus.GONE;
 public class AccountAdvice {
 
     @ExceptionHandler(PostgreDeleteException.class)
-    public ResponseEntity<String> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<String> handleValidationErrors(PostgreDeleteException ex) {
         return new ResponseEntity<>(ex.getMessage(), new HttpHeaders(), GONE);
     }
 

@@ -35,16 +35,18 @@ public class AccountService {
         return accountMapper.accountEntities2Dtos(accountsActivated.orElse(Collections.emptyList()));
     }
 
+    //todo batch需要改动，对于部分成功，部分不成功的情况要重写逻辑，然后不要用foreach
     @CacheEvict(cacheNames = ACCT_CACHE_NAME, allEntries = true)
     public List<AccountDto> createBatch(List<AccountDto> accountDtos) {
-        List<AccountEntity> accountsInserted = accountRepository.saveAll(accountMapper.accountDtos2Entities(accountDtos));
-        return accountMapper.accountEntities2Dtos(accountsInserted);
+        return accountDtos.stream().map(this::create).toList();
     }
 
+    // card type不存在时error handler, 存取之后，find不到error handler，
+    // 优化下，save之后find在repos层来写
     @CacheEvict(cacheNames = ACCT_CACHE_NAME, allEntries = true)
     public AccountDto create(AccountDto accountDto) {
         AccountEntity toSave = accountMapper.accountDto2Entity(accountDto);
-        accountRepository.saveAssociations(toSave);
+        accountRepository.saveWithAssociations(toSave);
         Optional<AccountEntity> saved = accountRepository.findById(toSave.getId());
         return accountMapper.accountEntity2Dto(saved.orElse(null));
     }

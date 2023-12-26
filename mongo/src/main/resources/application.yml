@@ -1,0 +1,6 @@
+server:
+  port: 8222
+logging:
+  level:
+    org.springframework.data.mongodb.*.*: DEBUG
+    com.mongo.**: debug

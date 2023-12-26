@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface AcctFragRepository {
 
-    void saveAssociations(AccountEntity entity);
+    void saveWithAssociations(AccountEntity entity);
 
     List<AccountEntity> updateBatch(final Map<UUID, AccountUpdateDto> toUpdate, Set<UUID> ids);
 

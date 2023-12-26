@@ -1,8 +1,8 @@
 package demo.usul.convert;
 
-import demo.usul.entity.AccountEntity;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountUpdateDto;
+import demo.usul.entity.AccountEntity;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -33,10 +33,10 @@ public interface AccountMapper {
 
     List<AccountEntity> accountUpdateDtos2Entities(List<AccountUpdateDto> accountUpdateDtos);
 
-    @Mapping(target = "name", source = "name", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "balance", source = "balance", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "creditCardLimit", source = "creditCardLimit", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "dueDate", source = "dueDate", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "billingCycle", source = "billingCycle", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "balance", source = "balance")
+    @Mapping(target = "creditCardLimit", source = "creditCardLimit")
+    @Mapping(target = "dueDate", source = "dueDate")
+    @Mapping(target = "billingCycle", source = "billingCycle")
     void updateAccountEntityFromAccountUpdateDto(AccountUpdateDto from, @MappingTarget AccountEntity to);
 }
