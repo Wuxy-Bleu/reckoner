@@ -3,9 +3,12 @@ package demo.usul.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import demo.usul.converter.AccountMapper;
 import demo.usul.dto.AccountDto;
+import demo.usul.dto.AccountModifyRecordDto;
 import demo.usul.dto.AccountUpdateDto;
 import demo.usul.feign.AccountFeign;
+import demo.usul.feign.AccountModifyRecordFeign;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,12 +23,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AccountService {
 
-    private static final CsvMapper csvMapper = new CsvMapper();
     private final AccountFeign accountFeign;
-
-    static {
-        csvMapper.findAndRegisterModules();
-    }
+    private final AccountModifyRecordFeign accountModifyRecordFeign;
+    private final AccountMapper accountMapper;
 
     public List<AccountDto> retrieveActivatedByConditionsOrNot(
             Optional<String> type, Optional<String> currency) {
@@ -38,10 +38,22 @@ public class AccountService {
 
     public String retrieveAsCsv(Optional<String> type, Optional<String> currency) throws JsonProcessingException {
         List<AccountDto> accountDtos = retrieveActivatedByConditionsOrNot(type, currency);
+
+        final CsvMapper csvMapper = new CsvMapper();
+        csvMapper.findAndRegisterModules();
+
         CsvSchema headers = csvMapper.schemaFor(AccountDto.class);
         return csvMapper.writer(
                         headers.withUseHeader(true))
                 .writeValueAsString(accountDtos);
+    }
+
+    public List<AccountModifyRecordDto> retrieveModifyHistory(String uuid) {
+        return accountModifyRecordFeign.retrieveModifyRecord(uuid);
+    }
+
+    public void createModifyHistory(List<AccountModifyRecordDto> accountModifyRecordDtos) {
+        accountModifyRecordFeign.createModifyRecordBatch(accountModifyRecordDtos);
     }
 
     public AccountDto retrieveActivatedByName(String name) {
@@ -57,6 +69,7 @@ public class AccountService {
     }
 
     public List<AccountDto> updateAndReturnDtos(List<AccountUpdateDto> accountUpdateDtos) {
+        createModifyHistory(accountMapper.accountUpdateDtos2ModifyRecordDtos(accountUpdateDtos));
         return accountFeign.update(accountUpdateDtos);
     }
 }

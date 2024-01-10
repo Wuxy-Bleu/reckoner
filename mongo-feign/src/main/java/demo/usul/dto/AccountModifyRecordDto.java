@@ -1,12 +1,9 @@
-package demo.usul.entity;
+package demo.usul.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,11 +13,10 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("account_modify_record")
-public class AccountModifyRecord implements Serializable {
+public class AccountModifyRecordDto implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 2931766940644684139L;
+    private static final long serialVersionUID = -3259395283703310203L;
 
     private String uuid;
 
@@ -30,14 +26,12 @@ public class AccountModifyRecord implements Serializable {
 
     private String name;
 
-    @Field(targetType = FieldType.DECIMAL128)
     private BigDecimal balance;
 
     private String currency;
 
     private String cardType;
 
-    @Field(targetType = FieldType.DECIMAL128)
     private BigDecimal creditCardLimit;
 
     private String billingCycle;

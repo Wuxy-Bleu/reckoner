@@ -1,6 +1,7 @@
 package demo.usul.controller;
 
 import demo.usul.dto.AccountDto;
+import demo.usul.dto.AccountModifyRecordDto;
 import demo.usul.dto.AccountUpdateDto;
 import demo.usul.pojo.AccountListResponse;
 import demo.usul.service.AccountService;
@@ -8,7 +9,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,6 +45,12 @@ public class AccountController {
     @GetMapping("/{name}")
     public ResponseEntity<AccountDto> retrieveActivatedByName(@PathVariable @NotBlank String name) {
         return ResponseEntity.ok(accountService.retrieveActivatedByName(name));
+    }
+
+    @GetMapping("/modify-history/{uuid}")
+    public ResponseEntity<List<AccountModifyRecordDto>> retrieveModifyHistory(@PathVariable @NotBlank String uuid) {
+        return ResponseEntity.ok(
+                accountService.retrieveModifyHistory(uuid));
     }
 
     @PostMapping()
