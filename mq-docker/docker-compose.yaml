@@ -1,0 +1,85 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3.13.0-rc.4-management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "123"
+    restart: no
+  zoo1:
+    image: zookeeper:3.9.1-jre-17
+    container_name: zoo1
+    hostname: zoo1
+    ports:
+      - "2181:2181"
+      - "2188:2888"
+      - "3188:3888"
+      - "2111:8080"
+      - "7070:7070"
+#    volumes:
+#      - ./docker-entrypoint.sh:/docker-entrypoint.sh:rw
+#      - zoo1:/var/lib/zookeeper/:rw
+#      - ./zoo/zk1.cfg:/conf/zoo.cfg:ro
+#      - ./zoo/zoo1/myid:/var/lib/zookeeper/myid
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+      ZOO_CFG_EXTRA: "metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7070"
+#    entrypoint: /bin/sh -c "/docker-entrypoint.sh"
+    restart: always
+  zoo2:
+    image: zookeeper:3.9.1-jre-17
+    container_name: zoo2
+    hostname: zoo2
+    ports:
+      - "2281:2181"
+      - "2288:2888"
+      - "3288:3888"
+      - "2222:8080"
+      - "7072:7070"
+#    volumes:
+#      - "zoo1:/var/lib/zookeeper/:rw"
+#      - "./zoo/zk2.cfg:/conf/zoo.cfg:ro"
+#      - ./zoo/zoo2/myid:/var/lib/zookeeper/myid
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+      ZOO_CFG_EXTRA: "metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7070"
+#    command: >
+#      bash -c "mkdir -p /var/lib/zookeeper
+#      && chmod a+rw /var/lib/zookeeper"
+    restart: always
+  zoo3:
+    image: zookeeper:3.9.1-jre-17
+    container_name: zoo3
+    hostname: zoo3
+    ports:
+      - "2381:2181"
+      - "2388:2888"
+      - "3388:3888"
+      - "2333:8080"
+      - "7073:7070"
+#    volumes:
+#      - zoo1:/var/lib/zookeeper/:rw
+#      - ./zoo/zk3.cfg:/conf/zoo.cfg:ro
+#      - ./zoo/zoo3/myid:/var/lib/zookeeper/myid
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+      ZOO_CFG_EXTRA: "metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7070"
+#    command: >
+#      bash -c "mkdir -p /var/lib/zookeeper
+#      && chmod a+rw /var/lib/zookeeper"
+    restart: always
+
+#networks:
+#  zookeeper:
+#    name: zoo
+volumes:
+  zoo1:
+    name: zoo1

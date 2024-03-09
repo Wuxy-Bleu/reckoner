@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          zooClient:
+            url: "http://127.0.0.1:9149/v1/snowflake"
+          reactor-client:
+            url: "http://127.0.0.1:9077/v1/react/accounts"
+feign:
+  circuitbreaker:
+    enabled: true

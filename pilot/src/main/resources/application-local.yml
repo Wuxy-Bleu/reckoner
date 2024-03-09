@@ -3,6 +3,9 @@ spring:
     openfeign:
       client:
         config:
+          default:
+            connect-timeout: 600000
+            read-timeout: 600000
           postgresClient:
             url: "http://127.0.0.1:8080/v1/accounts"
           postgresReckonerClient:

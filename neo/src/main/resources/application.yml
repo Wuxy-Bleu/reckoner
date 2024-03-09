@@ -1,0 +1,12 @@
+server:
+  port: 9199
+debug: true
+spring:
+  application:
+    name: neo
+  neo4j:
+    uri: "bolt://localhost:7687"
+    authentication:
+      username: neo4j
+      password: "12345678"
+

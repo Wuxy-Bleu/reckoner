@@ -1,0 +1,17 @@
+cosid:
+  enabled: true
+#  snowflake:
+#    enabled: true
+  zookeeper:
+    enabled: true
+  namespace: "snowflake"
+  machine:
+    distributor:
+      type: zookeeper
+server:
+  port: 9149
+#debug: true
+spring:
+  application:
+    name: zoo
+

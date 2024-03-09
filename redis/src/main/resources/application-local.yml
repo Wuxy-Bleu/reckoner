@@ -1,0 +1,5 @@
+spring:
+  data:
+    redis:
+      port: 5379
+trace: true

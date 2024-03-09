@@ -4,13 +4,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.lang.annotation.Documented;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 /**
  *

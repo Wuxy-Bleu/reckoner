@@ -1,10 +1,12 @@
 package demo.usul.dto;
 
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -12,8 +14,11 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
+@Builder
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@RedisHash(value = "act", timeToLive = 60000)
 public class AccountUpdateDto implements Serializable {
 
     @Serial

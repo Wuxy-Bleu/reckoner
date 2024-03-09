@@ -72,4 +72,7 @@ public class AccountService {
         createModifyHistory(accountMapper.accountUpdateDtos2ModifyRecordDtos(accountUpdateDtos));
         return accountFeign.update(accountUpdateDtos);
     }
+
+    public void compareBeforeUpdate(List<AccountUpdateDto> accountUpdateDtos) {
+    }
 }

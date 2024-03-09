@@ -10,5 +10,4 @@ spring:
   application:
     name: hello
   profiles:
-    active: k8s, dev
-test: default
+    active: k8s

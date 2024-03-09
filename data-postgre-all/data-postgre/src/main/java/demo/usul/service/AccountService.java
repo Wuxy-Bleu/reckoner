@@ -7,6 +7,8 @@ import demo.usul.entity.AccountEntity;
 import demo.usul.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -76,4 +78,9 @@ public class AccountService {
     public int softDelete(List<UUID> delIds) {
         return accountRepository.softDelete(delIds);
     }
+
+    public void compareWithExisting(List<AccountUpdateDto> accountUpdateDtos) {
+
+    }
+
 }

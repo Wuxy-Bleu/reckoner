@@ -21,13 +21,16 @@ spring:
   # not recommended
   #        enable_lazy_load_no_trans: true
   profiles:
-    active: k8s
+    active: local
+  rabbitmq:
+    password: "123"
+    username: "user"
 management:
   endpoints:
     web:
       exposure:
         include: "*"
-#debug: true
+debug: true
 logging:
   level:
     org.hibernate.sql: debug
@@ -42,4 +45,5 @@ logging:
     org.springframework.orm.jpa.*.*: debug
     org.springframework.transaction.*.*: debug
     org.springframework.cloud.config.*.*: trace
+    io.lettuce.*: trace
 

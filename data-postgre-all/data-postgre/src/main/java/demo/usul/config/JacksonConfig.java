@@ -14,20 +14,20 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Slf4j
 public class JacksonConfig {
 
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        log.info("registry java time module");
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.registerModule(new JavaTimeModule());
-//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-//        return objectMapper;
-//    }
+    @Bean
+    public ObjectMapper objectMapper() {
+        log.info("registry java time module");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return objectMapper;
+    }
 
-//    @Bean
-//    @Primary
-//    public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
-//        return new Jackson2ObjectMapperBuilder()
-//                .serializationInclusion(JsonInclude.Include.NON_NULL)
-//                .modulesToInstall(new JavaTimeModule());
-//    }
+    @Bean
+    @Primary
+    public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
+        return new Jackson2ObjectMapperBuilder()
+                .serializationInclusion(JsonInclude.Include.NON_NULL)
+                .modulesToInstall(new JavaTimeModule());
+    }
 }

@@ -1,0 +1,7 @@
+server:
+  port: 9077
+debug: true
+spring:
+  application:
+    name: reactor
+
