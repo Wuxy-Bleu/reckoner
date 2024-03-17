@@ -1,0 +1,3 @@
+redisson:
+  standalone:
+    port: 5377

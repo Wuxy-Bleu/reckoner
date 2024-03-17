@@ -1,0 +1,8 @@
+server:
+  port: 8311
+spring:
+  application:
+    name: redisson
+logging:
+  level:
+    org.redisson.*.*: trace
