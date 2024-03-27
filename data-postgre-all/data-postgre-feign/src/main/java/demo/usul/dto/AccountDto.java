@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDto extends CommonColumn implements Serializable {
+public class AccountDto implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -5833592436585442860L;
