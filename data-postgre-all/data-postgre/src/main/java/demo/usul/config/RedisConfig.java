@@ -5,11 +5,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
 
+// for spring cache impl
 @Configuration
 public class RedisConfig {
 
@@ -21,12 +21,12 @@ public class RedisConfig {
                 .disableCachingNullValues()
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(
-                                new Jackson2JsonRedisSerializer<Object>(Object.class)));
+                                new Jackson2JsonRedisSerializer<>(Object.class)));
     }
 
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-        return (builder) -> builder
+        return builder -> builder
                 .withCacheConfiguration("itemCache",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)))
                 .withCacheConfiguration("customerCache",

@@ -1,16 +1,15 @@
 package demo.usul.service;
 
+import cn.hutool.core.collection.CollUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountUpdateDto;
 import demo.usul.entity.AccountEntity;
+import demo.usul.feign.CacheFeign;
 import demo.usul.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -29,12 +28,16 @@ public class AccountService {
     public static final String ACCT_CACHE_NAME = "accountsActivated";
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final CacheFeign cacheFeign;
 
-
-    @Cacheable(cacheNames = ACCT_CACHE_NAME, sync = true, key = "#root.methodName")
     public List<AccountDto> retrieveActivatedCacheable() {
-        Optional<List<AccountEntity>> accountsActivated = accountRepository.findByIsActive(true);
-        return accountMapper.accountEntities2Dtos(accountsActivated.orElse(Collections.emptyList()));
+        List<AccountDto> accts = cacheFeign.getCachedAccts();
+        if (CollUtil.isEmpty(accts)) {
+            Optional<List<AccountEntity>> accountsActivated = accountRepository.findByIsActive(true);
+            accts = accountMapper.accountEntities2Dtos(accountsActivated.orElse(Collections.emptyList()));
+            cacheFeign.cacheAccounts(1000L * 60 * 10, accts);
+        }
+        return accts;
     }
 
     //todo batch需要改动，对于部分成功，部分不成功的情况要重写逻辑，然后不要用foreach

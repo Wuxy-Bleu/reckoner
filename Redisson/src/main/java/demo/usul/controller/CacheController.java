@@ -15,6 +15,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/v2/cache")
+@Deprecated
 public class CacheController {
 
     private final CacheService cacheService;

@@ -1,9 +1,12 @@
 package demo.usul.service;
 
-import demo.usul.feign.ReckonerFeign;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import demo.usul.dto.ReckonerDto;
-import lombok.RequiredArgsConstructor;
+import demo.usul.feign.ReckonerFeign;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,10 +14,16 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReckonerService {
 
     private final ReckonerFeign reckonerFeign;
+    private final CsvMapper csvMapper;
+
+    @Autowired
+    public ReckonerService(ReckonerFeign reckonerFeign, CsvMapper csvMapper) {
+        this.reckonerFeign = reckonerFeign;
+        this.csvMapper = csvMapper;
+    }
 
     public Long countDistinctByFromAcctAllIgnoreCase(UUID fromAcct) {
         return reckonerFeign.countByFromAcct(fromAcct);
@@ -30,5 +39,10 @@ public class ReckonerService {
 
     public List<ReckonerDto> retrieveAll() {
         return reckonerFeign.retrieveAll();
+    }
+
+    public String retrieveAllAsCsv() throws JsonProcessingException {
+        CsvSchema header = csvMapper.schemaFor(ReckonerDto.class).withHeader();
+        return csvMapper.writer(header).writeValueAsString(retrieveAll());
     }
 }

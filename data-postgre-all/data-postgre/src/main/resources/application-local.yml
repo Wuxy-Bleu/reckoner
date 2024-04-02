@@ -7,6 +7,14 @@ spring:
   cloud:
     config:
       name: data-postgre
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 600000
+            read-timeout: 600000
+          redisson-client:
+            url: "http://127.0.0.1:8311"
   task:
     scheduling:
       thread-name-prefix: reckoner-acc-

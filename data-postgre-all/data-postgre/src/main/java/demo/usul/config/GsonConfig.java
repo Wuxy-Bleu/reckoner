@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 
+// for hibernate serialize test, now useless
 @Configuration
 public class GsonConfig {
 

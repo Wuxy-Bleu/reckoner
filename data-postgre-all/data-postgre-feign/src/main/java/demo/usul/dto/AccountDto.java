@@ -22,18 +22,12 @@ public class AccountDto implements Serializable {
 
     @NotNull(message = "======{errMsg}")
     private String name;
-
-    private BigDecimal balance;
-
-    @NotNull(message = "{errMsg}")
-    private String currency;
-
     @NotNull
     private String cardType;
-
+    private BigDecimal balance;
+    @NotNull(message = "{errMsg}")
+    private String currency;
     private BigDecimal creditCardLimit;
-
     private String billingCycle;
-
     private String dueDate;
 }
