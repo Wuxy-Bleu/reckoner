@@ -1,15 +1,15 @@
 package demo.usul.service;
 
-import com.esotericsoftware.minlog.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import demo.usul.dto.AccountDto;
 import org.redisson.api.RedissonReactiveClient;
 import org.redisson.api.search.query.QueryOptions;
-import org.redisson.api.search.query.SearchResult;
 import org.redisson.codec.JacksonCodec;
 import org.redisson.codec.JsonCodec;
+import org.redisson.codec.TypedJsonJacksonCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -24,11 +24,13 @@ public class CacheReactiveService {
 
     private final RedissonReactiveClient redissonReactiveClient;
     private final JsonCodec<List<AccountDto>> codec4Accts;
+    TypeReference<List<AccountDto>> typeReference;
 
     @Autowired
     public CacheReactiveService(RedissonReactiveClient redissonReactiveClient) {
         this.redissonReactiveClient = redissonReactiveClient;
         codec4Accts = new JacksonCodec<>(new TypeReference<>() {});
+        typeReference = new TypeReference<>() {};
     }
 
     public Mono<Void> cacheAccountsReactive(List<AccountDto> accounts, Long ms) {
@@ -36,13 +38,24 @@ public class CacheReactiveService {
                 .set(accounts, Duration.ofMillis(ms));
     }
 
+    @SuppressWarnings("unchecked")
     public Mono<List<AccountDto>> getCachedAccounts(Optional<String> name, Optional<String> type) {
-        Mono<SearchResult> res = redissonReactiveClient.getSearch().search(ACCTS_IDX, "@name: name", QueryOptions.defaults());
-//        res.subscribe(r -> r.getDocuments().forEach(e -> Log.info(e.toString())));
-//        Mono.empty().subscribe();
-        return redissonReactiveClient.getJsonBucket(ACCTS_CACHE_KEY, codec4Accts).get();
+
+        TypedJsonJacksonCodec typedJsonJacksonCodec = new TypedJsonJacksonCodec(typeReference, null, typeReference);
+        return redissonReactiveClient.getSearch(typedJsonJacksonCodec)
+                .search(ACCTS_IDX, queryAccts(name, type), QueryOptions.defaults())
+                .flatMap(search -> {
+                    if (search.getTotal() > 0)
+                        return Mono.just((List<AccountDto>) search.getDocuments().get(0).getAttributes().get("$"));
+                    return Mono.empty();
+                });
     }
 
-
+    private String queryAccts(Optional<String> name, Optional<String> type) {
+        String nameParam = name.flatMap(s -> Optional.of("@name: " + s)).orElse("");
+        String typeParam = type.flatMap(s -> Optional.of("@type: " + s)).orElse("");
+        String query = nameParam + " " + typeParam;
+        return StringUtils.hasText(query) ? query : "*";
+    }
 
 }

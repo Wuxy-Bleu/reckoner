@@ -5,4 +5,5 @@ spring:
     name: redisson
 logging:
   level:
-    org.redisson.*.*: debug
+    org.redisson.*.*: trace
+    io.netty.*.*: trace

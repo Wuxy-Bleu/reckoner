@@ -27,7 +27,8 @@ public class RedisIdxCmdRunner implements CommandLineRunner {
         redissonReactiveClient.getSearch()
                 .createIndex(ACCTS_IDX,
                         IndexOptions.defaults().prefix(ACCTS_CACHE_KEY).on(IndexType.JSON),
-                        FieldIndex.text("name"), FieldIndex.text("type"))
+                        FieldIndex.text("$.name").as("name"),
+                        FieldIndex.text("$.type").as("type"))
                 .onErrorResume(ex -> {
                     log.warn("maybe index already exist", ex);
                     return Mono.empty();
