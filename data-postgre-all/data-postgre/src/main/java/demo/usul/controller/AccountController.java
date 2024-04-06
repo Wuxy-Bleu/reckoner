@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Slf4j
 @RestController
@@ -32,27 +32,9 @@ public class AccountController {
     // 或者criteria 更通用
     @GetMapping
     public List<AccountDto> retrieveActivatedByConditionsOrNot(
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String currency) {
-        List<AccountDto> accountDtos = accountService.retrieveActivatedCacheable();
-        Stream<AccountDto> cachedStream = accountDtos.stream();
-        if (null != type) {
-            if (null != currency)
-                return cachedStream.filter(e ->
-                        type.equalsIgnoreCase(e.getCardType())
-                                && currency.equalsIgnoreCase(e.getCurrency())).toList();
-            else
-                return cachedStream.filter(e ->
-                        type.equalsIgnoreCase(e.getCardType())).toList();
-        } else {
-            if (null != currency)
-                return cachedStream
-                        .filter(e ->
-                                currency.equalsIgnoreCase(e.getCurrency())).toList();
-            else
-                return cachedStream.toList();
-        }
-
+            @RequestParam(required = false) Optional<String> type,
+            @RequestParam(required = false) Optional<String> currency) {
+        return accountService.retrieveActivatedCacheable(type, currency);
     }
 
     // path variable for unique column查询

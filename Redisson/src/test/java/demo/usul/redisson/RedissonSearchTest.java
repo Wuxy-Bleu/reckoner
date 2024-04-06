@@ -2,6 +2,7 @@ package demo.usul.redisson;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.usul.scripts.LuaScript;
 import org.junit.jupiter.api.Test;
 import org.redisson.Redisson;
 import org.redisson.api.RJsonBucket;
@@ -17,6 +18,7 @@ import org.redisson.config.Config;
 import java.util.List;
 
 import static demo.usul.redisson.RedissonLuaTest.IF_INDEX_EXIST;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 class RedissonSearchTest {
@@ -52,5 +54,12 @@ class RedissonSearchTest {
         RJsonBucket<String> jsonBucket = client.getJsonBucket("jsonDoc:demo", new JacksonCodec<>(new TypeReference<>() {}));
         // 没法将jsonString这样子插入到redis中，或许得研究研究序列化器来实现，但是redisson最好还是将pojos作为json插入到redis中
         jsonBucket.set(jsonString);
+    }
+
+
+    @Test
+    void testLoopSetJsonLuaScript() {
+        String sha1 = script.scriptLoad(LuaScript.LOOP_SET_JSON);
+        assertThat(sha1).isNotNull();
     }
 }

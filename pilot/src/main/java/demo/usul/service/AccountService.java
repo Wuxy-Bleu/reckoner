@@ -40,7 +40,7 @@ public class AccountService {
 
     // call data-postgre service, using redis cache
     public List<AccountDto> retrieveActivatedByConditionsOrNot(Optional<String> type, Optional<String> currency) {
-        List<AccountDto> cachedAccts = cacheFeign.getCachedAccts();
+        List<AccountDto> cachedAccts = cacheFeign.getCachedAccts(Optional.empty(), type);
         if (CollUtil.isEmpty(cachedAccts)) {
             cachedAccts = accountFeign.retrieveActivatedByConditionsOrNot(
                     type.orElse(null),

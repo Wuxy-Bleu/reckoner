@@ -1,5 +1,6 @@
 package demo.usul.service;
 
+import cn.hutool.Hutool;
 import cn.hutool.core.collection.CollUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.dto.AccountDto;
@@ -30,12 +31,13 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final CacheFeign cacheFeign;
 
-    public List<AccountDto> retrieveActivatedCacheable() {
-        List<AccountDto> accts = cacheFeign.getCachedAccts();
+    public List<AccountDto> retrieveActivatedCacheable(Optional<String> type, Optional<String> currency) {
+//        List<AccountDto> accts = cacheFeign.getCachedAccts(name, type);
+        List<AccountDto> accts = Collections.emptyList();
         if (CollUtil.isEmpty(accts)) {
             Optional<List<AccountEntity>> accountsActivated = accountRepository.findByIsActive(true);
             accts = accountMapper.accountEntities2Dtos(accountsActivated.orElse(Collections.emptyList()));
-            cacheFeign.cacheAccounts(1000L * 60 * 10, accts);
+//            cacheFeign.cacheAccounts(1000L * 60 * 10, accts);
         }
         return accts;
     }

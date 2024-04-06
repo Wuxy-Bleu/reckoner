@@ -28,7 +28,8 @@ public class RedisIdxCmdRunner implements CommandLineRunner {
                 .createIndex(ACCTS_IDX,
                         IndexOptions.defaults().prefix(ACCTS_CACHE_KEY).on(IndexType.JSON),
                         FieldIndex.text("$.name").as("name"),
-                        FieldIndex.text("$.type").as("type"))
+                        FieldIndex.text("$.cardType").as("cardType"),
+                        FieldIndex.text("$.currency").as("currency"))
                 .onErrorResume(ex -> {
                     log.warn("maybe index already exist", ex);
                     return Mono.empty();

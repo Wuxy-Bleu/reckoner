@@ -27,6 +27,7 @@ public class AccountAsyncController {
     @GetMapping
     @Async
     public CompletableFuture<List<AccountDto>> retrieveActivatedByConditionsOrNot() {
-        return CompletableFuture.completedFuture(accountService.retrieveActivatedCacheable());
+//        return CompletableFuture.completedFuture(accountService.retrieveActivatedCacheable());
+        return null;
     }
 }
