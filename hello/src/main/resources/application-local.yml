@@ -10,3 +10,4 @@ spring:
 feign:
   circuitbreaker:
     enabled: true
+debug: true

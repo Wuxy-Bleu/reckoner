@@ -15,8 +15,9 @@ import java.util.Optional;
 public interface CacheFeign {
 
     @GetMapping("/v3/cache/accts")
-    List<AccountDto> getCachedAccts(@RequestParam Optional<String> type, @RequestParam Optional<String> currency);
+    List<AccountDto> getCachedAccts(@RequestParam Optional<String> name, @RequestParam Optional<String> cardType, @RequestParam Optional<String> currency);
 
     @PostMapping("/v3/cache/{ms}")
     void cacheAccounts(@PathVariable Long ms, @RequestBody List<AccountDto> accts);
+
 }

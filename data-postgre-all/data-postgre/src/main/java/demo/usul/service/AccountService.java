@@ -1,6 +1,5 @@
 package demo.usul.service;
 
-import cn.hutool.Hutool;
 import cn.hutool.core.collection.CollUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.dto.AccountDto;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,13 +29,18 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final CacheFeign cacheFeign;
 
-    public List<AccountDto> retrieveActivatedCacheable(Optional<String> type, Optional<String> currency) {
-//        List<AccountDto> accts = cacheFeign.getCachedAccts(name, type);
-        List<AccountDto> accts = Collections.emptyList();
+    public List<AccountDto> retrieveActivatedCacheable(Optional<String> name, Optional<String> cardType, Optional<String> currency) {
+        List<AccountDto> accts = cacheFeign.getCachedAccts(name, cardType, currency);
         if (CollUtil.isEmpty(accts)) {
             Optional<List<AccountEntity>> accountsActivated = accountRepository.findByIsActive(true);
-            accts = accountMapper.accountEntities2Dtos(accountsActivated.orElse(Collections.emptyList()));
-//            cacheFeign.cacheAccounts(1000L * 60 * 10, accts);
+            accts = accountsActivated.map(e -> {
+                List<AccountDto> accountDtos = accountMapper.accountEntities2Dtos(e);
+                cacheFeign.cacheAccounts(100000L, accountDtos);
+                log.info("save cache {} with {}ms", "ACCTS:CACHE", 100000);
+                return cacheFeign.getCachedAccts(Optional.empty(), cardType, currency);
+            }).orElse(null);
+        } else {
+            log.info("cache {} hit", "ACCTS:CACHE");
         }
         return accts;
     }

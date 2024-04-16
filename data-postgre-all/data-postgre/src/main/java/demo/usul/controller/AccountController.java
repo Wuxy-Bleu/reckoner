@@ -32,17 +32,16 @@ public class AccountController {
     // 或者criteria 更通用
     @GetMapping
     public List<AccountDto> retrieveActivatedByConditionsOrNot(
-            @RequestParam(required = false) Optional<String> type,
+            @RequestParam(required = false) Optional<String> cardType,
             @RequestParam(required = false) Optional<String> currency) {
-        return accountService.retrieveActivatedCacheable(type, currency);
+        return accountService.retrieveActivatedCacheable(Optional.empty(), cardType, currency);
     }
 
     // path variable for unique column查询
     @GetMapping("/{name}")
     public AccountDto retrieveActivatedByName(@PathVariable String name) {
         // feign 数据传递，如果查不到是返回null好，还是抛出异常呢
-        return this.retrieveActivatedByConditionsOrNot(null, null)
-                .stream().filter(e -> name.equals(e.getName())).findAny().orElse(null);
+        return accountService.retrieveActivatedCacheable(Optional.ofNullable(name), Optional.empty(), Optional.empty()).get(0);
     }
 
     // 如果部分插入成功，部分失败，那么是否能准确的插入成功的部分

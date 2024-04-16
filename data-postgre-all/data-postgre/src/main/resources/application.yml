@@ -46,4 +46,5 @@ logging:
     org.springframework.transaction.*.*: debug
     org.springframework.cloud.config.*.*: trace
     io.lettuce.*: trace
+    ch.qos.logback.*.*: trace
 

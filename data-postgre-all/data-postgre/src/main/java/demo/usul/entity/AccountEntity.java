@@ -13,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static demo.usul.entity.AccountEntity.FIND_BY_IDS;
+import static demo.usul.entity.AccountEntity.FIND_BY_NAME;
 import static demo.usul.entity.AccountEntity.IF_ENTITIES_EXIST;
 import static demo.usul.entity.AccountEntity.SOFT_DELETE;
 
@@ -42,37 +42,26 @@ import static demo.usul.entity.AccountEntity.SOFT_DELETE;
 @NamedQuery(name = FIND_BY_IDS, query = "from AccountEntity where id in :ids and isActive = true ")
 @NamedQuery(name = SOFT_DELETE, query = "update AccountEntity set isActive = false where id in :ids ")
 @NamedQuery(name = IF_ENTITIES_EXIST, query = "from AccountEntity where isActive = false and id in :ids")
+@NamedQuery(name = FIND_BY_NAME, query = "from AccountEntity where name = :name and isActive = true")
 public class AccountEntity extends CommonColumn {
 
     public static final String FIND_BY_IDS = "acct_findByIds";
-
+    public static final String FIND_BY_NAME = "acct_findByName";
     public static final String SOFT_DELETE = "soft_delete";
-
     public static final String IF_ENTITIES_EXIST = "if_entities_exist";
-
     public static final String TABLE_NAME = "accounts";
-
     public static final String COLUMN_ID_NAME = "id";
-
     public static final String COLUMN_NAME_NAME = "name";
-
     public static final String COLUMN_ISACTIVE_NAME = "is_active";
-
     public static final String COLUMN_TYPEID_NAME = "type_id";
-
     public static final String COLUMN_BALANCE_NAME = "balance";
-
     public static final String COLUMN_CURRENCY_NAME = "currency";
-
     public static final String COLUMN_CREDITCARDLIMIT_NAME = "credit_card_limit";
-
     public static final String COLUMN_BILLINGCYCLE_NAME = "billing_cycle";
-
     public static final String COLUMN_DUEDATE_NAME = "due_date";
 
-
+    //    @Setter(AccessLevel.NONE)
     @Id
-    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = COLUMN_ID_NAME, nullable = false, updatable = false, unique = true)
     private UUID id;
@@ -109,7 +98,7 @@ public class AccountEntity extends CommonColumn {
     @OneToMany(mappedBy = "fromAcctObj")
     private List<ReckonerEntity> outReckonerEntities;
 
-    @OneToMany(mappedBy = "toAcctEntity")
+    @OneToMany(mappedBy = "toAcctObj")
     private List<ReckonerEntity> inReckonerEntities;
 
     @NotNull

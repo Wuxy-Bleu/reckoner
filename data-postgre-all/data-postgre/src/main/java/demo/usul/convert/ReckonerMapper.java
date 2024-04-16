@@ -1,7 +1,7 @@
 package demo.usul.convert;
 
-import demo.usul.entity.ReckonerEntity;
 import demo.usul.dto.ReckonerDto;
+import demo.usul.entity.ReckonerEntity;
 import demo.usul.enums.InOutEnum;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

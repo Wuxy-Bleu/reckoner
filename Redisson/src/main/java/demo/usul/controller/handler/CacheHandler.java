@@ -26,7 +26,7 @@ public class CacheHandler {
     }
 
     public Mono<ServerResponse> getCachedAccts(ServerRequest req) {
-        return cacheService.getCachedAccounts(req.queryParam("name"), req.queryParam("type"), req.queryParam("currency"))
+        return cacheService.getCachedAccounts(req.queryParam("name"), req.queryParam("cardType"), req.queryParam("currency"))
                 .flatMap(accts ->
                         ServerResponse.ok().body(BodyInserters.fromValue(accts)));
     }

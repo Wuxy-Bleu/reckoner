@@ -9,9 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,11 +18,11 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = ReckonerEntity.TABLE_NAME, schema = "public")
 public class ReckonerEntity {
 
@@ -58,7 +56,7 @@ public class ReckonerEntity {
 
 
     @Id
-    @Setter(AccessLevel.NONE)
+//    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = COLUMN_ID_NAME, nullable = false, updatable = false, unique = true)
     private UUID id;
@@ -82,16 +80,16 @@ public class ReckonerEntity {
     @Column(name = COLUMN_TOCNY_NAME, precision = 18, scale = 8)
     private BigDecimal toCny;
 
-    @Column(name = COLUMN_ISALIVE_NAME, nullable = false)
+    @Column(name = COLUMN_ISALIVE_NAME, nullable = false, insertable = false)
     private Boolean isAlive = false;
 
     @Column(name = COLUMN_CHANGEFROM_NAME)
     private UUID changeFrom;
 
-    @Column(name = COLUMN_CREATEDAT_NAME, nullable = false)
+    @Column(name = COLUMN_CREATEDAT_NAME, nullable = false, insertable = false)
     private OffsetDateTime createdAt;
 
-    @Column(name = COLUMN_LASTUPDATEDAT_NAME, nullable = false)
+    @Column(name = COLUMN_LASTUPDATEDAT_NAME, nullable = false, insertable = false)
     private OffsetDateTime lastUpdatedAt;
 
     @Column(name = COLUMN_TRANSDATE_NAME, nullable = false)
@@ -100,8 +98,8 @@ public class ReckonerEntity {
     @Column(name = COLUMN_TYPEID_NAME)
     private UUID typeId;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = COLUMN_TYPEID_NAME, nullable = false, unique = true, insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = COLUMN_TYPEID_NAME, unique = true, updatable = false, insertable = false)
     private ReckonerTypeEntity reckonerTypeObj;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -110,5 +108,5 @@ public class ReckonerEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = COLUMN_TOACCT_NAME, insertable = false, updatable = false)
-    private AccountEntity toAcctEntity;
+    private AccountEntity toAcctObj;
 }

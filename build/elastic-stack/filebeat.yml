@@ -1,0 +1,13 @@
+filebeat.inputs:
+  - type: filestream
+    id: logback
+    paths:
+      - "/tmp/spring/*.log"
+output.logstash:
+  enabled: true
+  hosts: [ "localhost:5044" ]
+  worker: 1
+  loadbalance: true
+  pipelining: 2
+  index: 'filebeat'
+logging.level: debug

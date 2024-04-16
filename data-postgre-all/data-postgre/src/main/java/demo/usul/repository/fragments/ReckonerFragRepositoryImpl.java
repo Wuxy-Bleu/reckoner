@@ -3,16 +3,17 @@ package demo.usul.repository.fragments;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.ReckonerEntity;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Repository
+@Transactional
 public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
 
     @PersistenceContext
@@ -20,32 +21,40 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
 
     @Override
     public void saveAssociations(ReckonerEntity entity) {
-        Short inOut = entity.getInOut();
-        Optional<UUID> toAcct = Optional.ofNullable(entity.getToAcctEntity().getId());
-        Optional<UUID> fromAcct = Optional.ofNullable(entity.getFromAcctObj().getId());
+        Optional<AccountEntity> toAcctOpt = Optional.ofNullable(entity.getToAcct())
+                .map(uuid ->
+                        em.createNamedQuery(AccountEntity.FIND_BY_IDS, AccountEntity.class)
+                                .setParameter("ids", List.of(uuid)).getSingleResult());
+        toAcctOpt = toAcctOpt.or(() ->
+                Optional.ofNullable(entity.getFromAcctObj().getName())
+                        .map(s ->
+                                em.createNamedQuery(AccountEntity.FIND_BY_NAME, AccountEntity.class)
+                                        .setParameter("name", s).getSingleResult()));
 
-        EntityTransaction transaction = em.getTransaction();
-        transaction.begin();
+        Optional<AccountEntity> fromAcctOpt = Optional.ofNullable(entity.getFromAcct())
+                .map(uuid ->
+                        em.createNamedQuery(AccountEntity.FIND_BY_IDS, AccountEntity.class)
+                                .setParameter("ids", List.of(uuid)).getSingleResult());
+        fromAcctOpt = fromAcctOpt.or(() ->
+                Optional.ofNullable(entity.getFromAcctObj().getName())
+                        .map(s ->
+                                em.createNamedQuery(AccountEntity.FIND_BY_NAME, AccountEntity.class)
+                                        .setParameter("name", s).getSingleResult()));
 
-        Optional<AccountEntity> toAcctEnt = toAcct.map(uuid -> em.find(AccountEntity.class, uuid));
-        Optional<AccountEntity> fromAcctEnt = fromAcct.map(uuid -> em.find(AccountEntity.class, uuid));
-        switch (inOut) {
+        switch (entity.getInOut()) {
             case 0:
-                entity.setToAcctEntity(toAcctEnt.orElseThrow());
-                entity.setFromAcctObj(fromAcctEnt.orElseThrow());
+                entity.setToAcct(toAcctOpt.orElseThrow().getId());
+                entity.setFromAcct(fromAcctOpt.orElseThrow().getId());
                 break;
             case 1:
-                entity.setToAcctEntity(toAcctEnt.orElseThrow());
+                entity.setToAcct(toAcctOpt.orElseThrow().getId());
                 break;
             case -1:
-                entity.setFromAcctObj(fromAcctEnt.orElseThrow());
+                entity.setFromAcct(fromAcctOpt.orElseThrow().getId());
                 break;
             default:
                 break;
         }
-
         em.persist(entity);
-        transaction.commit();
-        em.close();
     }
 }

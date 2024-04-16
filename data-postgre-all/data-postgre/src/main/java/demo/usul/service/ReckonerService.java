@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ReckonerService {
 
     private final ReckonerRepository reckonerRepository;
@@ -46,6 +46,7 @@ public class ReckonerService {
         return reckonerRepository.findAll();
     }
 
+    // associated entity must exist
     public ReckonerDto createOne(ReckonerDto reckoner) {
         ReckonerEntity reckonerEntity = reckonerMapper.reckonerDto2Entity(reckoner);
         reckonerRepository.saveAssociations(reckonerEntity);

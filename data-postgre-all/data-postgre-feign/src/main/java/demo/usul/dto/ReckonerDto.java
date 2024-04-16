@@ -3,14 +3,19 @@ package demo.usul.dto;
 import demo.usul.enums.InOutEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReckonerDto extends CommonColumn implements Serializable {
@@ -29,5 +34,9 @@ public class ReckonerDto extends CommonColumn implements Serializable {
     private AccountDto toAcctObj;
 
     private OffsetDateTime transDate;
+
+    private UUID typeId;
+
+    private ReckonerTypeDto reckonerTypeObj;
 
 }
