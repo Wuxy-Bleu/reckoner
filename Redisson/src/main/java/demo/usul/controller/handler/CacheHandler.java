@@ -30,4 +30,10 @@ public class CacheHandler {
                 .flatMap(accts ->
                         ServerResponse.ok().body(BodyInserters.fromValue(accts)));
     }
+
+    public Mono<ServerResponse> getCachedAcctById(ServerRequest req) {
+        return cacheService.getCachedAcctById(req.pathVariable("id"))
+                .flatMap(accts ->
+                        ServerResponse.ok().body(BodyInserters.fromValue(accts)));
+    }
 }

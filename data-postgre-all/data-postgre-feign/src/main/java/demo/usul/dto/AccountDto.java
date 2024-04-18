@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 /**
  *
@@ -16,12 +13,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDto implements Serializable {
+public class AccountDto extends CommonColumn {
 
-    @Serial
-    private static final long serialVersionUID = -5833592436585442860L;
-
-    private UUID id;
     @NotNull(message = "======{errMsg}")
     private String name;
     @NotNull
@@ -32,4 +25,14 @@ public class AccountDto implements Serializable {
     private BigDecimal creditCardLimit;
     private String billingCycle;
     private String dueDate;
+
+    public AccountDto blcSubtract(BigDecimal num) {
+        setBalance(getBalance().subtract(num));
+        return this;
+    }
+
+    public AccountDto blcAdd(BigDecimal num) {
+        setBalance(getBalance().add(num));
+        return this;
+    }
 }

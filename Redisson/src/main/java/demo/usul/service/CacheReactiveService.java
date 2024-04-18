@@ -28,30 +28,44 @@ import static demo.usul.scripts.LuaScript.LOOP_SET_JSON;
 @Service
 public class CacheReactiveService {
 
-    private final RedissonReactiveClient redissonReactiveClient;
-
-    private final TypeReference<AccountDto> typeReference;
-    private final JsonCodec<List<AccountDto>> codec4Accts;
-    private final RScriptReactive script;
     private final ObjectMapper objectMapper;
+    private final RedissonReactiveClient redissonReactiveClient;
+    private final RScriptReactive script;
+
+    private final TypeReference<AccountDto> trAcct = new TypeReference<>() {};
+    private final TypeReference<List<AccountDto>> trAccts = new TypeReference<>() {};
+    private final JsonCodec<List<AccountDto>> codec4Accts;
+    private final JsonCodec<AccountDto> codec4Acct;
 
     @Autowired
-    public CacheReactiveService(RedissonReactiveClient redissonReactiveClient) {
+    public CacheReactiveService(RedissonReactiveClient redissonReactiveClient, ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
         this.redissonReactiveClient = redissonReactiveClient;
-        codec4Accts = new JacksonCodec<>(new TypeReference<>() {});
-        typeReference = new TypeReference<>() {};
         // 这里的codec不是用来给返回报文反序列化的吗，那么给请求报文序列化的是啥, 貌似也是codec??
         script = redissonReactiveClient.getScript(new StringCodec());
-        objectMapper = new ObjectMapper();
+        codec4Acct = new JacksonCodec<>(objectMapper, trAcct);
+        codec4Accts = new JacksonCodec<>(objectMapper, trAccts);
+    }
+
+    public Mono<AccountDto> getCachedAcctById(String id) {
+        return redissonReactiveClient.getJsonBucket(ACCTS_CACHE_KEY + id, codec4Acct)
+                .get();
+    }
+
+    public Mono<List<AccountDto>> getCachedAcctsByIds(List<String> ids) {
+        // mget只能写script或者直接command调用
+        return Mono.empty();
     }
 
     // validation, dtos must have id
     public Mono<Void> cacheAccountsReactive(List<AccountDto> accounts, Long ms) {
-        List<Object> keys = accounts.stream().map(e -> (Object) (ACCTS_CACHE_KEY + ":" + e.getId().toString())).toList();
+        List<Object> keys = accounts.stream().map(e -> (Object) (ACCTS_CACHE_KEY + e.getId().toString())).toList();
+
         Stream<Object> tmp = accounts.stream()
                 .map(CheckedFunction1.liftTry(objectMapper::writeValueAsString))
-                .map(t -> t.getOrElseThrow(() -> new RuntimeException("err")));
+                .map(t -> t.getOrElseThrow(e -> new RuntimeException(e)));
         Object[] args = Stream.concat(tmp, Stream.of(ms)).toArray();
+
         return script
                 .scriptLoad(LOOP_SET_JSON)
                 .flatMap(hash ->
@@ -60,7 +74,7 @@ public class CacheReactiveService {
 
     @SuppressWarnings("unchecked")
     public Mono<List<AccountDto>> getCachedAccounts(Optional<String> name, Optional<String> cardType, Optional<String> currency) {
-        TypedJsonJacksonCodec typedJsonJacksonCodec = new TypedJsonJacksonCodec(typeReference, null, typeReference);
+        TypedJsonJacksonCodec typedJsonJacksonCodec = new TypedJsonJacksonCodec(trAcct, null, trAcct, objectMapper);
         return redissonReactiveClient
                 .getSearch(typedJsonJacksonCodec)
                 .search(ACCTS_IDX, queryAccts(name, cardType, currency), QueryOptions.defaults())

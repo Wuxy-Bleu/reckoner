@@ -36,6 +36,11 @@
             <artifactId>redisson-feign</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>demo.usul</groupId>
+            <artifactId>mongo-feign</artifactId>
+        </dependency>
+
         <!--        web,  for webclient only, default tomcat-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

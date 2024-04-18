@@ -2,7 +2,7 @@ package demo.usul.controller;
 
 import demo.usul.dto.AccountModifyRecordDto;
 import demo.usul.mapping.AccountModifyRecordMapper;
-import demo.usul.service.AccountModifyRecordService;
+import demo.usul.service.AcctModifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,24 +20,24 @@ import java.util.List;
 @RequestMapping("/v1/account-update-record")
 public class AccountModifyRecordController {
 
-    private final AccountModifyRecordService accountModifyRecordService;
+    private final AcctModifyService acctModifyService;
     private final AccountModifyRecordMapper accountModifyRecordMapper;
 
     @PostMapping("")
     public void createModifyRecord(@RequestBody AccountModifyRecordDto accountModifyRecordDto) {
-        accountModifyRecordService.createAccountModifyRecord(
+        acctModifyService.createAccountModifyRecord(
                 accountModifyRecordMapper.accountModifyRecordDto2Entity(accountModifyRecordDto));
     }
 
     @GetMapping("/{uuid}")
     public List<AccountModifyRecordDto> retrieveModifyRecord(@PathVariable String uuid) {
         return accountModifyRecordMapper.accountModifyRecordEntities2Dtos(
-                accountModifyRecordService.retrieveModifyRecord(uuid));
+                acctModifyService.retrieveModifyRecord(uuid));
     }
 
     @PostMapping("/batch")
     public void createModifyRecordBatch(@RequestBody List<AccountModifyRecordDto> accountModifyRecordDtos) {
-        accountModifyRecordService.createAccountModifyRecords(
+        acctModifyService.createAccountModifyRecords(
                 accountModifyRecordMapper.accountModifyRecordDtos2Entities(accountModifyRecordDtos));
     }
 

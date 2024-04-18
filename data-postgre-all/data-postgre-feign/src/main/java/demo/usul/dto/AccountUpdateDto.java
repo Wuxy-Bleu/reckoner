@@ -1,6 +1,7 @@
 package demo.usul.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "act", timeToLive = 60000)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AccountUpdateDto implements Serializable {
 
     @Serial

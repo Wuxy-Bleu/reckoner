@@ -1,0 +1,12 @@
+{
+  "amount": 30,
+  "currency": "CNY",
+  "inOut": "OUT",
+  "fromAcctObj": {
+    "name": "招行信用卡0709"
+  },
+  "transDate": "2024-04-17 16:47:17+08:00",
+  "reckonerTypeObj": {
+    "typeName": "Web"
+  }
+}

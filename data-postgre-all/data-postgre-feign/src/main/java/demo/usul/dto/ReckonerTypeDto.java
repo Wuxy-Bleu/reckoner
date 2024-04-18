@@ -18,7 +18,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ReckonerTypeDto extends CommonColumn implements Serializable {
+public class ReckonerTypeDto extends CommonColumn {
     @NotNull
     @NotBlank
     private String typeName;

@@ -1,6 +1,8 @@
 package demo.usul.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ObjectUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountUpdateDto;
@@ -19,6 +21,9 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static demo.usul.consta.Constants.ACCTS_CACHE_TTL_MS;
+
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,20 +34,28 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final CacheFeign cacheFeign;
 
-    public List<AccountDto> retrieveActivatedCacheable(Optional<String> name, Optional<String> cardType, Optional<String> currency) {
-        List<AccountDto> accts = cacheFeign.getCachedAccts(name, cardType, currency);
-        if (CollUtil.isEmpty(accts)) {
-            Optional<List<AccountEntity>> accountsActivated = accountRepository.findByIsActive(true);
-            accts = accountsActivated.map(e -> {
-                List<AccountDto> accountDtos = accountMapper.accountEntities2Dtos(e);
-                cacheFeign.cacheAccounts(100000L, accountDtos);
-                log.info("save cache {} with {}ms", "ACCTS:CACHE", 100000);
-                return cacheFeign.getCachedAccts(Optional.empty(), cardType, currency);
-            }).orElse(null);
+    /**
+     * todo 有个大问题就是如果filter search cache没查到，也会refresh一次cache，这是多余的步骤，得想办法改
+     *
+     * @return not gone be null, empty list
+     */
+    public List<AccountDto> getOrRefreshCache(String id, String name, String cardType, String currency) {
+        Optional<List<AccountDto>> opt;
+        boolean switcher = CharSequenceUtil.isNotBlank(id);
+        if (switcher) {
+            AccountDto hit = cacheFeign.getCachedAcctById(id);
+            opt = ObjectUtil.isEmpty(hit) ? Optional.empty() : Optional.of(List.of(hit));
         } else {
-            log.info("cache {} hit", "ACCTS:CACHE");
+            opt = Optional.ofNullable(cacheFeign.getCachedAccts(name, cardType, currency)).filter(CollUtil::isNotEmpty);
         }
-        return accts;
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+        accountRepository.findByIsActive(true)
+                .map(accountMapper::accountEntities2Dtos)
+                .ifPresent(dtos -> cacheFeign.cacheAccounts(ACCTS_CACHE_TTL_MS, dtos));
+        return switcher ? List.of(cacheFeign.getCachedAcctById(id))
+                : cacheFeign.getCachedAccts(name, cardType, currency);
     }
 
     //todo batch需要改动，对于部分成功，部分不成功的情况要重写逻辑，然后不要用foreach
@@ -52,7 +65,7 @@ public class AccountService {
     }
 
     // card type不存在时error handler, 存取之后，find不到error handler，
-    // 优化下，save之后find在repos层来写
+// 优化下，save之后find在repos层来写
     @CacheEvict(cacheNames = ACCT_CACHE_NAME, allEntries = true)
     public AccountDto create(AccountDto accountDto) {
         AccountEntity toSave = accountMapper.accountDto2Entity(accountDto);
@@ -70,6 +83,7 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
+    // 理论上不要修改balance，要不然会让记录很乱
     @CacheEvict(cacheNames = ACCT_CACHE_NAME, allEntries = true)
     public List<AccountEntity> update(List<AccountUpdateDto> accountUpdateDtos) {
         final Map<UUID, AccountUpdateDto> toUpdate = accountUpdateDtos.stream()
@@ -90,5 +104,6 @@ public class AccountService {
     public void compareWithExisting(List<AccountUpdateDto> accountUpdateDtos) {
 
     }
-
 }
+
+

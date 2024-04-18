@@ -103,7 +103,7 @@ public class ReckonerEntity {
     private ReckonerTypeEntity reckonerTypeObj;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = COLUMN_FROMACCT_NAME, nullable = false, unique = true, insertable = false, updatable = false)
+    @JoinColumn(name = COLUMN_FROMACCT_NAME, unique = true, insertable = false, updatable = false)
     private AccountEntity fromAcctObj;
 
     @ManyToOne(fetch = FetchType.EAGER)

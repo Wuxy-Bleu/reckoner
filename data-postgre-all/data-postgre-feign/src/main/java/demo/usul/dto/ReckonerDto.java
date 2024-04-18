@@ -1,5 +1,6 @@
 package demo.usul.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import demo.usul.enums.InOutEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +34,7 @@ public class ReckonerDto extends CommonColumn implements Serializable {
 
     private AccountDto toAcctObj;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssXXX", timezone = "Asia/Shanghai")
     private OffsetDateTime transDate;
 
     private UUID typeId;

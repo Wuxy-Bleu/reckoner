@@ -1,0 +1,12 @@
+{
+  "amount": 1.99,
+  "currency": "CNY",
+  "inOut": "IN",
+  "toAcctObj": {
+    "name": "余额宝"
+  },
+  "transDate": "2024-04-17 05:41:17+08:00",
+  "reckonerTypeObj": {
+    "typeName": "Profit"
+  }
+}

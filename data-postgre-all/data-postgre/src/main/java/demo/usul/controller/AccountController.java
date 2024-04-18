@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -28,20 +27,19 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    // 其实这里复杂的查询过滤最好使用 自定义的requestObj
-    // 或者criteria 更通用
+    // 其实这里复杂的查询过滤最好使用 自定义的requestObj 或者criteria 更通用
     @GetMapping
     public List<AccountDto> retrieveActivatedByConditionsOrNot(
-            @RequestParam(required = false) Optional<String> cardType,
-            @RequestParam(required = false) Optional<String> currency) {
-        return accountService.retrieveActivatedCacheable(Optional.empty(), cardType, currency);
+            @RequestParam(required = false) String cardType,
+            @RequestParam(required = false) String currency) {
+        return accountService.getOrRefreshCache(null, null, cardType, currency);
     }
 
     // path variable for unique column查询
     @GetMapping("/{name}")
     public AccountDto retrieveActivatedByName(@PathVariable String name) {
         // feign 数据传递，如果查不到是返回null好，还是抛出异常呢
-        return accountService.retrieveActivatedCacheable(Optional.ofNullable(name), Optional.empty(), Optional.empty()).get(0);
+        return accountService.getOrRefreshCache(null, name, null, null).get(0);
     }
 
     // 如果部分插入成功，部分失败，那么是否能准确的插入成功的部分

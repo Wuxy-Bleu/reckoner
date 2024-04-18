@@ -15,6 +15,7 @@ public class CacheRoute {
         return RouterFunctions.route()
                 .POST("/v3/cache/{ms}", cacheHandler::cacheAccounts)
                 .GET("/v3/cache/accts", cacheHandler::getCachedAccts)
+                .GET("/cache/accts/v3/{id}", cacheHandler::getCachedAcctById)
                 .build();
     }
 
