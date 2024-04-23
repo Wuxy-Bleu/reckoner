@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 // 问题已解决，这就用来测试事务传播吧
@@ -54,7 +55,7 @@ public class ReckonerController {
     }
 
     @PostMapping("")
-    public ReckonerDto createOne(@RequestBody @Valid ReckonerDto reckoner){
-        return reckonerService.createOne(reckoner);
+    public ReckonerDto createOne(@RequestBody @Valid ReckonerDto reckoner, @RequestParam(required = false) Optional<Boolean> trigger) {
+        return reckonerService.createOne(reckoner, trigger.orElse(true));
     }
 }

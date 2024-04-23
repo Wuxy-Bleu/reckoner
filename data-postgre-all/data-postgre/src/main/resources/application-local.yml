@@ -15,6 +15,11 @@ spring:
             read-timeout: 600000
           redisson-client:
             url: "http://127.0.0.1:8311"
+          mongo-acct-blc-client:
+            url: "http://127.0.0.1:8222/accts_balance_adjust/v1"
+          mongo-client:
+            url: "http://127.0.0.1:8222/v1/account-update-record"
+
   task:
     scheduling:
       thread-name-prefix: reckoner-acc-

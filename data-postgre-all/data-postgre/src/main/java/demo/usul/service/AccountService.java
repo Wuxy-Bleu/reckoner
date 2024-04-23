@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,9 +35,11 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final CacheFeign cacheFeign;
 
+
     /**
      * todo 有个大问题就是如果filter search cache没查到，也会refresh一次cache，这是多余的步骤，得想办法改
      *
+     * @param id get acct by id, if not exist, get by name cardType and currency
      * @return not gone be null, empty list
      */
     public List<AccountDto> getOrRefreshCache(String id, String name, String cardType, String currency) {
@@ -51,11 +54,22 @@ public class AccountService {
         if (opt.isPresent()) {
             return opt.get();
         }
-        accountRepository.findByIsActive(true)
-                .map(accountMapper::accountEntities2Dtos)
-                .ifPresent(dtos -> cacheFeign.cacheAccounts(ACCTS_CACHE_TTL_MS, dtos));
+        refreshCache();
         return switcher ? List.of(cacheFeign.getCachedAcctById(id))
                 : cacheFeign.getCachedAccts(name, cardType, currency);
+    }
+
+    /**
+     * @param toUpdate records for update in db, 每条record must have id, only update balance
+     * @return todo int, void, 重查一次db哪个好呢
+     */
+    public List<AccountEntity> updateBlcAndRefreshCache(List<AccountDto> toUpdate) {
+        Map<UUID, BigDecimal> toUpdateMap = toUpdate.stream().collect(Collectors.toMap(AccountDto::getId, AccountDto::getBalance));
+        accountRepository.updateBalBatch(toUpdateMap);
+
+        List<AccountEntity> updatedEnt = accountRepository.findByIdIn(toUpdateMap.keySet());
+        cacheFeign.cacheAccounts(ACCTS_CACHE_TTL_MS, accountMapper.accountEntities2Dtos(updatedEnt));
+        return updatedEnt;
     }
 
     //todo batch需要改动，对于部分成功，部分不成功的情况要重写逻辑，然后不要用foreach
@@ -103,6 +117,17 @@ public class AccountService {
 
     public void compareWithExisting(List<AccountUpdateDto> accountUpdateDtos) {
 
+    }
+
+    /**
+     * 如何delete的话，这个就不适用了，需要改进
+     *
+     * @return
+     */
+    public void refreshCache() {
+        accountRepository.findByIsActive(true)
+                .map(accountMapper::accountEntities2Dtos)
+                .ifPresent(dtos -> cacheFeign.cacheAccounts(ACCTS_CACHE_TTL_MS, dtos));
     }
 }
 

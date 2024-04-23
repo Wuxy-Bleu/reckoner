@@ -1,6 +1,5 @@
 package demo.usul.service;
 
-import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,12 +39,8 @@ public class AccountService {
 
     // call data-postgre service, using redis cache
     // 改成call cache，不过要想办法解决并发问题
-    public List<AccountDto> retrieveActivatedByConditionsOrNot(Optional<String> type, Optional<String> currency) {
-        return Optional.of(
-                        accountFeign.retrieveActivatedByConditionsOrNot(
-                                type.orElse(null),
-                                currency.orElse(null)))
-                .orElse(Collections.emptyList());
+    public List<AccountDto> retrieveActivatedByConditionsOrNot(Optional<String> cardType, Optional<String> currency) {
+        return cacheFeign.getCachedAccts(null, cardType.orElse(null), currency.orElse(null));
     }
 
     public String retrieveAsCsv(Optional<String> type, Optional<String> currency) throws JsonProcessingException {

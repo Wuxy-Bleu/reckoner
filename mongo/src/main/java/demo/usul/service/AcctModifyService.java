@@ -34,4 +34,7 @@ public class AcctModifyService {
         acctBlcCalculateRepo.insert(dto);
     }
 
+    public void saveAll(List<AcctBlcCalculateDto> dtos) {
+        acctBlcCalculateRepo.insert(dtos);
+    }
 }

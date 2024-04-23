@@ -12,10 +12,14 @@ spring:
             url: "http://127.0.0.1:8080/v1/reckoner"
           mongo-client:
             url: "http://127.0.0.1:8222/v1/account-update-record"
+          redisson-client:
+            url: "http://127.0.0.1:8311"
+          mongo-acct-blc-client:
+            url: "http://127.0.0.1:8222/accts_balance_adjust/v1"
     config:
       name: data-postgre
   config:
-    import: configserver:http://127.0.0.1:9222
+    import: configserver:http://127.0.0.1:9333
   devtools:
     restart:
       enabled: false

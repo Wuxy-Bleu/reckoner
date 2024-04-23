@@ -7,6 +7,7 @@ import demo.usul.entity.CardTypeEntity;
 import demo.usul.exception.PostgreDeleteException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,24 @@ public class AcctFragRepositoryImpl implements AcctFragRepository {
     public int softDelete(final List<UUID> ids) {
         throwWhenEntitiesNotExist(ids);
         return entityManager.createNamedQuery(AccountEntity.SOFT_DELETE).setParameter("ids", ids).executeUpdate();
+    }
+
+    public int updateBalBatch(Map<UUID, BigDecimal> blcs) {
+        StringBuilder updateStrBuilder = new StringBuilder("update ").append(AccountEntity.class.getSimpleName()).append(" set ").append(AccountEntity.COLUMN_BALANCE_NAME).append(" = case ");
+        for (int i = 0; i < blcs.size(); i++) {
+            updateStrBuilder.append("when id = :id").append(i).append(" then :value").append(i);
+        }
+        updateStrBuilder.append(" end where id in (:ids)");
+
+        Query query = entityManager.createQuery(updateStrBuilder.toString());
+        int i = 0;
+        for (Map.Entry<UUID, BigDecimal> entry : blcs.entrySet()) {
+            query.setParameter("id" + i, entry.getKey());
+            query.setParameter("value" + i, entry.getValue());
+            i++;
+        }
+        query.setParameter("ids", blcs.keySet());
+        return query.executeUpdate();
     }
 
     // 可以放到service层，用缓存解决

@@ -21,11 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-// with cache
 @Validated
 @RestController
 @RequestMapping("/v1/accounts")
@@ -36,10 +38,16 @@ public class AccountController {
 
     @GetMapping
     public ResponseEntity<AccountListResponse> retrieveActivatedByConditionsOrNot(
-            @RequestParam(required = false) Optional<String> type,
+            @RequestParam(required = false) Optional<String> cardType,
             @RequestParam(required = false) Optional<String> currency) {
-        List<AccountDto> res = accountService.retrieveActivatedByConditionsOrNot(type, currency);
-        return ResponseEntity.ok(AccountListResponse.builder().count(res.size()).accounts(res).build());
+        List<AccountDto> dtos = accountService.retrieveActivatedByConditionsOrNot(cardType, currency);
+        Map<String, List<AccountDto>> collect = dtos.stream().collect(Collectors.groupingBy(AccountDto::getCardType));
+
+        Map<String, List<AccountDto>> res = new HashMap<>();
+        for (Map.Entry<String, List<AccountDto>> entry : collect.entrySet()) {
+            res.put(entry.getKey() + "::" + entry.getValue().size(), entry.getValue());
+        }
+        return ResponseEntity.ok(AccountListResponse.builder().totalCount(dtos.size()).data(res).build());
     }
 
     @GetMapping("/{name}")

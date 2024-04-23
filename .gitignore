@@ -16834,3 +16834,5 @@ http_ca.crt
 /build/elastic-stack/mount-cfgs/es-node-0/log4j2.properties
 /build/elastic-stack/esZ.crt
 /build/asdfadsfjkl
+/build/elastic-stack/filebeat-8.13.2-darwin-x86_64/data/registry/filebeat/43009.json
+/build/elastic-stack/filebeat-8.13.2-darwin-x86_64/data/registry/filebeat/active.dat

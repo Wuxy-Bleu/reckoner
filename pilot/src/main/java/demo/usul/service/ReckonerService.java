@@ -45,4 +45,21 @@ public class ReckonerService {
         CsvSchema header = csvMapper.schemaFor(ReckonerDto.class).withHeader();
         return csvMapper.writer(header).writeValueAsString(retrieveAll());
     }
+
+    /**
+     * default way to create a reckoner record, transactional, will modify account balance
+     *
+     * @param reckoner new record
+     * @return created record, throw exception if anything wrong
+     */
+    public ReckonerDto createOne(ReckonerDto reckoner) {
+        return reckonerFeign.createOne(reckoner);
+    }
+
+    /**
+     * create record without modify account balance, transactional
+     */
+    public ReckonerDto createOneNoTrigger(ReckonerDto reckonerDto) {
+        return reckonerFeign.createOneNoTrigger(reckonerDto, false);
+    }
 }
