@@ -63,13 +63,9 @@ public class AccountService {
      * @param toUpdate records for update in db, 每条record must have id, only update balance
      * @return todo int, void, 重查一次db哪个好呢
      */
-    public List<AccountEntity> updateBlcAndRefreshCache(List<AccountDto> toUpdate) {
+    public void updateBlc(List<AccountDto> toUpdate) {
         Map<UUID, BigDecimal> toUpdateMap = toUpdate.stream().collect(Collectors.toMap(AccountDto::getId, AccountDto::getBalance));
         accountRepository.updateBalBatch(toUpdateMap);
-
-        List<AccountEntity> updatedEnt = accountRepository.findByIdIn(toUpdateMap.keySet());
-        cacheFeign.cacheAccounts(ACCTS_CACHE_TTL_MS, accountMapper.accountEntities2Dtos(updatedEnt));
-        return updatedEnt;
     }
 
     //todo batch需要改动，对于部分成功，部分不成功的情况要重写逻辑，然后不要用foreach

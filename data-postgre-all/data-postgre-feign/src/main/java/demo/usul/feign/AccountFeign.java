@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @FeignClient(name = "postgresClient", fallbackFactory = AccountFeignFallbackFactory.class)
@@ -38,4 +39,7 @@ public interface AccountFeign {
 
     @PutMapping()
     List<AccountDto> update(@RequestBody List<AccountUpdateDto> accountUpdateDtos);
+
+    @GetMapping("/assets")
+    Map<String, String> allMyMoney();
 }

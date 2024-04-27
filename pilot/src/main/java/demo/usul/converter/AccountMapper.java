@@ -3,6 +3,7 @@ package demo.usul.converter;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountModifyRecordDto;
 import demo.usul.dto.AccountUpdateDto;
+import demo.usul.pojo.AcctsVo;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -22,4 +23,6 @@ public interface AccountMapper {
     default String mapDateToString(OffsetDateTime date) {
         return null == date ? null : date.toString();
     }
+
+    AcctsVo acctDto2VO(AccountDto accountDto);
 }

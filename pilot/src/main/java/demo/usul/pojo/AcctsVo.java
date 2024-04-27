@@ -1,18 +1,15 @@
-//package demo.usul.pojo;
-//
-//import lombok.Data;
-//
-//import java.time.OffsetDateTime;
-//import java.util.UUID;
-//
-//@Data
-//public class AcctsVo {
-//
-//    private UUID id;
-//    private String name;
-//    private String balance;
-//    private String cardType;
-//    private String billCycle;
-//    private String dueDate;
-//    private OffsetDateTime lastupdate
-//}
+package demo.usul.pojo;
+
+import lombok.Builder;
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+@Builder
+public class AcctsVo {
+
+    private String name;
+    private BigDecimal balance;
+    private String cardType;
+}

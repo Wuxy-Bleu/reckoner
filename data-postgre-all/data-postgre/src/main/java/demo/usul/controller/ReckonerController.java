@@ -2,6 +2,8 @@ package demo.usul.controller;
 
 import demo.usul.convert.ReckonerMapper;
 import demo.usul.dto.ReckonerDto;
+import demo.usul.entity.ReckonerEntity;
+import demo.usul.service.AccountService;
 import demo.usul.service.ReckonerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +28,7 @@ import java.util.UUID;
 public class ReckonerController {
 
     private final ReckonerService reckonerService;
-
+    private final AccountService accountService;
     private final ReckonerMapper reckonerMapper;
 
     @GetMapping("/count/from/{acct}")
@@ -56,6 +58,8 @@ public class ReckonerController {
 
     @PostMapping("")
     public ReckonerDto createOne(@RequestBody @Valid ReckonerDto reckoner, @RequestParam(required = false) Optional<Boolean> trigger) {
-        return reckonerService.createOne(reckoner, trigger.orElse(true));
+        ReckonerEntity entity = reckonerService.createOne(reckoner, trigger.orElse(true));
+        accountService.refreshCache();
+        return reckonerService.retrieveById(entity.getId());
     }
 }

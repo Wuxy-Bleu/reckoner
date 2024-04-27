@@ -3,6 +3,7 @@ package demo.usul.controller;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountUpdateDto;
 import demo.usul.service.AccountService;
+import demo.usul.service.AcctAggregationSvc;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -26,6 +28,7 @@ import java.util.UUID;
 public class AccountController {
 
     private final AccountService accountService;
+    private final AcctAggregationSvc acctAggregationSvc;
 
     // 其实这里复杂的查询过滤最好使用 自定义的requestObj 或者criteria 更通用
     @GetMapping
@@ -70,4 +73,8 @@ public class AccountController {
         return accountService.updateAndReturnDtos(accountUpdateDtos);
     }
 
+    @GetMapping("/assets")
+    public Map<String, String> allMyMoney() {
+        return acctAggregationSvc.allMyMoney();
+    }
 }

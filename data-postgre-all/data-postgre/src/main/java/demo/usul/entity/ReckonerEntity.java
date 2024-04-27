@@ -27,32 +27,20 @@ import java.util.UUID;
 public class ReckonerEntity {
 
     public static final String TABLE_NAME = "reckoner";
-
     public static final String COLUMN_ID_NAME = "id";
-
     public static final String COLUMN_AMOUNT_NAME = "amount";
-
     public static final String COLUMN_INNOUT_NAME = "innout";
-
     public static final String COLUMN_FROMACCT_NAME = "from_acct";
-
     public static final String COLUMN_TOACCT_NAME = "to_acct";
-
     public static final String COLUMN_CURRENCY_NAME = "currency";
-
     public static final String COLUMN_TOCNY_NAME = "to_cny";
-
     public static final String COLUMN_ISALIVE_NAME = "is_alive";
-
     public static final String COLUMN_CHANGEFROM_NAME = "change_from";
-
     public static final String COLUMN_CREATEDAT_NAME = "created_at";
-
     public static final String COLUMN_LASTUPDATEDAT_NAME = "last_updated_at";
-
     public static final String COLUMN_TRANSDATE_NAME = "trans_date";
-
     public static final String COLUMN_TYPEID_NAME = "type_id";
+    public static final String COLUMN_DESCR_NAME = "descr";
 
 
     @Id
@@ -109,4 +97,8 @@ public class ReckonerEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = COLUMN_TOACCT_NAME, insertable = false, updatable = false)
     private AccountEntity toAcctObj;
+
+    @Column(name = COLUMN_DESCR_NAME, length = Integer.MAX_VALUE)
+    private String descr;
+
 }

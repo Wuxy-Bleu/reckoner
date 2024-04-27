@@ -1,5 +1,7 @@
 package demo.usul.service;
 
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.ObjectUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.convert.ReckonerMapper;
 import demo.usul.dto.AccountDto;
@@ -8,7 +10,6 @@ import demo.usul.dto.ReckonerDto;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.feign.AcctBlcCalFeign;
-import demo.usul.feign.CacheFeign;
 import demo.usul.repository.ReckonerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -53,6 +55,16 @@ public class ReckonerService {
         return reckonerRepository.findAll();
     }
 
+    public ReckonerDto retrieveById(UUID id) {
+        return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findById(id).orElseThrow());
+    }
+
+    public ReckonerDto createOneWithTrigger(ReckonerDto dto, boolean trigger) {
+        ReckonerEntity entity = createOne(dto, trigger);
+        accountService.refreshCache();
+        return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findById(entity.getId()).orElseThrow());
+    }
+
     /**
      * will trigger accts balance changes
      *
@@ -60,8 +72,11 @@ public class ReckonerService {
      * @return 从db中读取的被插入的record
      */
     @Transactional
-    public ReckonerDto createOne(ReckonerDto reckoner, boolean trigger) {
+    public ReckonerEntity createOne(ReckonerDto reckoner, boolean trigger) {
         ReckonerEntity entity = reckonerMapper.reckonerDto2Entity(reckoner);
+        if(ObjectUtil.isEmpty(entity.getTransDate())){
+            entity.setTransDate(OffsetDateTime.now());
+        }
 
         AccountDto fAcct = null;
         AccountDto tAcct = null;
@@ -91,7 +106,7 @@ public class ReckonerService {
 
         reckonerRepository.saveAssociations(entity);
 
-
+        // update accts
         if (trigger) {
             switch (entity.getInOut()) {
                 case 0:
@@ -99,41 +114,42 @@ public class ReckonerService {
                     Objects.requireNonNull(tAcct).blcAdd(entity.getAmount().abs());
                     acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
                             .acctId(fAcct.getId())
+                            .diff(entity.getAmount().abs())
                             .afterBlc(fAcct.getBalance())
                             .transDate(entity.getTransDate())
                             .afterRekn(entity.getId()).build());
                     acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
                             .transDate(entity.getTransDate())
                             .acctId(tAcct.getId())
+                            .diff(entity.getAmount().abs())
                             .afterRekn(entity.getId())
                             .afterBlc(tAcct.getBalance()).build());
-                    accountService.updateBlcAndRefreshCache(List.of(fAcct, tAcct));
+                    accountService.updateBlc(List.of(fAcct, tAcct));
                     break;
                 case 1:
                     Objects.requireNonNull(tAcct).blcAdd(entity.getAmount().abs());
                     acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
                             .transDate(entity.getTransDate())
                             .acctId(tAcct.getId())
+                            .diff(entity.getAmount().abs())
                             .afterRekn(entity.getId())
                             .afterBlc(tAcct.getBalance()).build());
-                    accountService.updateBlcAndRefreshCache(List.of(tAcct));
+                    accountService.updateBlc(List.of(tAcct));
                     break;
                 case -1:
                     Objects.requireNonNull(fAcct).blcSubtract(entity.getAmount().abs());
                     acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
                             .acctId(fAcct.getId())
+                            .diff(entity.getAmount().abs())
                             .afterBlc(fAcct.getBalance())
                             .transDate(entity.getTransDate())
                             .afterRekn(entity.getId()).build());
-                    accountService.updateBlcAndRefreshCache(List.of(fAcct));
+                    accountService.updateBlc(List.of(fAcct));
                     break;
                 default:
                     break;
             }
-
-            accountService.refreshCache();
         }
-
-        return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findById(entity.getId()).orElseThrow());
+        return entity;
     }
 }
