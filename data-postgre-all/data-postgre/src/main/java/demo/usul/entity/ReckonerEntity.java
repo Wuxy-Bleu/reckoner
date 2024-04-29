@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -41,6 +43,7 @@ public class ReckonerEntity {
     public static final String COLUMN_TRANSDATE_NAME = "trans_date";
     public static final String COLUMN_TYPEID_NAME = "type_id";
     public static final String COLUMN_DESCR_NAME = "descr";
+    public static final String COLUMN_TAGS_NAME = "tags";
 
 
     @Id
@@ -69,7 +72,7 @@ public class ReckonerEntity {
     private BigDecimal toCny;
 
     @Column(name = COLUMN_ISALIVE_NAME, nullable = false, insertable = false)
-    private Boolean isAlive = false;
+    private Boolean isAlive = true;
 
     @Column(name = COLUMN_CHANGEFROM_NAME)
     private UUID changeFrom;
@@ -100,5 +103,9 @@ public class ReckonerEntity {
 
     @Column(name = COLUMN_DESCR_NAME, length = Integer.MAX_VALUE)
     private String descr;
+
+    @Column(name = COLUMN_TAGS_NAME)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String tags;
 
 }

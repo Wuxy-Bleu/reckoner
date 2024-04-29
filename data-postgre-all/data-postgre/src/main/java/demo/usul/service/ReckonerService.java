@@ -1,6 +1,5 @@
 package demo.usul.service;
 
-import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.ObjectUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.convert.ReckonerMapper;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -59,6 +57,9 @@ public class ReckonerService {
         return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findById(id).orElseThrow());
     }
 
+    /**
+     * todo 得想办法在service层解决事务的问题
+     */
     public ReckonerDto createOneWithTrigger(ReckonerDto dto, boolean trigger) {
         ReckonerEntity entity = createOne(dto, trigger);
         accountService.refreshCache();
@@ -74,7 +75,7 @@ public class ReckonerService {
     @Transactional
     public ReckonerEntity createOne(ReckonerDto reckoner, boolean trigger) {
         ReckonerEntity entity = reckonerMapper.reckonerDto2Entity(reckoner);
-        if(ObjectUtil.isEmpty(entity.getTransDate())){
+        if (ObjectUtil.isEmpty(entity.getTransDate())) {
             entity.setTransDate(OffsetDateTime.now());
         }
 
@@ -109,47 +110,63 @@ public class ReckonerService {
         // update accts
         if (trigger) {
             switch (entity.getInOut()) {
-                case 0:
-                    Objects.requireNonNull(fAcct).blcSubtract(entity.getAmount().abs());
-                    Objects.requireNonNull(tAcct).blcAdd(entity.getAmount().abs());
-                    acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
+                case 0: {
+                    assert fAcct != null;
+                    assert tAcct != null;
+                    AcctBlcCalculateDto.AcctBlcCalculateDtoBuilder fAcctBuilder = AcctBlcCalculateDto.builder()
                             .acctId(fAcct.getId())
+                            .acctName(fAcct.getName())
                             .diff(entity.getAmount().abs())
-                            .afterBlc(fAcct.getBalance())
+                            .beforeBlc(fAcct.getBalance())
                             .transDate(entity.getTransDate())
-                            .afterRekn(entity.getId()).build());
-                    acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
-                            .transDate(entity.getTransDate())
+                            .afterRekn(entity.getId());
+                    AcctBlcCalculateDto.AcctBlcCalculateDtoBuilder tAcctBuilder = AcctBlcCalculateDto.builder()
                             .acctId(tAcct.getId())
+                            .acctName(tAcct.getName())
                             .diff(entity.getAmount().abs())
-                            .afterRekn(entity.getId())
-                            .afterBlc(tAcct.getBalance()).build());
+                            .beforeBlc(tAcct.getBalance())
+                            .transDate(entity.getTransDate())
+                            .afterRekn(entity.getId());
+                    fAcct.blcSubtract(entity.getAmount().abs());
+                    tAcct.blcAdd(entity.getAmount().abs());
+                    acctBlcCalFeign.saveOne(fAcctBuilder.afterBlc(fAcct.getBalance()).build());
+                    acctBlcCalFeign.saveOne(tAcctBuilder.afterBlc(tAcct.getBalance()).build());
                     accountService.updateBlc(List.of(fAcct, tAcct));
                     break;
-                case 1:
-                    Objects.requireNonNull(tAcct).blcAdd(entity.getAmount().abs());
-                    acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
-                            .transDate(entity.getTransDate())
+                }
+                case 1: {
+                    assert tAcct != null;
+                    AcctBlcCalculateDto.AcctBlcCalculateDtoBuilder tAcctBuilder = AcctBlcCalculateDto.builder()
                             .acctId(tAcct.getId())
+                            .acctName(tAcct.getName())
                             .diff(entity.getAmount().abs())
-                            .afterRekn(entity.getId())
-                            .afterBlc(tAcct.getBalance()).build());
+                            .beforeBlc(tAcct.getBalance())
+                            .transDate(entity.getTransDate())
+                            .afterRekn(entity.getId());
+                    tAcct.blcAdd(entity.getAmount().abs());
+                    acctBlcCalFeign.saveOne(tAcctBuilder.afterBlc(tAcct.getBalance()).build());
                     accountService.updateBlc(List.of(tAcct));
                     break;
-                case -1:
-                    Objects.requireNonNull(fAcct).blcSubtract(entity.getAmount().abs());
-                    acctBlcCalFeign.saveOne(AcctBlcCalculateDto.builder()
+                }
+                case -1: {
+                    assert fAcct != null;
+                    AcctBlcCalculateDto.AcctBlcCalculateDtoBuilder fAcctBuilder = AcctBlcCalculateDto.builder()
                             .acctId(fAcct.getId())
+                            .acctName(fAcct.getName())
                             .diff(entity.getAmount().abs())
-                            .afterBlc(fAcct.getBalance())
+                            .beforeBlc(fAcct.getBalance())
                             .transDate(entity.getTransDate())
-                            .afterRekn(entity.getId()).build());
+                            .afterRekn(entity.getId());
+                    acctBlcCalFeign.saveOne(fAcctBuilder.afterBlc(fAcct.getBalance()).build());
                     accountService.updateBlc(List.of(fAcct));
                     break;
+                }
                 default:
                     break;
             }
         }
+        int i = 1 / 0;
         return entity;
+        
     }
 }

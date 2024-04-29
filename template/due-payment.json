@@ -1,0 +1,14 @@
+{
+  "amount": 13229.66,
+  "inOut": "TRANSFER",
+  "fromAcctObj": {
+    "name": "招行储蓄卡2567"
+  },
+  "toAcctObj": {
+    "name": "招行信用卡0709"
+  },
+  "transDate": "2024-04-24 23:46:17+08:00",
+  "reckonerTypeObj": {
+    "typeName": "Due payment"
+  }
+}

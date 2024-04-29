@@ -1,8 +1,10 @@
 package demo.usul.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import demo.usul.enums.InOutEnum;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
+@Builder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -38,6 +41,11 @@ public class ReckonerDto extends CommonColumn implements Serializable {
     private OffsetDateTime transDate;
 
     private UUID typeId;
+
+    private String descr;
+
+    @JsonRawValue
+    private String tags;
 
     private ReckonerTypeDto reckonerTypeObj;
 

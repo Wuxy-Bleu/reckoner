@@ -1,8 +1,11 @@
 package demo.usul.controller;
 
 import demo.usul.convert.ReckonerMapper;
+import demo.usul.dto.AccountDto;
 import demo.usul.dto.ReckonerDto;
+import demo.usul.dto.ReckonerTypeDto;
 import demo.usul.entity.ReckonerEntity;
+import demo.usul.enums.InOutEnum;
 import demo.usul.service.AccountService;
 import demo.usul.service.ReckonerService;
 import jakarta.validation.Valid;
@@ -16,11 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-// 问题已解决，这就用来测试事务传播吧
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -62,4 +66,17 @@ public class ReckonerController {
         accountService.refreshCache();
         return reckonerService.retrieveById(entity.getId());
     }
+
+    @PostMapping("/yuebao-profit/{blc}")
+    public ReckonerDto createYuEBaoProfit(@PathVariable String blc, @RequestBody OffsetDateTime transDate) {
+        ReckonerDto build = ReckonerDto.builder()
+                .inOut(InOutEnum.IN)
+                .amount(new BigDecimal(blc))
+                .transDate(transDate)
+                .toAcctObj(AccountDto.builder().name("余额宝").build())
+                .reckonerTypeObj(ReckonerTypeDto.builder().typeName("Profit").build())
+                .build();
+        return createOne(build, Optional.of(true));
+    }
+
 }

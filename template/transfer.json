@@ -1,0 +1,14 @@
+{
+  "amount": 10000,
+  "inOut": "TRANSFER",
+  "fromAcctObj": {
+    "name": "余额宝"
+  },
+  "toAcctObj": {
+    "name": "招行储蓄卡2567"
+  },
+  "transDate": "2024-04-24 23:46:17+08:00",
+  "reckonerTypeObj": {
+    "typeName": "Transfer"
+  }
+}

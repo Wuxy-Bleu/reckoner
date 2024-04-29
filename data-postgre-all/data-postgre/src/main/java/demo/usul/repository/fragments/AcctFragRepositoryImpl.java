@@ -65,7 +65,7 @@ public class AcctFragRepositoryImpl implements AcctFragRepository {
     public int updateBalBatch(Map<UUID, BigDecimal> blcs) {
         StringBuilder updateStrBuilder = new StringBuilder("update ").append(AccountEntity.class.getSimpleName()).append(" set ").append(AccountEntity.COLUMN_BALANCE_NAME).append(" = case ");
         for (int i = 0; i < blcs.size(); i++) {
-            updateStrBuilder.append("when id = :id").append(i).append(" then :value").append(i);
+            updateStrBuilder.append(" when id = :id").append(i).append(" then :value").append(i);
         }
         updateStrBuilder.append(" end where id in (:ids)");
 
