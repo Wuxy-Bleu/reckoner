@@ -1,5 +1,6 @@
 package demo.usul.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.convert.ReckonerMapper;
@@ -44,9 +45,22 @@ public class ReckonerService {
         return reckonerRepository.findByFromAcct(acct.getId(), Pageable.ofSize(10));
     }
 
+    public List<ReckonerEntity> retrieveByFromAcctNameAndTags(String name, List<String> tags) {
+        AccountEntity acct = accountService.retrieveActivatedByName(name);
+        return reckonerRepository.findByFromAcctAndTagsOrderByTransDateDesc(acct.getId(),
+                ".*" + String.join(".*", tags) + ".*",
+                ".*" + String.join(".*", CollUtil.reverse(tags)) + ".*");
+    }
+
+    public List<ReckonerEntity> retrieveByTags(List<String> tags) {
+        return reckonerRepository.findByTagsOrderByTransDateDesc(
+                ".*" + String.join(".*", tags) + ".*",
+                ".*" + String.join(".*", CollUtil.reverse(tags)) + ".*");
+    }
+
     public List<ReckonerEntity> retrieveByToAcctName(String name) {
         AccountEntity acct = accountService.retrieveActivatedByName(name);
-        return reckonerRepository.findByToAcct(acct.getId(), Pageable.ofSize(10));
+        return reckonerRepository.findByToAcctOrderByTransDateDesc(acct.getId());
     }
 
     public List<ReckonerEntity> retrieveAll() {
@@ -116,7 +130,7 @@ public class ReckonerService {
                     AcctBlcCalculateDto.AcctBlcCalculateDtoBuilder fAcctBuilder = AcctBlcCalculateDto.builder()
                             .acctId(fAcct.getId())
                             .acctName(fAcct.getName())
-                            .diff(entity.getAmount().abs())
+                            .diff(entity.getAmount().abs().negate())
                             .beforeBlc(fAcct.getBalance())
                             .transDate(entity.getTransDate())
                             .afterRekn(entity.getId());
@@ -153,10 +167,11 @@ public class ReckonerService {
                     AcctBlcCalculateDto.AcctBlcCalculateDtoBuilder fAcctBuilder = AcctBlcCalculateDto.builder()
                             .acctId(fAcct.getId())
                             .acctName(fAcct.getName())
-                            .diff(entity.getAmount().abs())
+                            .diff(entity.getAmount().abs().negate())
                             .beforeBlc(fAcct.getBalance())
                             .transDate(entity.getTransDate())
                             .afterRekn(entity.getId());
+                    fAcct.blcSubtract(entity.getAmount().abs());
                     acctBlcCalFeign.saveOne(fAcctBuilder.afterBlc(fAcct.getBalance()).build());
                     accountService.updateBlc(List.of(fAcct));
                     break;
@@ -165,8 +180,20 @@ public class ReckonerService {
                     break;
             }
         }
-        int i = 1 / 0;
         return entity;
-        
+
     }
+
+    public ReckonerDto latestCreated() {
+        return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findFirstByIsAliveOrderByCreatedAtDesc(true));
+    }
+
+    public ReckonerDto latestTransaction() {
+        return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findFirstByIsAliveOrderByTransDateDesc(true));
+    }
+
+    public void deleteById(UUID id) {
+        reckonerRepository.deleteById(id);
+    }
+
 }

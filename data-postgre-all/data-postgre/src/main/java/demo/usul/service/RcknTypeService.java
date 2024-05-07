@@ -3,7 +3,9 @@ package demo.usul.service;
 import demo.usul.convert.ReckonerMapper;
 import demo.usul.dto.ReckonerTypeDto;
 import demo.usul.entity.ReckonerTypeEntity;
+import demo.usul.repository.ReckonerRepository;
 import demo.usul.repository.ReckonerTypeRepository;
+import demo.usul.repository.fragments.RcknTypeFragRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +18,13 @@ public class RcknTypeService {
 
     private final ReckonerTypeRepository repository;
     private final ReckonerMapper reckonerMapper;
+    private final ReckonerRepository reckonerRepository;
 
     @Autowired
-    public RcknTypeService(ReckonerTypeRepository repository, ReckonerMapper reckonerMapper) {
+    public RcknTypeService(ReckonerTypeRepository repository, ReckonerMapper reckonerMapper, ReckonerRepository reckonerRepository) {
         this.repository = repository;
         this.reckonerMapper = reckonerMapper;
+        this.reckonerRepository = reckonerRepository;
     }
 
     public ReckonerTypeDto createOne(ReckonerTypeDto dto) {
@@ -34,5 +38,9 @@ public class RcknTypeService {
 
     public List<ReckonerTypeDto> deleteByName(List<String> names) {
         return reckonerMapper.rckEnts2Dtos(repository.deleteByTypeNameInIgnoreCase(names));
+    }
+
+    public List<RcknTypeFragRepositoryImpl.Stat> stat() {
+           return repository.stat();
     }
 }

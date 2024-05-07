@@ -1,6 +1,7 @@
 package demo.usul.controller;
 
 import demo.usul.dto.ReckonerTypeDto;
+import demo.usul.repository.fragments.RcknTypeFragRepositoryImpl;
 import demo.usul.service.RcknTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,5 +35,10 @@ public class RcknTypeController {
     @DeleteMapping
     public List<ReckonerTypeDto> deleteByNames(@RequestBody List<String> names) {
         return service.deleteByName(names);
+    }
+
+    @GetMapping("stat")
+    public List<RcknTypeFragRepositoryImpl.Stat> stat() {
+        return service.stat();
     }
 }

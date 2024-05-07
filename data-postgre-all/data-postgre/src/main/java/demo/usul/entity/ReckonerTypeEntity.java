@@ -5,15 +5,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NamedQuery;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static demo.usul.entity.ReckonerTypeEntity.FIND_BY_ID;
@@ -25,6 +28,7 @@ import static demo.usul.entity.ReckonerTypeEntity.FIND_BY_NAME;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EqualsAndHashCode
 @Table(name = ReckonerTypeEntity.TABLE_NAME, schema = "public")
 @NamedQuery(name = FIND_BY_ID, query = "from ReckonerTypeEntity where id = :id")
 @NamedQuery(name = FIND_BY_NAME, query = "from ReckonerTypeEntity where typeName = :name")
@@ -52,4 +56,6 @@ public class ReckonerTypeEntity {
     @Column(name = COLUMN_LASTUPDATEAT_NAME, insertable = false)
     private OffsetDateTime lastUpdatedAt;
 
+    @OneToMany(mappedBy = "reckonerTypeObj")
+    private List<ReckonerEntity> reckonerObjs;
 }

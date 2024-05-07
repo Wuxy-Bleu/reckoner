@@ -3,6 +3,7 @@ package demo.usul.convert;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountUpdateDto;
 import demo.usul.entity.AccountEntity;
+import org.mapstruct.Builder;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,7 +15,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        builder = @Builder(disableBuilder = true))
 public interface AccountMapper {
 
     @Mapping(target = "cardType", source = "cardTypeEntity.typeName")

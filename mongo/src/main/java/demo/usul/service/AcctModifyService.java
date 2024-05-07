@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -52,5 +53,9 @@ public class AcctModifyService {
 
     public List<AcctBlcCalculateDto> retrieve() {
         return acctBlcCalculateRepo.findAll();
+    }
+
+    public AcctBlcCalculateDto retrieveOne(UUID id) {
+        return acctBlcCalculateRepo.findByAfterRekn(id);
     }
 }
