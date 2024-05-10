@@ -2,6 +2,7 @@ package demo.usul.repository;
 
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.repository.fragments.ReckonerFragRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -34,6 +35,11 @@ public interface ReckonerRepository extends JpaRepository<ReckonerEntity, UUID>,
 
     ReckonerEntity findFirstByIsAliveOrderByTransDateDesc(Boolean isAlive);
 
+    @Query("select r from ReckonerEntity r where r.toAcct = ?1 order by r.inOut, r.typeId, r.transDate DESC")
+    Page<ReckonerEntity> findByToAcctOrderByInOutAscTypeIdAscTransDateDesc(UUID toAcct, Pageable pageable);
+
+    @Query("select r from ReckonerEntity r where r.toAcct = ?1 order by r.inOut desc, r.typeId, r.transDate DESC")
+    Page<ReckonerEntity> findByToAcctOrderByInOutDescTypeIdAscTransDateDesc(UUID id, Pageable page);
 //    @Query(value = "select r from ReckonerEntity r " +
 //            "where r.fromAcct = :fromAcct " +
 //            "and (r.tags::varchar ~ \':tags\' or r.tags::varchar ~ \':v_tags\')" +

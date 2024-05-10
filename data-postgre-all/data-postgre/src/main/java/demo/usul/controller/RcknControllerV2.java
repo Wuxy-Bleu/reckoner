@@ -2,10 +2,12 @@ package demo.usul.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import demo.usul.convert.ReckonerMapper;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.ReckonerDto;
 import demo.usul.dto.ReckonerTypeDto;
 import demo.usul.enums.InOutEnum;
+import demo.usul.repository.fragments.ReckonerFragRepositoryImpl;
 import demo.usul.service.RcknSvcV2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +37,13 @@ public class RcknControllerV2 {
 
     private final ReckonerController reckonerController;
     private final RcknSvcV2 rcknSvcV2;
+    private final ReckonerMapper reckonerMapper;
 
     @Autowired
-    public RcknControllerV2(ReckonerController reckonerController, RcknSvcV2 rcknSvcV2) {
+    public RcknControllerV2(ReckonerController reckonerController, RcknSvcV2 rcknSvcV2, ReckonerMapper reckonerMapper) {
         this.reckonerController = reckonerController;
         this.rcknSvcV2 = rcknSvcV2;
+        this.reckonerMapper = reckonerMapper;
     }
 
     @PostMapping({"", "/{trigger}"})
@@ -101,13 +105,13 @@ public class RcknControllerV2 {
     }
 
     @PostMapping("/transfer/Due_Payment/{fAcct}/{tAcct}")
-    public ReckonerDto createTransfer(@PathVariable String fAcct,
-                                      @PathVariable String tAcct,
-                                      @RequestParam String blc,
-                                      @RequestParam String transDate, @RequestParam String transTime,
-                                      @RequestParam(required = false) List<String> tags,
-                                      @RequestParam(required = false) String descr,
-                                      @RequestParam(required = false) Optional<Boolean> trigger) {
+    public ReckonerDto createTransferDuePayment(@PathVariable String fAcct,
+                                                @PathVariable String tAcct,
+                                                @RequestParam String blc,
+                                                @RequestParam String transDate, @RequestParam String transTime,
+                                                @RequestParam(required = false) List<String> tags,
+                                                @RequestParam(required = false) String descr,
+                                                @RequestParam(required = false) Optional<Boolean> trigger) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
                 .inOut(InOutEnum.TRANSFER)
@@ -149,5 +153,37 @@ public class RcknControllerV2 {
     @PutMapping("/one/f_acct/{id}")
     public ReckonerDto updateWithMongoDoc(@PathVariable UUID id, @RequestParam String name) {
         return rcknSvcV2.updateFAcct(id, name);
+    }
+
+    @GetMapping("/stats/to/{name}")
+    public Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsToAcc(@PathVariable String name) {
+        return rcknSvcV2.statsToAcc(name);
+    }
+
+    @GetMapping("/stats/from/{fAcc}")
+    public Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsFromAcc(@PathVariable String fAcc) {
+        return rcknSvcV2.statsFromAcc(fAcc);
+    }
+
+    @PostMapping("/transfer/{fAcct}/{tAcct}")
+    public ReckonerDto createTransfer(@PathVariable String fAcct,
+                                      @PathVariable String tAcct,
+                                      @RequestParam String blc,
+                                      @RequestParam String transDate, @RequestParam String transTime,
+                                      @RequestParam(required = false) List<String> tags,
+                                      @RequestParam(required = false) String descr,
+                                      @RequestParam(required = false) Optional<Boolean> trigger) {
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
+        ReckonerDto build = ReckonerDto.builder()
+                .inOut(InOutEnum.TRANSFER)
+                .amount(new BigDecimal(blc))
+                .transDate(offsetDateTime)
+                .fromAcctObj(AccountDto.builder().name(fAcct).build())
+                .toAcctObj(AccountDto.builder().name(tAcct).build())
+                .reckonerTypeObj(ReckonerTypeDto.builder().typeName("Transfer").build())
+                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .descr(ObjectUtil.isEmpty(descr) ? null : descr)
+                .build();
+        return reckonerController.createOne(build, trigger);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -40,7 +41,7 @@ public class RcknTypeService {
         return reckonerMapper.rckEnts2Dtos(repository.deleteByTypeNameInIgnoreCase(names));
     }
 
-    public List<RcknTypeFragRepositoryImpl.Stat> stat() {
-           return repository.stat();
+    public List<RcknTypeFragRepositoryImpl.Stat> stat(Optional<Boolean> monthly) {
+           return repository.stat(monthly);
     }
 }

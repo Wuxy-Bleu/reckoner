@@ -3,6 +3,7 @@ package demo.usul.repository.fragments;
 import demo.usul.entity.ReckonerEntity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface ReckonerFragRepository {
@@ -13,5 +14,7 @@ public interface ReckonerFragRepository {
 
     List<ReckonerEntity> findByTagsOrderByTransDateDesc(String s, String s1);
 
-    List<?> statsToAcc(UUID id);
+    Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsToAcc(UUID id);
+
+    Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsFromAcc(UUID id);
 }

@@ -1,6 +1,7 @@
 package demo.usul.repository.fragments;
 
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import demo.usul.entity.QReckonerEntity;
 import demo.usul.entity.QReckonerTypeEntity;
@@ -13,7 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,16 +76,112 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
     }
 
     @Override
-    public List<ReckonerEntity> statsToAcc(UUID id) {
-        JPAQuery<ReckonerEntity> query = jpaQueryFactory
-                .from(reckoner)
-                .select(reckoner)
-                .innerJoin(reckoner.reckonerTypeObj, rcknType)
-                .where(reckoner.toAcct.eq(id),
-                        reckoner.isAlive.eq(true))
-                .orderBy(reckoner.inOut.asc())
-                .orderBy(reckoner.typeId.asc())
-                .orderBy(reckoner.transDate.desc());
-        return query.fetch();
+    public Map<String, List<Stat>> statsToAcc(UUID id) {
+        Map<String, List<Stat>> res = new HashMap<>();
+        res.put("all", statsInflowAggregationWhereToAcc(id));
+        res.put("group_by_type", statsInflowAggregationWhereToAccGroupByTypeName(id));
+        return res;
     }
+
+    @Override
+    public Map<String, List<Stat>> statsFromAcc(UUID id) {
+        Map<String, List<Stat>> res = new HashMap<>();
+        res.put("all", statsOutflowAggregationWhereToAcc(id));
+        res.put("group_by_type", statsOutflowAggregationWhereToAccGroupByTypeName(id));
+        return res;
+    }
+
+    private List<Stat> statsOutflowAggregationWhereToAcc(UUID fromAcc) {
+        return jpaQueryFactory
+                .from(reckoner)
+                .innerJoin(reckoner.reckonerTypeObj, rcknType)
+                .select(Projections.constructor(
+                        Stat.class,
+                        Expressions.constant("all_type"),
+                        reckoner.count(),
+                        reckoner.amount.sum(),
+                        reckoner.amount.avg(),
+                        reckoner.amount.min(),
+                        reckoner.amount.max(),
+                        reckoner.transDate.min(),
+                        reckoner.transDate.max()
+                ))
+                .where(reckoner.fromAcct.eq(fromAcc),
+                        reckoner.isAlive.eq(true),
+                        reckoner.inOut.eq((short) -1))
+                .fetch();
+    }
+
+
+    private List<Stat> statsInflowAggregationWhereToAcc(UUID toAcc) {
+        return jpaQueryFactory
+                .from(reckoner)
+                .innerJoin(reckoner.reckonerTypeObj, rcknType)
+                .select(Projections.constructor(
+                        Stat.class,
+                        Expressions.constant("all_type"),
+                        reckoner.count(),
+                        reckoner.amount.sum(),
+                        reckoner.amount.avg(),
+                        reckoner.amount.min(),
+                        reckoner.amount.max(),
+                        reckoner.transDate.min(),
+                        reckoner.transDate.max()
+                ))
+                .where(reckoner.toAcct.eq(toAcc),
+                        reckoner.isAlive.eq(true),
+                        reckoner.inOut.eq((short) 1))
+                .fetch();
+    }
+
+    private List<Stat> statsOutflowAggregationWhereToAccGroupByTypeName(UUID fromAcc) {
+        return jpaQueryFactory
+                .from(reckoner)
+                .innerJoin(reckoner.reckonerTypeObj, rcknType)
+                .select(Projections.constructor(
+                        Stat.class,
+                        reckoner.reckonerTypeObj.typeName,
+                        reckoner.count(),
+                        reckoner.amount.sum(),
+                        reckoner.amount.avg(),
+                        reckoner.amount.min(),
+                        reckoner.amount.max(),
+                        reckoner.transDate.min(),
+                        reckoner.transDate.max()
+                ))
+                .where(reckoner.fromAcct.eq(fromAcc),
+                        reckoner.isAlive.eq(true),
+                        reckoner.inOut.eq((short) -1))
+                .groupBy(reckoner.reckonerTypeObj.typeName)
+                .fetch();
+    }
+
+    private List<Stat> statsInflowAggregationWhereToAccGroupByTypeName(UUID toAcc) {
+        return jpaQueryFactory
+                .from(reckoner)
+                .innerJoin(reckoner.reckonerTypeObj, rcknType)
+                .select(Projections.constructor(
+                        Stat.class,
+                        reckoner.reckonerTypeObj.typeName,
+                        reckoner.count(),
+                        reckoner.amount.sum(),
+                        reckoner.amount.avg(),
+                        reckoner.amount.min(),
+                        reckoner.amount.max(),
+                        reckoner.transDate.min(),
+                        reckoner.transDate.max()
+                ))
+                .where(reckoner.toAcct.eq(toAcc),
+                        reckoner.isAlive.eq(true),
+                        reckoner.inOut.eq((short) 1))
+                .groupBy(reckoner.reckonerTypeObj.typeName)
+                .fetch();
+    }
+
+    public record Stat(String reckonerType,
+                       Long count, BigDecimal sum, Double avg,
+                       BigDecimal min, BigDecimal max,
+                       OffsetDateTime minDate,
+                       OffsetDateTime maxDate) {}
+
 }

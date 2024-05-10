@@ -8,6 +8,9 @@ import demo.usul.service.ReckonerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,8 +60,11 @@ public class ReckonerController {
 
 
     @GetMapping("/to/{name}")
-    public List<ReckonerDto> retrieveByToAcctName(@PathVariable String name) {
-        return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveByToAcctName(name));
+    public Page<ReckonerDto> retrieveByToAcctName(@PathVariable String name,
+                                                  @RequestParam(defaultValue = "10") Integer pageSize,
+                                                  @RequestParam(defaultValue = "0") Integer pageNum) {
+        Page<ReckonerEntity> page = reckonerService.retrieveByToAcctName(name, PageRequest.of(pageNum, pageSize));
+        return new PageImpl<>(reckonerMapper.reckonerEntities2Dtos(page.getContent()), page.getPageable(), page.getTotalElements());
     }
 
     @GetMapping("")

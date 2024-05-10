@@ -13,6 +13,7 @@ import demo.usul.feign.AcctBlcCalFeign;
 import demo.usul.repository.ReckonerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,9 +59,9 @@ public class ReckonerService {
                 ".*" + String.join(".*", CollUtil.reverse(tags)) + ".*");
     }
 
-    public List<ReckonerEntity> retrieveByToAcctName(String name) {
-        AccountEntity acct = accountService.retrieveActivatedByName(name);
-        return reckonerRepository.findByToAcctOrderByTransDateDesc(acct.getId());
+    public Page<ReckonerEntity> retrieveByToAcctName(String name, Pageable page) {
+        AccountDto toAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
+        return reckonerRepository.findByToAcctOrderByInOutAscTypeIdAscTransDateDesc(toAcc.getId(), page);
     }
 
     public List<ReckonerEntity> retrieveAll() {

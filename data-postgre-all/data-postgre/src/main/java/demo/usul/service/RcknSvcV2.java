@@ -9,6 +9,7 @@ import demo.usul.entity.ReckonerEntity;
 import demo.usul.feign.AcctBlcCalFeign;
 import demo.usul.repository.AccountRepository;
 import demo.usul.repository.ReckonerRepository;
+import demo.usul.repository.fragments.ReckonerFragRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -93,8 +95,13 @@ public class RcknSvcV2 {
         return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findById(id).orElseThrow());
     }
 
-    public void statsToAcc(String name) {
+    public Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsToAcc(String name) {
         AccountDto toAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
-        reckonerRepository.statsToAcc(toAcc.getId());
+        return reckonerRepository.statsToAcc(toAcc.getId());
+    }
+
+    public Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsFromAcc(String name) {
+        AccountDto fromAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
+        return reckonerRepository.statsFromAcc( fromAcc.getId());
     }
 }
