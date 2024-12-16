@@ -1,5 +1,6 @@
 package demo.usul.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -37,10 +38,17 @@ public class AccountService {
         this.cacheFeign = cacheFeign;
     }
 
-    // call data-postgre service, using redis cache
-    // 改成call cache，不过要想办法解决并发问题
+    // will not return null
     public List<AccountDto> retrieveActivatedByConditionsOrNot(Optional<String> cardType, Optional<String> currency) {
         return cacheFeign.getCachedAccts(null, cardType.orElse(null), currency.orElse(null));
+    }
+
+    public Optional<AccountDto> retrieveActivatedByName(String name) {
+        List<AccountDto> cachedAccts = cacheFeign.getCachedAccts(name, null, null);
+        if (CollUtil.isEmpty(cachedAccts)) {
+            return Optional.empty();
+        }
+        return Optional.of(cachedAccts.get(0));
     }
 
     public String retrieveAsCsv(Optional<String> type, Optional<String> currency) throws JsonProcessingException {
@@ -59,10 +67,6 @@ public class AccountService {
         accountModifyRecordFeign.createModifyRecordBatch(accountModifyRecordDtos);
     }
 
-    public AccountDto retrieveActivatedByName(String name) {
-        return accountFeign.retrieveActivatedByName(name);
-    }
-
     public AccountDto create(AccountDto accountDto) {
         return accountFeign.createOne(accountDto);
     }
@@ -74,8 +78,5 @@ public class AccountService {
     public List<AccountDto> updateAndReturnDtos(List<AccountUpdateDto> accountUpdateDtos) {
         createModifyHistory(accountMapper.accountUpdateDtos2ModifyRecordDtos(accountUpdateDtos));
         return accountFeign.update(accountUpdateDtos);
-    }
-
-    public void compareBeforeUpdate(List<AccountUpdateDto> accountUpdateDtos) {
     }
 }

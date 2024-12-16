@@ -1,5 +1,6 @@
 package demo.usul.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountModifyRecordDto;
 import demo.usul.dto.AccountUpdateDto;
@@ -41,18 +42,24 @@ public class AccountController {
             @RequestParam(required = false) Optional<String> cardType,
             @RequestParam(required = false) Optional<String> currency) {
         List<AccountDto> dtos = accountService.retrieveActivatedByConditionsOrNot(cardType, currency);
+        // non-null
         Map<String, List<AccountDto>> collect = dtos.stream().collect(Collectors.groupingBy(AccountDto::getCardType));
 
         Map<String, List<AccountDto>> res = new HashMap<>();
         for (Map.Entry<String, List<AccountDto>> entry : collect.entrySet()) {
             res.put(entry.getKey() + "::" + entry.getValue().size(), entry.getValue());
         }
+
+        if (CollUtil.isEmpty(res)) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(AccountListResponse.builder().totalCount(dtos.size()).data(res).build());
     }
 
     @GetMapping("/{name}")
     public ResponseEntity<AccountDto> retrieveActivatedByName(@PathVariable @NotBlank String name) {
-        return ResponseEntity.ok(accountService.retrieveActivatedByName(name));
+        Optional<AccountDto> opt = accountService.retrieveActivatedByName(name);
+        return opt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @GetMapping("/modify-history/{uuid}")

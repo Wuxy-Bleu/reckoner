@@ -8,7 +8,6 @@ import org.redisson.api.search.index.IndexType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import static demo.usul.consta.Constants.ACCTS_CACHE_KEY;
 import static demo.usul.consta.Constants.ACCTS_IDX;
@@ -24,16 +23,14 @@ public class RedisIdxCmdRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // create idx ACCTS:IDX
         redissonReactiveClient.getSearch()
                 .createIndex(ACCTS_IDX,
                         IndexOptions.defaults().prefix(ACCTS_CACHE_KEY).on(IndexType.JSON),
                         FieldIndex.text("$.name").as("name"),
                         FieldIndex.text("$.cardType").as("cardType"),
                         FieldIndex.text("$.currency").as("currency"))
-                .onErrorResume(ex -> {
-                    log.warn("maybe index already exist", ex);
-                    return Mono.empty();
-                })
+                .doOnError(ex -> log.warn("maybe index already exist", ex))
                 .subscribe();
     }
 }

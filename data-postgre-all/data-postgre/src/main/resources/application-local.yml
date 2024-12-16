@@ -25,3 +25,6 @@ spring:
       thread-name-prefix: reckoner-acc-
       pool:
         size: 5
+server:
+  error:
+    include-stacktrace: always

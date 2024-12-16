@@ -11,3 +11,18 @@ spring:
     name: hello
   profiles:
     active: k8s
+  cloud:
+    nacos:
+      serverAddr: 127.0.0.1:8844
+      # 以下配置项必须填写
+      username: 'nacos'
+      password: 'nacos'
+      discovery:
+        server-addr: 127.0.0.1:8844
+      config:
+        import-check:
+          enabled: false
+#  config:
+#    import:
+#      - nacos:nacos-config-example.properties?refreshEnabled=true&group=DEFAULT_GROUP
+debug: true

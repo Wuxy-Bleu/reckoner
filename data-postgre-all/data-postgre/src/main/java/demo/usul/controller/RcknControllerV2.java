@@ -11,6 +11,8 @@ import demo.usul.repository.fragments.ReckonerFragRepositoryImpl;
 import demo.usul.service.RcknSvcV2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -181,6 +184,49 @@ public class RcknControllerV2 {
                 .fromAcctObj(AccountDto.builder().name(fAcct).build())
                 .toAcctObj(AccountDto.builder().name(tAcct).build())
                 .reckonerTypeObj(ReckonerTypeDto.builder().typeName("Transfer").build())
+                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .descr(ObjectUtil.isEmpty(descr) ? null : descr)
+                .build();
+        return reckonerController.createOne(build, trigger);
+    }
+
+    @GetMapping("/cond")
+    public Page<ReckonerDto> retrieveCond(@RequestParam(required = false) Optional<String> acc,
+                                          @RequestParam(required = false) Optional<String> rcknType,
+                                          @RequestParam(required = false) Optional<Integer> inOut,
+                                          @RequestParam(required = false) Optional<Boolean> isOrderByTransDate,
+                                          @RequestParam(required = false) Optional<Boolean> isOrderByAmount,
+                                          @RequestParam(defaultValue = "0") Integer pageNum,
+                                          @RequestParam(defaultValue = "10") Integer pageSize) {
+        return rcknSvcV2.retrieveCondPageable(acc, rcknType, inOut, isOrderByTransDate, isOrderByAmount, PageRequest.of(pageNum, pageSize));
+    }
+
+    @GetMapping("/stat/acc")
+    public Collection<ReckonerFragRepositoryImpl.AccStat> statsGroupByAcc(@RequestParam(required = false) Optional<Boolean> isMonthly,
+                                                                          @RequestParam(required = false) Optional<Boolean> isWeekly,
+                                                                          @RequestParam(required = false) Optional<Boolean> isGroupByType,
+                                                                          @RequestParam(required = false) Optional<String> acc,
+                                                                          @RequestParam(required = false) Optional<OffsetDateTime> timeBegin,
+                                                                          @RequestParam(required = false) Optional<OffsetDateTime> timeEnd) {
+        return rcknSvcV2.statsGroupByAcc(isMonthly, isWeekly, isGroupByType, acc, timeBegin, timeEnd);
+    }
+
+    @PostMapping("/in/{tAcct}")
+    public ReckonerDto createInflow(@PathVariable String tAcct,
+                                    @RequestParam String typeName,
+                                    @RequestParam String blc,
+                                    @RequestParam String transDate,
+                                    @RequestParam String transTime,
+                                    @RequestParam(required = false) List<String> tags,
+                                    @RequestParam(required = false) String descr,
+                                    @RequestParam(required = false) Optional<Boolean> trigger) {
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
+        ReckonerDto build = ReckonerDto.builder()
+                .inOut(InOutEnum.IN)
+                .amount(new BigDecimal(blc))
+                .transDate(offsetDateTime)
+                .toAcctObj(AccountDto.builder().name(tAcct).build())
+                .reckonerTypeObj(ReckonerTypeDto.builder().typeName(typeName).build())
                 .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
                 .descr(ObjectUtil.isEmpty(descr) ? null : descr)
                 .build();

@@ -6,9 +6,39 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Hooks;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class CacheRoute {
+
+    private static final List<String> words = Arrays.asList(
+            "the",
+            "quick",
+            "brown",
+            "fox",
+            "jumped",
+            "over",
+            "the",
+            "lazy",
+            "dog"
+    );
+
+    public static void main(String[] args) {
+        Hooks.resetOnOperatorDebug();
+        Flux<String> manyLetters = Flux
+                .fromIterable(words)
+                .flatMap(word -> Flux.fromArray(word.split("")))
+                .distinct()
+                .sort()
+                .zipWith(Flux.range(1, Integer.MAX_VALUE),
+                        (string, count) -> String.format("%2d. %s", count, string));
+
+        manyLetters.subscribe(System.out::println);
+    }
 
     @Bean
     public RouterFunction<ServerResponse> route(CacheHandler cacheHandler) {
@@ -18,5 +48,4 @@ public class CacheRoute {
                 .GET("/cache/accts/v3/{id}", cacheHandler::getCachedAcctById)
                 .build();
     }
-
 }

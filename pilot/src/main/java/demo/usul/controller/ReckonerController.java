@@ -1,5 +1,6 @@
 package demo.usul.controller;
 
+import demo.usul.dto.LoanCreateDto;
 import demo.usul.dto.ReckonerDto;
 import demo.usul.service.ReckonerService;
 import jakarta.validation.Valid;
@@ -55,5 +56,12 @@ public class ReckonerController {
     @PostMapping("/no-trigger")
     public ReckonerDto createOneNoTrigger(@RequestBody ReckonerDto reckoner) {
         return reckonerService.createOneNoTrigger(reckoner);
+    }
+
+    // todo request body validation unit test, feign test
+    @PostMapping("/loan")
+    public Object newCreditLoan(@RequestBody @Valid LoanCreateDto LoanCreateDto) {
+        return reckonerService.newCreditLoan(LoanCreateDto);
+
     }
 }

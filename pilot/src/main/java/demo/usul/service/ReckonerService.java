@@ -3,7 +3,9 @@ package demo.usul.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import demo.usul.dto.LoanCreateDto;
 import demo.usul.dto.ReckonerDto;
+import demo.usul.feign.LoanFeign;
 import demo.usul.feign.ReckonerFeign;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,13 @@ import java.util.UUID;
 public class ReckonerService {
 
     private final ReckonerFeign reckonerFeign;
+    private final LoanFeign loanFeign;
     private final CsvMapper csvMapper;
 
     @Autowired
-    public ReckonerService(ReckonerFeign reckonerFeign, CsvMapper csvMapper) {
+    public ReckonerService(ReckonerFeign reckonerFeign, LoanFeign loanFeign, CsvMapper csvMapper) {
         this.reckonerFeign = reckonerFeign;
+        this.loanFeign = loanFeign;
         this.csvMapper = csvMapper;
     }
 
@@ -61,5 +65,9 @@ public class ReckonerService {
      */
     public ReckonerDto createOneNoTrigger(ReckonerDto reckonerDto) {
         return reckonerFeign.createOneNoTrigger(reckonerDto, false);
+    }
+
+    public Object newCreditLoan(LoanCreateDto loanCreateDto) {
+        return loanFeign.createLoan(loanCreateDto);
     }
 }

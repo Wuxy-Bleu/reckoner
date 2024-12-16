@@ -11,3 +11,12 @@ feign:
   circuitbreaker:
     enabled: true
 debug: true
+seata:
+  tx-service-group: jfalskdjf
+  service:
+  config:
+    grouplist:
+      afs: asdf
+      a: xxx
+    dataType: consul
+    type: zk

@@ -1,4 +1,4 @@
 redisson:
   standalone:
     port: 5377
-trace: true
+#trace: true

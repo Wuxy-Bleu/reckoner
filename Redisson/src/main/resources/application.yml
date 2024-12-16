@@ -6,4 +6,8 @@ spring:
 logging:
   level:
     org.redisson.*.*: trace
-    io.netty.*.*: trace
+    org.redisson.client.handler.CommandEncoder: info
+    org.redisson.client.handler.CommandDecoder: info
+    org.redisson.client.handler.PingConnectionHandler: info
+    org.redisson.client.handler.CommandPubSubDecoder: info
+#    io.netty.*.*: trace

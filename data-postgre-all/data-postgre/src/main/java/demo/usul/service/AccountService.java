@@ -12,6 +12,7 @@ import demo.usul.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,6 +36,9 @@ public class AccountService {
     private final AccountMapper accountMapper;
     private final CacheFeign cacheFeign;
 
+    public List<AccountDto> getAll() {
+        return getOrRefreshCache(null, null, null, null);
+    }
 
     /**
      * todo 有个大问题就是如果filter search cache没查到，也会refresh一次cache，这是多余的步骤，得想办法改
@@ -44,8 +48,8 @@ public class AccountService {
      */
     public List<AccountDto> getOrRefreshCache(String id, String name, String cardType, String currency) {
         Optional<List<AccountDto>> opt;
-        boolean switcher = CharSequenceUtil.isNotBlank(id);
-        if (switcher) {
+        boolean mode = CharSequenceUtil.isNotBlank(id);
+        if (mode) {
             AccountDto hit = cacheFeign.getCachedAcctById(id);
             opt = ObjectUtil.isEmpty(hit) ? Optional.empty() : Optional.of(List.of(hit));
         } else {
@@ -55,7 +59,7 @@ public class AccountService {
             return opt.get();
         }
         refreshCache();
-        return switcher ? List.of(cacheFeign.getCachedAcctById(id))
+        return mode ? List.of(cacheFeign.getCachedAcctById(id))
                 : cacheFeign.getCachedAccts(name, cardType, currency);
     }
 
@@ -117,13 +121,18 @@ public class AccountService {
 
     /**
      * 如何delete的话，这个就不适用了，需要改进
-     *
-     * @return
      */
+    @Scheduled(fixedRate = 100000)
     public void refreshCache() {
         accountRepository.findByIsActive(true)
                 .map(accountMapper::accountEntities2Dtos)
                 .ifPresent(dtos -> cacheFeign.cacheAccounts(ACCTS_CACHE_TTL_MS, dtos));
+    }
+
+    public void reset() {
+        List<AccountDto> all = getAll();
+        all.forEach(e -> e.setBalance(BigDecimal.valueOf(0)));
+        this.updateBlc(all);
     }
 }
 

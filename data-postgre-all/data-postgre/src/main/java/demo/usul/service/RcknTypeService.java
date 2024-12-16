@@ -41,7 +41,11 @@ public class RcknTypeService {
         return reckonerMapper.rckEnts2Dtos(repository.deleteByTypeNameInIgnoreCase(names));
     }
 
-    public List<RcknTypeFragRepositoryImpl.Stat> stat(Optional<Boolean> monthly) {
-           return repository.stat(monthly);
+    public List<RcknTypeFragRepositoryImpl.Stat> stat(Optional<Boolean> monthly, Optional<Boolean> weekly) {
+        return repository.stat(monthly, weekly);
+    }
+
+    public List<RcknTypeFragRepositoryImpl.Stat> statWithType(String type, Optional<Boolean> isOrderByNumber, Optional<Short> inOut, Optional<Boolean> isCurrentMonth, Optional<Boolean> monthly, Optional<Boolean> weekly) {
+        return repository.statWithType(type, isOrderByNumber, inOut, isCurrentMonth, monthly, weekly);
     }
 }

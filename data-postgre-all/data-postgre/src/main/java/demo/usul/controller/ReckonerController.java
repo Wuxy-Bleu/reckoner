@@ -45,9 +45,12 @@ public class ReckonerController {
     }
 
     @GetMapping("/from/{name}")
-    public List<ReckonerDto> retrieveByFromAcctName(@PathVariable String name, @RequestParam(required = false) Optional<List<String>> tags) {
+    public List<ReckonerDto> retrieveByFromAcctName(@PathVariable String name,
+                                                    @RequestParam(required = false) Optional<List<String>> tags,
+                                                    @RequestParam(defaultValue = "10") Integer pageSize,
+                                                    @RequestParam(defaultValue = "0") Integer pageNum) {
         if (tags.isEmpty()) {
-            return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveByFromAcctName(name));
+            return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveByFromAcctName(name, PageRequest.of(pageNum, pageSize)));
         } else {
             return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveByFromAcctNameAndTags(name, tags.get()));
         }
@@ -68,8 +71,9 @@ public class ReckonerController {
     }
 
     @GetMapping("")
-    public List<ReckonerDto> retrieveAll() {
-        return reckonerMapper.reckonerEntities2Dtos(reckonerService.retrieveAll());
+    public Page<ReckonerDto> retrieveAll(@RequestParam(defaultValue = "10") Integer pageSize,
+                                         @RequestParam(defaultValue = "0") Integer pageNum) {
+        return reckonerService.retrieveAll(pageSize, pageNum);
     }
 
     @PostMapping("")

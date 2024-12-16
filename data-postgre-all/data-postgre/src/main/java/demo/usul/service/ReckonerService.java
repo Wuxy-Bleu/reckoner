@@ -14,6 +14,8 @@ import demo.usul.repository.ReckonerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,9 +43,9 @@ public class ReckonerService {
         return reckonerRepository.countDistinctByToAcctAllIgnoreCase(acct);
     }
 
-    public List<ReckonerEntity> retrieveByFromAcctName(String name) {
+    public List<ReckonerEntity> retrieveByFromAcctName(String name, Pageable page) {
         AccountEntity acct = accountService.retrieveActivatedByName(name);
-        return reckonerRepository.findByFromAcct(acct.getId(), Pageable.ofSize(10));
+        return reckonerRepository.findByFromAcct(acct.getId(), page);
     }
 
     public List<ReckonerEntity> retrieveByFromAcctNameAndTags(String name, List<String> tags) {
@@ -64,8 +66,13 @@ public class ReckonerService {
         return reckonerRepository.findByToAcctOrderByInOutAscTypeIdAscTransDateDesc(toAcc.getId(), page);
     }
 
-    public List<ReckonerEntity> retrieveAll() {
-        return reckonerRepository.findAll();
+    public Page<ReckonerDto> retrieveAll(Integer pageSize, Integer pageNum) {
+        PageRequest pageable = PageRequest.of(pageNum, pageSize);
+        Page<ReckonerEntity> page = reckonerRepository.findByIsAliveOrderByTransDateDesc(true, pageable);
+        return new PageImpl<>(reckonerMapper.reckonerEntities2Dtos(page.getContent()),
+                pageable,
+                page.getTotalElements()
+        );
     }
 
     public ReckonerDto retrieveById(UUID id) {

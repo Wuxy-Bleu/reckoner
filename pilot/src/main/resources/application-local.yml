@@ -16,6 +16,8 @@ spring:
             url: "http://127.0.0.1:8311"
           mongo-acct-blc-client:
             url: "http://127.0.0.1:8222/accts_balance_adjust/v1"
+          postgresLoanClient:
+            url: "http://127.0.0.1:8080/v1/loan"
     config:
       name: data-postgre
   config:
@@ -23,6 +25,8 @@ spring:
   devtools:
     restart:
       enabled: false
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 feign:
   circuitbreaker:
     enabled: true

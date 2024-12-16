@@ -40,10 +40,15 @@ public interface ReckonerRepository extends JpaRepository<ReckonerEntity, UUID>,
 
     @Query("select r from ReckonerEntity r where r.toAcct = ?1 order by r.inOut desc, r.typeId, r.transDate DESC")
     Page<ReckonerEntity> findByToAcctOrderByInOutDescTypeIdAscTransDateDesc(UUID id, Pageable page);
-//    @Query(value = "select r from ReckonerEntity r " +
+
+    @Query("select r from ReckonerEntity r where r.isAlive = ?1 order by r.transDate DESC")
+    Page<ReckonerEntity> findByIsAliveOrderByTransDateDesc(Boolean isAlive, Pageable pageable); //    @Query(value = "select r from ReckonerEntity r " +
+
 //            "where r.fromAcct = :fromAcct " +
 //            "and (r.tags::varchar ~ \':tags\' or r.tags::varchar ~ \':v_tags\')" +
 //            "order by r.transDate DESC",
 //            nativeQuery = true)
 //    List<ReckonerEntity> findByFromAcctAndTagsOrderByTransDateDesc(@Param("fromAcct") UUID fromAcct, @Param("tags") String tags, @Param("v_tags") String vTags, Pageable pageable);
+
+
 }

@@ -12,14 +12,19 @@ import demo.usul.repository.ReckonerRepository;
 import demo.usul.repository.fragments.ReckonerFragRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -102,6 +107,39 @@ public class RcknSvcV2 {
 
     public Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsFromAcc(String name) {
         AccountDto fromAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
-        return reckonerRepository.statsFromAcc( fromAcc.getId());
+        return reckonerRepository.statsFromAcc(fromAcc.getId());
+    }
+
+
+    public Page<ReckonerDto> retrieveCondPageable(Optional<String> accName,
+                                                  Optional<String> rcknType,
+                                                  Optional<Integer> inOut,
+                                                  Optional<Boolean> isOrderByTransDate,
+                                                  Optional<Boolean> isOrderByAmount,
+                                                  Pageable page) throws RuntimeException {
+        if (accName.isEmpty() && rcknType.isEmpty())
+            throw new RuntimeException("account reckonerType must exist one");
+
+        Optional<UUID> accId = accName.map(acc ->
+                accountService.getOrRefreshCache(null, acc, null, null).get(0).getId());
+        return new PageImpl<>(
+                reckonerMapper.reckonerEntities2Dtos(
+                        reckonerRepository.retrieveCondPageable(accId, rcknType, inOut, isOrderByTransDate, isOrderByAmount, page)),
+                page,
+                reckonerRepository.countCond(accId, rcknType, inOut)
+        );
+    }
+
+    public Collection<ReckonerFragRepositoryImpl.AccStat> statsGroupByAcc(Optional<Boolean> isMonthly,
+                                                                          Optional<Boolean> isWeekly,
+                                                                          Optional<Boolean> isGroupByType,
+                                                                          Optional<String> acc,
+                                                                          Optional<OffsetDateTime> timeBegin,
+                                                                          Optional<OffsetDateTime> timeEnd) {
+        return reckonerRepository.statsGroupByAcc(isMonthly, isWeekly, isGroupByType, acc, timeBegin, timeEnd);
+    }
+
+    public void reset() {
+        reckonerRepository.deleteAll();
     }
 }

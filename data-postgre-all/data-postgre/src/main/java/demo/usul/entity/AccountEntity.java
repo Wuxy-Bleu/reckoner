@@ -23,6 +23,8 @@ import org.hibernate.annotations.NamedQuery;
 import org.hibernate.validator.constraints.Range;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ import static demo.usul.entity.AccountEntity.FIND_BY_IDS;
 import static demo.usul.entity.AccountEntity.FIND_BY_NAME;
 import static demo.usul.entity.AccountEntity.IF_ENTITIES_EXIST;
 import static demo.usul.entity.AccountEntity.SOFT_DELETE;
+import static demo.usul.utils.TimeUtil.compareDayOfMonthStringWithOffsetDateTime;
 
 @Setter
 @Getter
@@ -95,10 +98,10 @@ public class AccountEntity extends CommonColumn {
     @Column(name = COLUMN_DUEDATE_NAME)
     private String dueDate;
 
-    @OneToMany(mappedBy = "fromAcctObj")
+    @OneToMany(mappedBy = "fromAcctObj", fetch = FetchType.EAGER)
     private List<ReckonerEntity> outReckonerEntities;
 
-    @OneToMany(mappedBy = "toAcctObj")
+    @OneToMany(mappedBy = "toAcctObj", fetch = FetchType.EAGER)
     private List<ReckonerEntity> inReckonerEntities;
 
     @NotNull
@@ -109,5 +112,22 @@ public class AccountEntity extends CommonColumn {
 
     public String getTypeName() {
         return getCardTypeEntity().getTypeName();
+    }
+
+    // 返回还款日，交易日期day of month < 入账周期的opening day of month, 也就是这笔交易在最近的还款日还清，else下一个还款日
+    // 入账周期正好是月初到月末的话，还款日永远是下月的due date
+    public LocalDate deadline(OffsetDateTime target) {
+        int opening = Integer.parseInt(getBillingCycle().split("~+")[0]);
+        int dealine = Integer.parseInt(getDueDate());
+        if (1 == opening)
+            return LocalDate.now().withDayOfMonth(dealine).plusMonths(1);
+        boolean ifLatestDeadline = compareDayOfMonthStringWithOffsetDateTime(opening, target);
+        if (ifLatestDeadline && dealine >= opening)
+            return LocalDate.now().withDayOfMonth(dealine);
+        else if (!ifLatestDeadline && dealine < opening)
+            return LocalDate.now().withDayOfMonth(dealine).plusMonths(2);
+        else
+            return LocalDate.now().withDayOfMonth(dealine).plusMonths(1);
+
     }
 }

@@ -2,10 +2,10 @@ package demo.usul;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
-@EnableElasticsearchRepositories
+@EnableDiscoveryClient
 public class HelloApplication {
 
     public static void main(String[] args) {
