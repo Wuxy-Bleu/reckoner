@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,8 +49,9 @@ public class ReckonerServiceV3 {
         return page;
     }
 
-    public void deleteReckoner(UUID id) {
+    public String deleteReckoner(UUID id) {
         int i = reckonerRepository.updateIsAliveByIsAliveTrueAndId(id);
         log.info("{} reckoner deleted from table", i);
+        return MessageFormat.format("{0} reckoner deleted", i);
     }
 }

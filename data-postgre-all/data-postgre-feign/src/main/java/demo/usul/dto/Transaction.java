@@ -1,13 +1,11 @@
 package demo.usul.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -40,4 +38,6 @@ public class Transaction {
     private String tags;
 
     private Boolean isLoan;
+
+    private Integer installmentNum = 0;
 }

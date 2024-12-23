@@ -1,6 +1,7 @@
 package demo.usul.beans;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -37,7 +38,8 @@ public class LoanCreateReq {
 
     private String descr;
 
-    private List<String> tags;
+    @JsonRawValue
+    private String tags;
 
     // todo unit test
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssXXX")

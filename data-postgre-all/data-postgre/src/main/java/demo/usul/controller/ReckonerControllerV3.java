@@ -37,10 +37,10 @@ public class ReckonerControllerV3 {
     }
 
     @DeleteMapping
-    public void deleteTransaction(@RequestParam("id") UUID id, @RequestParam("is_loan") Boolean isLoan) {
+    public String deleteTransaction(@RequestParam("id") UUID id, @RequestParam("is_loan") Boolean isLoan) {
         if (Boolean.TRUE.equals(isLoan))
-            loanService.deleteLoan(id);
+            return loanService.deleteLoan(id);
         else
-            reckonerServiceV3.deleteReckoner(id);
+            return reckonerServiceV3.deleteReckoner(id);
     }
 }

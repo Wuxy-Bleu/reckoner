@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,10 +64,11 @@ public class LoanService {
     }
 
     @Transactional
-    public void deleteLoan(UUID id) {
+    public String deleteLoan(UUID id) {
         int i = loanRepository.updateStatusByIdAndStatusNot(id, LoanDto.LoanStatus.DELETED.getStatus());
         log.info("{} record delete from loan table", i);
         int i1 = loanScheduleEntityRepository.updateStatusByLoanEntityAndStatusNot(DELETED.getStatus(), id);
         log.info("{} record deleted from table loan_schedule", i1);
+        return MessageFormat.format("{0} loans and {1} loan_schedule deleted",i, i1);
     }
 }
