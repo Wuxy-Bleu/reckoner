@@ -9,7 +9,5 @@ public class OptionalSniffer implements RequestInterceptor {
 
     // 遇到feign还是别用optional 太麻烦了
     @Override
-    public void apply(RequestTemplate template) {
-      log.info("xxxxx");
-    }
+    public void apply(RequestTemplate template) {}
 }

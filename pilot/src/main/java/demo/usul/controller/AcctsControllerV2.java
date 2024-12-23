@@ -2,7 +2,7 @@ package demo.usul.controller;
 
 import demo.usul.converter.AccountMapper;
 import demo.usul.dto.AccountDto;
-import demo.usul.pojo.AcctsVo;
+import demo.usul.beans.AcctsVo;
 import demo.usul.service.AccountService;
 import demo.usul.service.AcctServiceV2;
 import lombok.extern.slf4j.Slf4j;

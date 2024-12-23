@@ -11,4 +11,6 @@ public interface LoanFeign {
 
     @PostMapping()
     Object createLoan(@RequestBody LoanCreateDto loanCreateDto);
+
+
 }

@@ -1,8 +1,10 @@
 package demo.usul.controller;
 
+import demo.usul.convert.LoanMapper;
 import demo.usul.dto.LoanCreateDto;
-import demo.usul.entity.LoanEntity;
+import demo.usul.dto.LoanDto;
 import demo.usul.service.LoanService;
+import demo.usul.service.ReckonerServiceV3;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,15 @@ import java.util.List;
 public class LoanController {
 
     private final LoanService loanService;
+    private final LoanMapper loanMapper;
+    private final ReckonerServiceV3 reckonerServiceV3;
 
     @Autowired
-    public LoanController(LoanService loanService) {this.loanService = loanService;}
+    public LoanController(LoanService loanService, LoanMapper loanMapper, ReckonerServiceV3 reckonerServiceV3) {
+        this.loanService = loanService;
+        this.loanMapper = loanMapper;
+        this.reckonerServiceV3 = reckonerServiceV3;
+    }
 
     @PostMapping()
     public Object createLoan(@RequestBody @Valid LoanCreateDto loanCreateDto) {
@@ -30,7 +38,7 @@ public class LoanController {
     }
 
     @GetMapping
-    public List<LoanEntity> getAll() {
-        return loanService.getAll();
+    public List<LoanDto> getAll() {
+        return loanMapper.loanEntities2Dtos(loanService.getAll());
     }
 }

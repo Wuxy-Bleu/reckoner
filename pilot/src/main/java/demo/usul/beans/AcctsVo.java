@@ -1,4 +1,4 @@
-package demo.usul.pojo;
+package demo.usul.beans;
 
 import lombok.Builder;
 import lombok.Data;

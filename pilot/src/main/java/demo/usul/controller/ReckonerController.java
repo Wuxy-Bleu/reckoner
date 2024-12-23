@@ -1,12 +1,13 @@
 package demo.usul.controller;
 
-import demo.usul.dto.LoanCreateDto;
+import demo.usul.beans.LoanCreateReq;
 import demo.usul.dto.ReckonerDto;
 import demo.usul.service.ReckonerService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,7 @@ public class ReckonerController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<ReckonerDto>> retrieveAll() {
+    public ResponseEntity<Page<ReckonerDto>> retrieveAll() {
         return ResponseEntity.ok(reckonerService.retrieveAll());
     }
 
@@ -60,8 +61,7 @@ public class ReckonerController {
 
     // todo request body validation unit test, feign test
     @PostMapping("/loan")
-    public Object newCreditLoan(@RequestBody @Valid LoanCreateDto LoanCreateDto) {
-        return reckonerService.newCreditLoan(LoanCreateDto);
-
+    public Object newCreditLoan(@RequestBody LoanCreateReq loanCreateReq) {
+        return reckonerService.newCreditLoan(loanCreateReq);
     }
 }

@@ -2,9 +2,11 @@ package demo.usul.service;
 
 import demo.usul.convert.LoanMapper;
 import demo.usul.dto.LoanCreateDto;
+import demo.usul.dto.LoanDto;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.LoanEntity;
 import demo.usul.entity.LoanScheduleEntity;
+import demo.usul.entity.LoanScheduleEntityRepository;
 import demo.usul.repository.AccountRepository;
 import demo.usul.repository.LoanRepository;
 import jakarta.transaction.Transactional;
@@ -13,22 +15,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 import static demo.usul.dto.LoanDto.LoanType.NO_INSTALLMENT;
+import static demo.usul.dto.LoanScheduleDto.LoanScheduleStatus.DELETED;
 
 @Slf4j
 @Service
 public class LoanService {
+
+    private final LoanScheduleEntityRepository loanScheduleEntityRepository;
 
     private final LoanRepository loanRepository;
     private final LoanMapper loanMapper;
     private final AccountRepository accountRepository;
 
     @Autowired
-    public LoanService(LoanRepository loanRepository, LoanMapper loanMapper, AccountRepository accountRepository) {
+    public LoanService(LoanRepository loanRepository, LoanMapper loanMapper, AccountRepository accountRepository,
+                       LoanScheduleEntityRepository loanScheduleEntityRepository) {
         this.loanRepository = loanRepository;
         this.loanMapper = loanMapper;
         this.accountRepository = accountRepository;
+        this.loanScheduleEntityRepository = loanScheduleEntityRepository;
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -52,5 +60,13 @@ public class LoanService {
 
     public List<LoanEntity> getAll() {
         return loanRepository.findAll();
+    }
+
+    @Transactional
+    public void deleteLoan(UUID id) {
+        int i = loanRepository.updateStatusByIdAndStatusNot(id, LoanDto.LoanStatus.DELETED.getStatus());
+        log.info("{} record delete from loan table", i);
+        int i1 = loanScheduleEntityRepository.updateStatusByLoanEntityAndStatusNot(DELETED.getStatus(), id);
+        log.info("{} record deleted from table loan_schedule", i1);
     }
 }

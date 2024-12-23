@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountModifyRecordDto;
 import demo.usul.dto.AccountUpdateDto;
-import demo.usul.pojo.AccountListResponse;
+import demo.usul.beans.AccountListResponse;
 import demo.usul.service.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

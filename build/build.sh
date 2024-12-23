@@ -24,24 +24,24 @@ function func2() {
 function func3() {
   for dir in $(find ../ -type d -name "parent"); do
     cd "$dir"
-    mvn install
+    mvn clean install
     cd - &> /dev/null
   done
 
   tmp=$(find ../ -type d -name "starters")
   cd "$tmp"/utils
-  mvn install
+  mvn clean install
   cd - &> /dev/null
   cd "$tmp"/constant
-  mvn install
+  mvn clean install
   cd - &> /dev/null
   cd "$tmp"/locale
-  mvn install
+  mvn clean install
   cd - &> /dev/null
 
   for dir in $( find ../ -type d -name "*-feign" ); do
     cd "$dir"
-    mvn install
+    mvn clean install
     cd -
   done
 }

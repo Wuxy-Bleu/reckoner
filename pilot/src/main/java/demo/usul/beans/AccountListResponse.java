@@ -1,4 +1,4 @@
-package demo.usul.pojo;
+package demo.usul.beans;
 
 import demo.usul.dto.AccountDto;
 import lombok.AllArgsConstructor;

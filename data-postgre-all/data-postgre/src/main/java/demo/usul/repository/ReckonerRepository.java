@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -42,13 +41,16 @@ public interface ReckonerRepository extends JpaRepository<ReckonerEntity, UUID>,
     Page<ReckonerEntity> findByToAcctOrderByInOutDescTypeIdAscTransDateDesc(UUID id, Pageable page);
 
     @Query("select r from ReckonerEntity r where r.isAlive = ?1 order by r.transDate DESC")
-    Page<ReckonerEntity> findByIsAliveOrderByTransDateDesc(Boolean isAlive, Pageable pageable); //    @Query(value = "select r from ReckonerEntity r " +
+    Page<ReckonerEntity> findByIsAliveOrderByTransDateDesc(Boolean isAlive, Pageable pageable);
 
-//            "where r.fromAcct = :fromAcct " +
-//            "and (r.tags::varchar ~ \':tags\' or r.tags::varchar ~ \':v_tags\')" +
-//            "order by r.transDate DESC",
-//            nativeQuery = true)
-//    List<ReckonerEntity> findByFromAcctAndTagsOrderByTransDateDesc(@Param("fromAcct") UUID fromAcct, @Param("tags") String tags, @Param("v_tags") String vTags, Pageable pageable);
+    @Query("select r from ReckonerEntity r where r.isAlive = true order by r.transDate DESC")
+    Page<ReckonerEntity> findByIsAliveTrueOrderByTransDateDesc(Pageable pageable);
 
+    @Query(value = "select * from reckoner where is_alive = true order by trans_date, id desc limit :size", nativeQuery = true)
+    List<ReckonerEntity> findOrderByTransDateAndIdLimitSize(int size);
+
+    @Modifying
+    @Query("update ReckonerEntity r set r.isAlive = false where r.isAlive = true and r.id = :id")
+    int updateIsAliveByIsAliveTrueAndId(UUID id);
 
 }

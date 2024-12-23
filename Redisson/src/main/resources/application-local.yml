@@ -2,3 +2,6 @@ redisson:
   standalone:
     port: 5377
 #trace: true
+bloom:
+  suffix: bf-reckoner-
+

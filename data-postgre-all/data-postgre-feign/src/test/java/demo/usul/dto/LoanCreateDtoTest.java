@@ -19,6 +19,7 @@ class LoanCreateDtoTest {
 
     @BeforeEach
     void setUp() {
+        // validator provided by hibernate
         factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
@@ -31,7 +32,7 @@ class LoanCreateDtoTest {
     }
 
     @Test
-    void testValidation() {
+    void testNotNullAndAssertTrueAnnotation() {
         LoanCreateDto loanCreateDto = new LoanCreateDto();
 
         Set<ConstraintViolation<LoanCreateDto>> violations = validator.validate(loanCreateDto);
@@ -41,4 +42,5 @@ class LoanCreateDtoTest {
                 .anyMatch(v -> v.getMessage().equals("must not be null"))
                 .anyMatch(v -> v.getMessage().equals("交易账户id或者名称至少有一个不为空"));
     }
+
 }

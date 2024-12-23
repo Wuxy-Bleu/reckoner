@@ -40,11 +40,11 @@ public class AccountService {
 
     // will not return null
     public List<AccountDto> retrieveActivatedByConditionsOrNot(Optional<String> cardType, Optional<String> currency) {
-        return cacheFeign.getCachedAccts(null, cardType.orElse(null), currency.orElse(null));
+        return cacheFeign.getCachedAccts(null, cardType.orElse(null), currency.orElse(null)).getCached();
     }
 
     public Optional<AccountDto> retrieveActivatedByName(String name) {
-        List<AccountDto> cachedAccts = cacheFeign.getCachedAccts(name, null, null);
+        List<AccountDto> cachedAccts = cacheFeign.getCachedAccts(name, null, null).getCached();
         if (CollUtil.isEmpty(cachedAccts)) {
             return Optional.empty();
         }

@@ -1,7 +1,6 @@
 package demo.usul.service;
 
 import demo.usul.dto.AccountDto;
-import demo.usul.feign.CacheFeign;
 import demo.usul.repository.AccountRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,7 @@ public class AcctAggregationSvc {
     private final AccountRepository accountRepository;
     private final AccountService accountService;
 
-    public AcctAggregationSvc(AccountRepository accountRepository, CacheFeign cacheFeign, AccountService accountService) {
+    public AcctAggregationSvc(AccountRepository accountRepository, AccountService accountService) {
         this.accountRepository = accountRepository;
         this.accountService = accountService;
     }

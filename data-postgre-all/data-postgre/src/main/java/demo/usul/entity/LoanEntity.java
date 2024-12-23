@@ -1,7 +1,6 @@
 package demo.usul.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import demo.usul.Const;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static demo.usul.Const.SHANG_HAI_NOW;
 import static demo.usul.dto.LoanDto.LoanStatus.ACTIVE;
 import static demo.usul.dto.LoanDto.LoanType.NO_INSTALLMENT;
 
@@ -53,6 +53,7 @@ public class LoanEntity {
     public static final String COLUMN_IMAGELINK_NAME = "image_link";
     public static final String COLUMN_DESCR_NAME = "descr";
     public static final String COLUMN_TAGS_NAME = "tags";
+    public static final String COLUMN_ISALIVE_NAME = "is_alive";
 
 
     @NotNull
@@ -79,15 +80,15 @@ public class LoanEntity {
 
     @ColumnDefault("now()")
     @Column(name = COLUMN_CREATEDAT_NAME, nullable = false, insertable = false)
-    private OffsetDateTime createdAt = Const.SHANG_HAI_NOW;
+    private OffsetDateTime createdAt = SHANG_HAI_NOW;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = COLUMN_LASTUPDATEDAT_NAME, nullable = false, insertable = false)
-    private OffsetDateTime lastUpdatedAt = Const.SHANG_HAI_NOW;
+    private OffsetDateTime lastUpdatedAt = SHANG_HAI_NOW;
 
     @ColumnDefault("now()")
     @Column(name = COLUMN_TRANSDATE_NAME, nullable = false)
-    private OffsetDateTime transDate = Const.SHANG_HAI_NOW;
+    private OffsetDateTime transDate = SHANG_HAI_NOW;
 
     @Column(name = COLUMN_STATUS_NAME, length = Integer.MAX_VALUE)
     private String status = ACTIVE.getStatus();
@@ -110,7 +111,7 @@ public class LoanEntity {
 
     @Column(name = COLUMN_TAGS_NAME)
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<String> tags;
+    private String tags;
 
     @OneToMany(mappedBy = "loanEntity", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JsonManagedReference

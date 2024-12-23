@@ -3,10 +3,13 @@ package demo.usul.service;
 import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.usul.annotation.BloomFilterReactive;
+import demo.usul.beans.CachedAcctsDto;
 import demo.usul.dto.AccountDto;
 import io.vavr.CheckedFunction1;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RScript;
 import org.redisson.api.RScriptReactive;
@@ -30,7 +33,10 @@ import static demo.usul.consta.Constants.ACCTS_CACHE_KEY;
 import static demo.usul.consta.Constants.ACCTS_IDX;
 import static demo.usul.scripts.LuaScript.LOOP_SET_JSON;
 
-
+/**
+ * 所有的缓存查询的返回类型都是一个额外的bean class, 其中有个字段表明是否hit
+ * 是否hit会使用redis bloom来判定
+ */
 @Slf4j
 @Service
 public class CacheReactiveService {
@@ -38,13 +44,13 @@ public class CacheReactiveService {
     private final ObjectMapper objectMapper;
     private final RedissonReactiveClient redissonReactiveClient;
 
-    private final RScriptReactive script;
-
+    @SuppressWarnings("FieldCanBeLocal")
     private final TypeReference<AccountDto> trAcct = new TypeReference<>() {};
-    private final TypeReference<List<AccountDto>> trAccts = new TypeReference<>() {};
-    private final JacksonCodec<List<AccountDto>> codec4Accts;
     private final JacksonCodec<AccountDto> codec4Acct;
+    @SuppressWarnings("FieldCanBeLocal")
     private final TypedJsonJacksonCodec typedJsonJacksonCodec;
+
+    private final RScriptReactive script;
     private final RSearchReactive search;
 
 
@@ -52,19 +58,24 @@ public class CacheReactiveService {
     public CacheReactiveService(RedissonReactiveClient redissonReactiveClient, ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.redissonReactiveClient = redissonReactiveClient;
-        // 这里的codec不是用来给返回报文反序列化的吗，那么给请求报文序列化的是啥, 貌似也是codec??
-        script = redissonReactiveClient.getScript(new StringCodec());
+        // codec for不同的redis client
         codec4Acct = new JacksonCodec<>(objectMapper, trAcct);
-        codec4Accts = new JacksonCodec<>(objectMapper, trAccts);
         typedJsonJacksonCodec = new TypedJsonJacksonCodec(trAcct, null, trAcct, objectMapper);
+        // script reactive client && redisSearch reactive client
+        script = redissonReactiveClient.getScript(new StringCodec());
         search = redissonReactiveClient.getSearch(typedJsonJacksonCodec);
     }
 
-    public Mono<AccountDto> getCachedAcctById(String id) {
+    public Mono<CachedAcctsDto> getCachedAcctById(String id) {
         return redissonReactiveClient
                 .getJsonBucket(ACCTS_CACHE_KEY + id, codec4Acct)
                 .get()
-                .map(e -> (AccountDto) e);
+                .map(e -> {
+                    if (null != e)
+                        return new CachedAcctsDto().addAcctDto((AccountDto) e);
+                    else
+                        return new CachedAcctsDto().notHit();
+                });
     }
 
     public Mono<List<AccountDto>> getCachedAcctsByIds(List<String> ids) {
@@ -72,25 +83,39 @@ public class CacheReactiveService {
         return Mono.empty();
     }
 
-    // validation, dtos must have id
-    public Mono<Void> cacheAccountsReactive(List<AccountDto> accounts, Long ms) {
+    // 缓存账号list, 并设置expire
+    // 流程 -> obj list转json str, lua脚本for loop JSON.SET, 一个call搞定，事务安全
+    // todo 可以尝试对cache的key设置expire listener来重新缓存数据，但是不直接call data服务，而是利用mq来做异步的数据交换，具体来需要设计
+    @BloomFilterReactive(key = "demoXx")
+    public Mono<Object> cacheAccountsReactive(List<AccountDto> accounts, Long ms) {
         List<Object> keys = accounts.stream().map(e -> (Object) (ACCTS_CACHE_KEY + e.getId().toString())).toList();
 
         Stream<Object> tmp = accounts.stream()
+                // lambda中catch and throw异常不好写，所以使用了vavr的工具
                 .map(CheckedFunction1.liftTry(objectMapper::writeValueAsString))
+                // 这里不能写成RuntimeException::new是因为会产生歧义,
+                // getOrElseThrow有两个override, runtime exception有两个构造器都各自符合一个override
+                // todo 这里直接new runtime exception不好，最好自定义
                 .map(t -> t.getOrElseThrow(e -> new RuntimeException(e)));
+        // 账号list转array, expire time放到arr末尾
         Object[] args = Stream.concat(tmp, Stream.of(ms)).toArray();
 
         return script
                 .scriptLoad(LOOP_SET_JSON)
                 .flatMap(hash ->
-                        script.evalSha(RScript.Mode.READ_WRITE, hash, RScript.ReturnType.STATUS, keys, args));
+                        script
+                                .evalSha(RScript.Mode.READ_WRITE, hash, RScript.ReturnType.STATUS, keys, args)
+                                .doOnNext(str -> log.info("lua script response -> {}", str))
+                );
     }
 
-    public Mono<List<AccountDto>> getCachedAccounts(Optional<String> name, Optional<String> cardType, Optional<String> currency) {
+    public Mono<CachedAcctsDto> getCachedAccounts(Optional<String> name, Optional<String> cardType, Optional<String> currency) {
 
+        // todo 分页还很简陋，未完成状态
         return Mono.just(new Pageable(0, 10, 0))
+                // query redisSearch返回IntermediateObj是因为没办法在reactive流中将多次分页请求的SearchResult(redisson search原本的返回obj type)整理为一个list
                 .flatMap(ele -> queryPageable(name, cardType, currency, ele))
+                // expand真的是我花了好久才找到的reactor的方法，好用
                 .expand(ele ->
                         CollUtil.isEmpty(ele.getSearchResult().getDocuments()) ?
                                 Mono.empty() :
@@ -102,15 +127,24 @@ public class CacheReactiveService {
                 .map(ele -> ele
                         .stream()
                         .flatMap(e ->
-                                e.getSearchResult().getDocuments().stream().map(doc -> (AccountDto) doc.getAttributes().get("$"))).toList());
+                                e.getSearchResult().getDocuments().stream().map(doc -> (AccountDto) doc.getAttributes().get("$"))).toList())
+                .map(dtos -> {
+                    if (CollUtil.isNotEmpty(dtos))
+                        return new CachedAcctsDto().addAcctDtos(dtos);
+                    else
+                        return new CachedAcctsDto().notHit();
+                });
     }
 
+    // redisson redisSearch reactive client call search
+    // 一定要设置offset和count，因为ft.search默认只返回10个我记得，
     private Mono<IntermediateObj> queryPageable(Optional<String> name, Optional<String> cardType, Optional<String> currency, Pageable pageable) {
         return search.search(
                         ACCTS_IDX, queryAccts(name, cardType, currency), QueryOptions.defaults().limit(pageable.getOffset(), pageable.getPageSize()))
                 .map(res -> new IntermediateObj(pageable, res));
     }
 
+    // redisSearch 查询命令string 构建
     private String queryAccts(Optional<String> name, Optional<String> cardType, Optional<String> currency) {
         String nameParam = name.flatMap(s -> Optional.of("@name: " + s)).orElse("");
         String typeParam = cardType.flatMap(s -> Optional.of("@cardType: " + s)).orElse("");
@@ -119,10 +153,10 @@ public class CacheReactiveService {
         return StringUtils.hasText(query) ? query : "*";
     }
 
-    @AllArgsConstructor
     @Getter
-    static
-    class Pageable {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Pageable {
 
         private int pageNum;
         private int pageSize;
@@ -130,9 +164,9 @@ public class CacheReactiveService {
     }
 
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
-    static
-    class IntermediateObj {
+    static class IntermediateObj {
 
         Pageable page;
         SearchResult searchResult;

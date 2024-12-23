@@ -1,4 +1,6 @@
 spring:
+  mvc:
+    log-resolved-exception: true
   config:
     import: configserver:http://127.0.0.1:9333
   devtools:

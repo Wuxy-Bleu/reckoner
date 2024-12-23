@@ -3,7 +3,7 @@ package demo.usul.converter;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountModifyRecordDto;
 import demo.usul.dto.AccountUpdateDto;
-import demo.usul.pojo.AcctsVo;
+import demo.usul.beans.AcctsVo;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;

@@ -1,16 +1,15 @@
 package demo.usul.service;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.ObjectUtil;
+import demo.usul.beans.CachedAcctsDto;
 import demo.usul.convert.AccountMapper;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountUpdateDto;
 import demo.usul.entity.AccountEntity;
 import demo.usul.feign.CacheFeign;
 import demo.usul.repository.AccountRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -28,13 +27,19 @@ import static demo.usul.consta.Constants.ACCTS_CACHE_TTL_MS;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AccountService {
 
     public static final String ACCT_CACHE_NAME = "accountsActivated";
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final CacheFeign cacheFeign;
+
+    @Autowired
+    public AccountService(AccountRepository accountRepository, AccountMapper accountMapper, CacheFeign cacheFeign) {
+        this.accountRepository = accountRepository;
+        this.accountMapper = accountMapper;
+        this.cacheFeign = cacheFeign;
+    }
 
     public List<AccountDto> getAll() {
         return getOrRefreshCache(null, null, null, null);
@@ -47,20 +52,17 @@ public class AccountService {
      * @return not gone be null, empty list
      */
     public List<AccountDto> getOrRefreshCache(String id, String name, String cardType, String currency) {
-        Optional<List<AccountDto>> opt;
         boolean mode = CharSequenceUtil.isNotBlank(id);
-        if (mode) {
-            AccountDto hit = cacheFeign.getCachedAcctById(id);
-            opt = ObjectUtil.isEmpty(hit) ? Optional.empty() : Optional.of(List.of(hit));
-        } else {
-            opt = Optional.ofNullable(cacheFeign.getCachedAccts(name, cardType, currency)).filter(CollUtil::isNotEmpty);
-        }
-        if (opt.isPresent()) {
-            return opt.get();
-        }
+        CachedAcctsDto cached = null;
+        if (mode)
+            cached = cacheFeign.getCachedAcctById(id);
+        else
+            cached = cacheFeign.getCachedAccts(name, cardType, currency);
+        if (cached.isHit())
+            return cached.getCached();
         refreshCache();
-        return mode ? List.of(cacheFeign.getCachedAcctById(id))
-                : cacheFeign.getCachedAccts(name, cardType, currency);
+        return mode ? cacheFeign.getCachedAcctById(id).getCached()
+                : cacheFeign.getCachedAccts(name, cardType, currency).getCached();
     }
 
     /**
@@ -122,7 +124,7 @@ public class AccountService {
     /**
      * 如何delete的话，这个就不适用了，需要改进
      */
-    @Scheduled(fixedRate = 100000)
+//    @Scheduled(fixedRate = 100000)
     public void refreshCache() {
         accountRepository.findByIsActive(true)
                 .map(accountMapper::accountEntities2Dtos)

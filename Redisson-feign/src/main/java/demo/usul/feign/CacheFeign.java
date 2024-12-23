@@ -1,5 +1,6 @@
 package demo.usul.feign;
 
+import demo.usul.beans.CachedAcctsDto;
 import demo.usul.dto.AccountDto;
 import demo.usul.interceptor.OptionalSniffer;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -15,13 +16,13 @@ import java.util.List;
 public interface CacheFeign {
 
     @GetMapping("/v3/cache/accts")
-    List<AccountDto> getCachedAccts(@RequestParam(required = false) String name, @RequestParam(required = false) String cardType, @RequestParam(required = false) String currency);
+    CachedAcctsDto getCachedAccts(@RequestParam(required = false) String name, @RequestParam(required = false) String cardType, @RequestParam(required = false) String currency);
 
     @PostMapping("/v3/cache/{ms}")
     void cacheAccounts(@PathVariable Long ms, @RequestBody List<AccountDto> accts);
 
     @GetMapping("/cache/accts/v3/{id}")
-    AccountDto getCachedAcctById(@PathVariable String id);
+    CachedAcctsDto getCachedAcctById(@PathVariable String id);
 
 
 }
