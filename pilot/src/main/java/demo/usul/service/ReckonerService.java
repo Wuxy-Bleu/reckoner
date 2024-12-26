@@ -54,12 +54,6 @@ public class ReckonerService {
         return csvMapper.writer(header).writeValueAsString(retrieveAll());
     }
 
-    /**
-     * default way to create a reckoner record, transactional, will modify account balance
-     *
-     * @param reckoner new record
-     * @return created record, throw exception if anything wrong
-     */
     public ReckonerDto createOne(ReckonerDto reckoner) {
         return reckonerFeign.createOne(reckoner);
     }

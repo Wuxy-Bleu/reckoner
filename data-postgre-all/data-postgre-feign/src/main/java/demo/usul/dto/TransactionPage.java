@@ -9,11 +9,13 @@ import java.util.Collection;
 @NoArgsConstructor
 public class TransactionPage {
 
-    private Collection<Transaction> content;
+    private Collection<Transaction> page;
 
     private Integer pageNum;
 
     private Integer pageSize;
 
     private Boolean isLast;
+
+    private Integer total;
 }

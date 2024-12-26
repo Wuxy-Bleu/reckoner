@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -23,13 +25,11 @@ public class LoanController {
 
     private final LoanService loanService;
     private final LoanMapper loanMapper;
-    private final ReckonerServiceV3 reckonerServiceV3;
 
     @Autowired
     public LoanController(LoanService loanService, LoanMapper loanMapper, ReckonerServiceV3 reckonerServiceV3) {
         this.loanService = loanService;
         this.loanMapper = loanMapper;
-        this.reckonerServiceV3 = reckonerServiceV3;
     }
 
     @PostMapping()
@@ -37,8 +37,14 @@ public class LoanController {
         return loanService.create(loanCreateDto);
     }
 
+    // 包括deleted
     @GetMapping
     public List<LoanDto> getAll() {
         return loanMapper.loanEntities2Dtos(loanService.getAll());
+    }
+
+    @GetMapping("/from_acct")
+    public List<LoanDto> getByFromAcct(@RequestParam("from_acct") UUID fromAcct) {
+        return loanMapper.loanEntities2Dtos(loanService.getConditional(fromAcct));
     }
 }

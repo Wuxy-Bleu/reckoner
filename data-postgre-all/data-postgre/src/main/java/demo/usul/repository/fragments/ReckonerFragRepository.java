@@ -32,4 +32,6 @@ public interface ReckonerFragRepository {
                                                                    Optional<String> acc,
                                                                    Optional<OffsetDateTime> timeBegin,
                                                                    Optional<OffsetDateTime> timeEnd);
+
+    ReckonerEntity persist(ReckonerEntity reckoner);
 }

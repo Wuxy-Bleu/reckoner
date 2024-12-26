@@ -30,15 +30,11 @@ public interface AccountRepository extends JpaRepository<AccountEntity, UUID>, Q
     @Query("update AccountEntity a set a.dueDate = ?1 where a.id = ?2")
     int updateDueDateById(String dueDate, @NonNull UUID id);
 
-    @Modifying
-    @Query("""
-            update AccountEntity a
-            set a.name = :name, a.balance = :balance, a.creditCardLimit = :creditCardLimit, a.billingCycle = :billingCycle, a.dueDate = :dueDate
-            where a.id = :id and a.isActive = :isActive""")
-    int updateNameAndBalanceAndCreditCardLimitAndBillingCycleAndDueDateByIdAndIsActive(@NonNull @Param("name") String name, @Param("balance") BigDecimal balance, @Param("creditCardLimit") BigDecimal creditCardLimit, @Param("billingCycle") String billingCycle, @Param("dueDate") String dueDate, @NonNull @Param("id") UUID id, @NonNull @Param("isActive") Boolean isActive);
-
     @Transactional
     @Modifying
     @Query("update AccountEntity a set a.balance = ?1 where a.id = ?2 and a.isActive = ?3")
     int updateBalanceByIdAndIsActive(BigDecimal balance, UUID id, Boolean isActive);
+
+    @Query("select a from AccountEntity a where a.id = :id and a.isActive = true")
+    AccountEntity findByIdAndIsActiveTrue(@Param("id") UUID id);
 }

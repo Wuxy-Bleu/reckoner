@@ -35,6 +35,7 @@ public class LoanScheduleDto {
     public enum LoanScheduleStatus {
         PENDING("pending"),
         PAID("paid"),
+        // 关闭 删除是不一样的，关闭可以是提前还款
         CLOSE("close"),
         DELETED("deleted");
 

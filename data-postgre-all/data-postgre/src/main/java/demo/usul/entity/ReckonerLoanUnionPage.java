@@ -17,6 +17,7 @@ public class ReckonerLoanUnionPage {
     private Integer loanPageNum;
     private Integer reckonerPageSize;
     private Integer loanPageSize;
+    private Integer total;
 
     public ReckonerLoanUnionPage nextPage() {
         return this;

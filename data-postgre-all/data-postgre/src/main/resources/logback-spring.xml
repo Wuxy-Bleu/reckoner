@@ -10,9 +10,9 @@
             <charset>UTF-8</charset>
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>debug</level> <!-- Restrict root-level logs to INFO and above -->
-        </filter>
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>debug</level> &lt;!&ndash; Restrict root-level logs to INFO and above &ndash;&gt;-->
+<!--        </filter>-->
     </appender>
 
     <appender name="SAVE-TO-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -52,7 +52,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <root level="debug">
+    <root level="trace">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="SAVE-TO-FILE"/>
     </root>

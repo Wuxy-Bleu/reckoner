@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,10 +16,17 @@ public interface LoanRepository extends JpaRepository<LoanEntity, UUID>, JpaSpec
 
 
     @Query(value = "select * from loan " +
-                   " order by trans_date, id desc limit :size", nativeQuery = true)
+                   "where status <> 'deleted'" +
+                   " order by trans_date desc, id desc limit :size", nativeQuery = true)
     List<LoanEntity> findOrderByTransDateAndIdLimitSize(int size);
 
     @Modifying
     @Query("update LoanEntity l set l.status = :status where l.id = :id and l.status <> :status")
     int updateStatusByIdAndStatusNot(@Param("id") UUID id, @Param("status") String status);
+
+    @Query("select l from LoanEntity l where l.id in :ids and l.status <> 'deleted'")
+    List<LoanEntity> findByIdIn(@Param("ids") Collection<UUID> ids);
+
+    @Query("select l from LoanEntity l where l.fromAcctEntity.id = :id and l.status <> 'deleted' order by l.transDate DESC")
+    List<LoanEntity> findByFromAcctEntity_IdOrderByTransDateDesc(@Param("id") UUID id);
 }

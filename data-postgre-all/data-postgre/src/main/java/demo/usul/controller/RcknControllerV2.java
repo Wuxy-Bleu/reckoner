@@ -6,7 +6,6 @@ import demo.usul.convert.ReckonerMapper;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.ReckonerDto;
 import demo.usul.dto.ReckonerTypeDto;
-import demo.usul.enums.InOutEnum;
 import demo.usul.repository.fragments.ReckonerFragRepositoryImpl;
 import demo.usul.service.RcknSvcV2;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +50,7 @@ public class RcknControllerV2 {
 
     @PostMapping({"", "/{trigger}"})
     public ReckonerDto createV2(@RequestBody ReckonerDto dto, @PathVariable(required = false) Optional<Boolean> trigger, @RequestParam(required = false) List<String> tags) {
-        dto.setTags("[ " + String.join(", ", tags) + " ]");
+//        dto.setTags("[ " + String.join(", ", tags) + " ]");
         return reckonerController.createOne(dto, trigger);
     }
 
@@ -59,7 +58,7 @@ public class RcknControllerV2 {
     public ReckonerDto createYuEBaoProfit(@PathVariable String blc, @RequestParam String transDate, @RequestParam String transTime, @RequestParam(required = false) Optional<Boolean> trigger) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
-                .inOut(InOutEnum.IN)
+                .inOut(ReckonerDto.InOutEnum.IN)
                 .amount(new BigDecimal(blc))
                 .transDate(offsetDateTime)
                 .toAcctObj(AccountDto.builder().name("余额宝").build())
@@ -75,12 +74,12 @@ public class RcknControllerV2 {
                                     @RequestParam(required = false) String descr) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
-                .inOut(InOutEnum.OUT)
+                .inOut(ReckonerDto.InOutEnum.OUT)
                 .amount(new BigDecimal(blc))
                 .transDate(offsetDateTime)
                 .fromAcctObj(AccountDto.builder().name("花呗").build())
                 .reckonerTypeObj(ReckonerTypeDto.builder().typeName("Food").build())
-                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .tags(CollUtil.isEmpty(tags) ? null : tags)
                 .descr(ObjectUtil.isEmpty(descr) ? null : descr)
                 .build();
         return reckonerController.createOne(build, Optional.of(true));
@@ -96,12 +95,12 @@ public class RcknControllerV2 {
                                           @RequestParam(required = false) Optional<Boolean> trigger) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
-                .inOut(InOutEnum.OUT)
+                .inOut(ReckonerDto.InOutEnum.OUT)
                 .amount(new BigDecimal(blc))
                 .transDate(offsetDateTime)
                 .fromAcctObj(AccountDto.builder().name(acct).build())
                 .reckonerTypeObj(ReckonerTypeDto.builder().typeName(type).build())
-                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .tags(CollUtil.isEmpty(tags) ? null : tags)
                 .descr(ObjectUtil.isEmpty(descr) ? null : descr)
                 .build();
         return reckonerController.createOne(build, trigger);
@@ -117,13 +116,13 @@ public class RcknControllerV2 {
                                                 @RequestParam(required = false) Optional<Boolean> trigger) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
-                .inOut(InOutEnum.TRANSFER)
+                .inOut(ReckonerDto.InOutEnum.TRANSFER)
                 .amount(new BigDecimal(blc))
                 .transDate(offsetDateTime)
                 .fromAcctObj(AccountDto.builder().name(fAcct).build())
                 .toAcctObj(AccountDto.builder().name(tAcct).build())
                 .reckonerTypeObj(ReckonerTypeDto.builder().typeName("Due Payment").build())
-                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .tags(CollUtil.isEmpty(tags) ? null : tags)
                 .descr(ObjectUtil.isEmpty(descr) ? null : descr)
                 .build();
         return reckonerController.createOne(build, trigger);
@@ -137,12 +136,12 @@ public class RcknControllerV2 {
                                     @RequestParam(required = false) String descr) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
-                .inOut(InOutEnum.IN)
+                .inOut(ReckonerDto.InOutEnum.IN)
                 .amount(new BigDecimal(blc))
                 .transDate(offsetDateTime)
                 .toAcctObj(AccountDto.builder().name("余额宝").build())
                 .reckonerTypeObj(ReckonerTypeDto.builder().typeName("Refund").build())
-                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .tags(CollUtil.isEmpty(tags) ? null : tags)
                 .descr(ObjectUtil.isEmpty(descr) ? null : descr)
                 .build();
         return reckonerController.createOne(build, Optional.of(true));
@@ -178,13 +177,13 @@ public class RcknControllerV2 {
                                       @RequestParam(required = false) Optional<Boolean> trigger) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
-                .inOut(InOutEnum.TRANSFER)
+                .inOut(ReckonerDto.InOutEnum.TRANSFER)
                 .amount(new BigDecimal(blc))
                 .transDate(offsetDateTime)
                 .fromAcctObj(AccountDto.builder().name(fAcct).build())
                 .toAcctObj(AccountDto.builder().name(tAcct).build())
                 .reckonerTypeObj(ReckonerTypeDto.builder().typeName("Transfer").build())
-                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .tags(CollUtil.isEmpty(tags) ? null : tags)
                 .descr(ObjectUtil.isEmpty(descr) ? null : descr)
                 .build();
         return reckonerController.createOne(build, trigger);
@@ -222,12 +221,12 @@ public class RcknControllerV2 {
                                     @RequestParam(required = false) Optional<Boolean> trigger) {
         OffsetDateTime offsetDateTime = OffsetDateTime.of(LocalDate.parse(transDate), LocalTime.parse(transTime), ZoneOffset.of("+8"));
         ReckonerDto build = ReckonerDto.builder()
-                .inOut(InOutEnum.IN)
+                .inOut(ReckonerDto.InOutEnum.IN)
                 .amount(new BigDecimal(blc))
                 .transDate(offsetDateTime)
                 .toAcctObj(AccountDto.builder().name(tAcct).build())
                 .reckonerTypeObj(ReckonerTypeDto.builder().typeName(typeName).build())
-                .tags(CollUtil.isEmpty(tags) ? null : "[\"" + String.join("\", \"", tags) + "\"]")
+                .tags(CollUtil.isEmpty(tags) ? null : tags)
                 .descr(ObjectUtil.isEmpty(descr) ? null : descr)
                 .build();
         return reckonerController.createOne(build, trigger);

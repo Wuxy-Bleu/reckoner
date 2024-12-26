@@ -36,7 +36,7 @@ public class ReckonerService {
     private final AcctBlcCalFeign acctBlcCalFeign;
 
     public Long countDistinctByFromAcctAllIgnoreCase(UUID acct) {
-        return reckonerRepository.countDistinctByFromAcctAllIgnoreCase(acct);
+        return reckonerRepository.countDistinctByFromAcctObj_Id(acct);
     }
 
     public Long countDistinctByToAcctAllIgnoreCase(UUID acct) {
@@ -45,7 +45,7 @@ public class ReckonerService {
 
     public List<ReckonerEntity> retrieveByFromAcctName(String name, Pageable page) {
         AccountEntity acct = accountService.retrieveActivatedByName(name);
-        return reckonerRepository.findByFromAcct(acct.getId(), page);
+        return reckonerRepository.findByFromAcctObj_Id(acct.getId(), page);
     }
 
     public List<ReckonerEntity> retrieveByFromAcctNameAndTags(String name, List<String> tags) {
@@ -108,7 +108,6 @@ public class ReckonerService {
             case 0:
                 fAcct = accountService.getOrRefreshCache(null, entity.getFromAcctObj().getName(), null, null).get(0);
                 tAcct = accountService.getOrRefreshCache(null, entity.getToAcctObj().getName(), null, null).get(0);
-                entity.setFromAcct(fAcct.getId());
                 entity.setFromAcctObj(accountMapper.accountDto2Entity(fAcct));
                 entity.setToAcct(tAcct.getId());
                 entity.setToAcctObj(accountMapper.accountDto2Entity(tAcct));
@@ -120,7 +119,6 @@ public class ReckonerService {
                 break;
             case -1:
                 fAcct = accountService.getOrRefreshCache(null, entity.getFromAcctObj().getName(), null, null).get(0);
-                entity.setFromAcct(fAcct.getId());
                 entity.setFromAcctObj(accountMapper.accountDto2Entity(fAcct));
                 break;
             default:

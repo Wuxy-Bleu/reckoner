@@ -5,6 +5,7 @@ import demo.usul.convert.ReckonerMapper;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AcctBlcCalculateDto;
 import demo.usul.dto.ReckonerDto;
+import demo.usul.entity.AccountEntity;
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.feign.AcctBlcCalFeign;
 import demo.usul.repository.AccountRepository;
@@ -73,7 +74,9 @@ public class RcknSvcV2 {
 
         BigDecimal newAccBlcAfter = newAcc.getBalance().subtract(reckoner.getAmount().abs());
         BigDecimal oldAccBlcAfter = oldAcc.getBalance().add(reckoner.getAmount().abs());
-        int i = reckonerRepository.updateFromAcctById(newAcc.getId(), id);
+        AccountEntity byId = accountRepository.findById(newAcc.getId()).get();
+        reckoner.setFromAcctObj(byId);
+        reckonerRepository.persist(reckoner);
         int i1 = accountRepository.updateBalanceByIdAndIsActive(newAccBlcAfter, newAcc.getId(), true);
         int i2 = accountRepository.updateBalanceByIdAndIsActive(oldAccBlcAfter, oldAcc.getId(), true);
 

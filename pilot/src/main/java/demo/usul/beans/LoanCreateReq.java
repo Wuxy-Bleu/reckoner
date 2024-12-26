@@ -1,10 +1,11 @@
 package demo.usul.beans;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -15,6 +16,7 @@ import static cn.hutool.core.text.CharSequenceUtil.isNotBlank;
 import static demo.usul.Const.SHANG_HAI_NOW;
 
 @Data
+@NoArgsConstructor
 public class LoanCreateReq {
 
     @NotNull
@@ -28,22 +30,26 @@ public class LoanCreateReq {
 
     private String currency;
 
-    private String status;
+    private String interestType;
 
     private String loanType;
-
-    private String interestType;
 
     private Short installmentNumber;
 
     private String descr;
 
-    @JsonRawValue
-    private String tags;
+    private List<String> tags;
 
     // todo unit test
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssXXX")
     private OffsetDateTime transDate = SHANG_HAI_NOW;
+
+    @JsonProperty("is_installment")
+    private Boolean isInstallment;
+
+    private List<BigDecimal> principals;
+
+    private List<BigDecimal> interests;
 
     @AssertTrue(message = "交易账户id或者名称至少有一个不为空")
     public boolean validate() {

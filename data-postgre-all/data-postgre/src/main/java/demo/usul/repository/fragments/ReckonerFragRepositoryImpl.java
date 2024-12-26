@@ -15,7 +15,6 @@ import demo.usul.entity.ReckonerTypeEntity;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -70,19 +69,19 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
     @Override
     public List<ReckonerEntity> findByFromAcctAndTagsOrderByTransDateDesc(UUID id, String s, String s1) {
         String query = "select * from reckoner r " +
-                "where r.from_acct = \'" + id.toString() + "\'" +
-                " and (CAST(r.tags AS VARCHAR) ~ \'" + s + "\' " +
-                " or CAST(r.tags AS VARCHAR) ~ \'" + s1 + "\') " +
-                " order by r.trans_date DESC";
+                       "where r.from_acct = \'" + id.toString() + "\'" +
+                       " and (CAST(r.tags AS VARCHAR) ~ \'" + s + "\' " +
+                       " or CAST(r.tags AS VARCHAR) ~ \'" + s1 + "\') " +
+                       " order by r.trans_date DESC";
         return em.createNativeQuery(query, ReckonerEntity.class).getResultList();
     }
 
     @Override
     public List<ReckonerEntity> findByTagsOrderByTransDateDesc(String s, String s1) {
         String query = "select * from reckoner r " +
-                "where  (CAST(r.tags AS VARCHAR) ~ \'" + s + "\' " +
-                " or CAST(r.tags AS VARCHAR) ~ \'" + s1 + "\') " +
-                " order by r.trans_date DESC";
+                       "where  (CAST(r.tags AS VARCHAR) ~ \'" + s + "\' " +
+                       " or CAST(r.tags AS VARCHAR) ~ \'" + s1 + "\') " +
+                       " order by r.trans_date DESC";
         return em.createNativeQuery(query, ReckonerEntity.class).getResultList();
     }
 
@@ -109,7 +108,7 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
 
         if (id.isPresent())
             where = ArrayUtil.append(where,
-                    flow == -1 ? reckoner.fromAcct.eq(id.get()) : reckoner.toAcct.eq(id.get()));
+                    flow == -1 ? reckoner.fromAcctObj.id.eq(id.get()) : reckoner.toAcct.eq(id.get()));
         if (reckonerType.isPresent())
             where = ArrayUtil.append(where, rcknType.typeName.eq(reckonerType.get()));
 
@@ -132,7 +131,7 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
         Predicate[] where = ArrayUtil.append(null, reckoner.inOut.eq((short) flow));
         if (id.isPresent())
             where = ArrayUtil.append(where,
-                    flow == -1 ? reckoner.fromAcct.eq(id.get()) : reckoner.toAcct.eq(id.get()));
+                    flow == -1 ? reckoner.fromAcctObj.id.eq(id.get()) : reckoner.toAcct.eq(id.get()));
         if (reckonerType.isPresent())
             where = ArrayUtil.append(where, rcknType.typeName.eq(reckonerType.get()));
 
@@ -159,7 +158,7 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
                         reckoner.transDate.min(),
                         reckoner.transDate.max()
                 ))
-                .where(reckoner.fromAcct.eq(fromAcc),
+                .where(reckoner.fromAcctObj.id.eq(fromAcc),
                         reckoner.isAlive.eq(true),
                         reckoner.inOut.eq((short) -1))
                 .fetch();
@@ -202,7 +201,7 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
                         reckoner.transDate.min(),
                         reckoner.transDate.max()
                 ))
-                .where(reckoner.fromAcct.eq(fromAcc),
+                .where(reckoner.fromAcctObj.id.eq(fromAcc),
                         reckoner.isAlive.eq(true),
                         reckoner.inOut.eq((short) -1))
                 .groupBy(reckoner.reckonerTypeObj.typeName)
@@ -267,6 +266,12 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
                 .select(select("to", isMonthly, isWeekly, isGroupByType))
                 .fetch();
         return addAll(q1, q2);
+    }
+
+    @Override
+    public ReckonerEntity persist(ReckonerEntity reckoner) {
+        em.persist(reckoner);
+        return reckoner;
     }
 
     private Predicate[] where(short fromTo, Optional<String> acc, Optional<OffsetDateTime> timeBegin, Optional<OffsetDateTime> timeEnd) {

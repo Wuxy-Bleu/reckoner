@@ -1,5 +1,6 @@
 package demo.usul.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -99,9 +100,11 @@ public class AccountEntity extends CommonColumn {
     private String dueDate;
 
     @OneToMany(mappedBy = "fromAcctObj", fetch = FetchType.EAGER)
+    @JsonBackReference
     private List<ReckonerEntity> outReckonerEntities;
 
     @OneToMany(mappedBy = "toAcctObj", fetch = FetchType.EAGER)
+    @JsonBackReference
     private List<ReckonerEntity> inReckonerEntities;
 
     @NotNull

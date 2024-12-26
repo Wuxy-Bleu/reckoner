@@ -1,7 +1,5 @@
 package demo.usul.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -40,10 +38,13 @@ public class LoanCreateDto {
 
     private String descr;
 
-    @JsonRawValue
-    private String tags;
+    private List<String> tags;
 
     private OffsetDateTime transDate = SHANG_HAI_NOW;
+
+    private List<BigDecimal> principals;
+
+    private List<BigDecimal> interests;
 
     @AssertTrue(message = "交易账户id或者名称至少有一个不为空")
     public boolean validate() {

@@ -1,5 +1,6 @@
 package demo.usul.entity;
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,10 +21,10 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static demo.usul.Const.SHANG_HAI_NOW;
@@ -53,7 +54,6 @@ public class LoanEntity {
     public static final String COLUMN_IMAGELINK_NAME = "image_link";
     public static final String COLUMN_DESCR_NAME = "descr";
     public static final String COLUMN_TAGS_NAME = "tags";
-    public static final String COLUMN_ISALIVE_NAME = "is_alive";
 
 
     @NotNull
@@ -111,11 +111,11 @@ public class LoanEntity {
 
     @Column(name = COLUMN_TAGS_NAME)
     @JdbcTypeCode(SqlTypes.JSON)
-    private String tags;
+    private List<String> tags;
 
     @OneToMany(mappedBy = "loanEntity", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JsonManagedReference
-    private Set<LoanScheduleEntity> loanScheduleEntitySet = new HashSet<>();
+    private List<LoanScheduleEntity> loanScheduleEntitySet = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = LoanEntity.COLUMN_FROMACCT_NAME)
@@ -125,4 +125,34 @@ public class LoanEntity {
         getLoanScheduleEntitySet().add(entity);
     }
 
+    // 根据installmentNumber来初始化相同个数的schedule entities, null or 0 schedules就是空list
+    public void initSchedulesWithNoArgsConstructor() {
+        for (
+                int i = 0;
+                (null != installmentNumber && i < installmentNumber) || (null == installmentNumber && i < 1);
+                i++
+        ) {
+            LoanScheduleEntity schedule = new LoanScheduleEntity();
+            schedule.setLoanEntity(this);
+            this.add(schedule);
+        }
+    }
+
+    public void setSchedulePrincipalsInterestsIterable(List<BigDecimal> principals, List<BigDecimal> interests) {
+        for (int i = 0; CollUtil.isNotEmpty(principals) && i < installmentNumber; i++)
+            loanScheduleEntitySet.get(i).setPrincipal(principals.get(i));
+        for (int i = 0; CollUtil.isNotEmpty(interests) && i < installmentNumber; i++)
+            loanScheduleEntitySet.get(i).setInterest(interests.get(i));
+    }
+
+    public void setScheduleDueDateWithFirstDate(LocalDate deadline) {
+        if (null == installmentNumber)
+            loanScheduleEntitySet.get(0).setDueDate(deadline);
+        else {
+            for (LoanScheduleEntity el : loanScheduleEntitySet) {
+                el.setDueDate(deadline);
+                deadline = deadline.plusMonths(1);
+            }
+        }
+    }
 }

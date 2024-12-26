@@ -1,5 +1,7 @@
 package demo.usul.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,10 +17,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -45,23 +49,19 @@ public class ReckonerEntity {
     public static final String COLUMN_TYPEID_NAME = "type_id";
     public static final String COLUMN_DESCR_NAME = "descr";
     public static final String COLUMN_TAGS_NAME = "tags";
+    public static final String COLUMN_COL0_NAME = "col0";
 
 
     @Id
-//    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = COLUMN_ID_NAME, nullable = false, updatable = false, unique = true)
     private UUID id;
-
 
     @Column(name = COLUMN_AMOUNT_NAME, nullable = false, precision = 18, scale = 8)
     private BigDecimal amount;
 
     @Column(name = COLUMN_INNOUT_NAME, nullable = false)
     private Short inOut;
-
-    @Column(name = COLUMN_FROMACCT_NAME)
-    private UUID fromAcct;
 
     @Column(name = COLUMN_TOACCT_NAME)
     private UUID toAcct;
@@ -81,6 +81,7 @@ public class ReckonerEntity {
     @Column(name = COLUMN_CREATEDAT_NAME, nullable = false, insertable = false)
     private OffsetDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = COLUMN_LASTUPDATEDAT_NAME, nullable = false, insertable = false)
     private OffsetDateTime lastUpdatedAt;
 
@@ -94,8 +95,9 @@ public class ReckonerEntity {
     @JoinColumn(name = COLUMN_TYPEID_NAME, unique = true, updatable = false, insertable = false)
     private ReckonerTypeEntity reckonerTypeObj;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = COLUMN_FROMACCT_NAME, unique = true, insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = COLUMN_FROMACCT_NAME)
+    @JsonManagedReference
     private AccountEntity fromAcctObj;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -107,6 +109,10 @@ public class ReckonerEntity {
 
     @Column(name = COLUMN_TAGS_NAME)
     @JdbcTypeCode(SqlTypes.JSON)
-    private String tags;
+    private List<String> tags;
+
+    @Column(name = COLUMN_COL0_NAME)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> col0;
 
 }

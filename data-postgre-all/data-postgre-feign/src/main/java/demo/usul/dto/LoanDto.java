@@ -1,7 +1,6 @@
 package demo.usul.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -9,8 +8,11 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +26,7 @@ public class LoanDto {
     private BigDecimal toCny;
     private OffsetDateTime createdAt;
     private OffsetDateTime lastUpdatedAt;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssXXX", timezone = "Asia/Shanghai")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ssXXX", timezone = "Asia/Shanghai")
     private OffsetDateTime transDate;
     private String status;
     private String loanType;
@@ -32,8 +34,7 @@ public class LoanDto {
     private Short installmentNumber;
     private String imageLink;
     private String descr;
-    @JsonRawValue
-    private String tags;
+    private List<String> tags;
     private Set<LoanScheduleDto> loanScheduleDtoSet;
     private AccountDto fromAcctDto;
 
@@ -41,7 +42,8 @@ public class LoanDto {
     @AllArgsConstructor
     public enum LoanType {
         NO_INSTALLMENT("不分期"),
-        INSTALLMENT("分期");
+        INSTALLMENT("分期"),
+        ADVANCED_CONSUMPTION("先用后付");
 
         private final String type;
     }

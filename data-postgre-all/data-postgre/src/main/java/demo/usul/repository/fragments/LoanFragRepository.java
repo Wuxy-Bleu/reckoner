@@ -1,14 +1,12 @@
 package demo.usul.repository.fragments;
 
 import demo.usul.entity.LoanEntity;
-import demo.usul.entity.ReckonerUnionSubQuery;
+import demo.usul.entity.ReckonerUnionQuery;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
+@Transactional
 public interface LoanFragRepository {
 
-    void create(LoanEntity loanEntity);
-
-    List<ReckonerUnionSubQuery> findAllTransactionsPageableUnion2Table(Pageable page);
+    ReckonerUnionQuery findAllTransactionsPageableUnion2Table(Pageable page);
 }

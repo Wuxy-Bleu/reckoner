@@ -1,12 +1,11 @@
 package demo.usul.dto;
 
+import cn.hutool.core.util.NumberUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import demo.usul.enums.InOutEnum;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
@@ -15,6 +14,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -45,9 +45,28 @@ public class ReckonerDto extends CommonColumn implements Serializable {
 
     private String descr;
 
-    @JsonRawValue
-    private String tags;
+    private List<String> tags;
 
     private ReckonerTypeDto reckonerTypeObj;
+
+    @Getter
+    @AllArgsConstructor
+    public enum InOutEnum {
+        IN(1),
+        OUT(-1),
+        TRANSFER(0),
+        ADVANCED_CONSUMPTION(2);
+
+        public final Integer inOut;
+
+        public static InOutEnum fromValue(Short value) {
+            for (InOutEnum el : InOutEnum.values()) {
+                if (NumberUtil.equals(el.getInOut(), value)) {
+                    return el;
+                }
+            }
+            throw new IllegalArgumentException("Unexpected value: " + value);
+        }
+    }
 
 }

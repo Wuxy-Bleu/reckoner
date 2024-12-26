@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -16,7 +18,7 @@ public class Transaction {
 
     private BigDecimal amount;
 
-    private Short inNOut = -1;
+    private Short inOut = -1;
 
     private UUID fromAcctId;
 
@@ -35,9 +37,17 @@ public class Transaction {
 
     private String descr;
 
-    private String tags;
+    private List<String> tags;
 
     private Boolean isLoan;
 
-    private Integer installmentNum = 0;
+    private List<BigDecimal> principals;
+
+    private List<BigDecimal> interests;
+
+    private List<LocalDate> dueDates;
+
+    private Integer installmentNum;
+
+    private String loanType;
 }
