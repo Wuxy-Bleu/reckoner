@@ -1,10 +1,14 @@
 package demo.usul.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import demo.usul.convert.LoanMapper;
 import demo.usul.dto.LoanCreateDto;
+import demo.usul.dto.TransactionQueryCriteria;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.LoanEntity;
+import demo.usul.entity.Loan_AccountAggre;
+import demo.usul.entity.Loan_AccountAggre.Loan_Account_YearMonthAggre;
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.entity.ReckonerLoanUnionPage;
 import demo.usul.entity.ReckonerUnionQuery;
@@ -17,12 +21,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static demo.usul.dto.LoanDto.LoanType.ADVANCED_CONSUMPTION;
 
@@ -33,7 +45,6 @@ public class ReckonerServiceV3 {
     private final ReckonerRepository reckonerRepository;
     private final LoanRepository loanRepository;
     private final AccountRepository accountRepository;
-    private final AccountService accountService;
     private final LoanService loanService;
     private final LoanMapper loanMapper;
 
@@ -42,7 +53,6 @@ public class ReckonerServiceV3 {
         this.reckonerRepository = reckonerRepository;
         this.loanRepository = loanRepository;
         this.accountRepository = accountRepository;
-        this.accountService = accountService;
         this.loanService = loanService;
         this.loanMapper = loanMapper;
     }
@@ -67,6 +77,47 @@ public class ReckonerServiceV3 {
         page.setLoanPageNum(pageable.getPageNumber());
         page.setLoanPageSize(lList.size());
         page.setTotal(unionQuery.getTotalSize());
+        return page;
+    }
+
+    public ReckonerLoanUnionPage getAllTransactionsCriteria(TransactionQueryCriteria criteria) {
+        List<LoanEntity> loans = loanRepository.findCriteria(criteria);
+        List<ReckonerEntity> reckoners = reckonerRepository.findCriteria(criteria);
+
+        if (CollUtil.isNotEmpty(criteria.getTagsContains())) {
+            // 找不到办法让querydsl 处理 jsonb contains, 特别是映射property是List<String>类型
+            loans = loans.stream().filter(loan ->
+                    criteria.getTagsContains().stream().allMatch(p -> loan.getTags().stream().anyMatch(l -> l.contains(p)))).toList();
+            reckoners = reckoners.stream().filter(reckon ->
+                    criteria.getTagsContains().stream().allMatch(p -> reckon.getTags().stream().anyMatch(l -> l.contains(p)))).toList();
+        }
+        ReckonerLoanUnionPage page = new ReckonerLoanUnionPage();
+        List<LoanEntity> loanPage = new ArrayList<>();
+        List<ReckonerEntity> reckonerPage = new ArrayList<>();
+        page.setLoanPage(loanPage);
+        page.setReckonerPage(reckonerPage);
+
+        for (int i = 0, j = 0;
+             CollUtil.isNotEmpty(loans)
+             || CollUtil.isNotEmpty(reckoners)
+                && i + j < criteria.getPageSize();
+        ) {
+            LoanEntity left = (i < loans.size()) ? loans.get(i) : null;
+            ReckonerEntity right = (j < reckoners.size()) ? reckoners.get(j) : null;
+
+            if (left != null && (right == null || left.getTransDate().isAfter(right.getTransDate()))) {
+                loanPage.add(left);
+                i++;
+            } else if (right != null) {
+                reckonerPage.add(right);
+                j++;
+            } else break;
+        }
+        page.setTotal(loans.size() + reckoners.size());
+        page.setReckonerPageSize(reckonerPage.size());
+        page.setLoanPageSize(loanPage.size());
+        page.setPageNum(criteria.getPageNum());
+        page.setPageSize(loanPage.size() + reckonerPage.size());
         return page;
     }
 
@@ -110,7 +161,54 @@ public class ReckonerServiceV3 {
         return reckonerRepository.findByInOutAndIsAliveTrueOrderByTransDateDesc((short) 2);
     }
 
-    public void assetAggre(UUID fromAcct) {
-        List<LoanEntity> entities = loanService.getConditional(fromAcct);
+    // find by from acct id, status <> 'deleted', order by trans_date desc
+    public List<Loan_AccountAggre> assetAggre() {
+        List<LoanEntity> loans = loanRepository.findNonDeletedOrderByTransDateDesc();
+        Map<UUID, List<LoanEntity>> byAccount = loans.stream().collect(Collectors.groupingBy(e -> e.getFromAcctEntity().getId()));
+
+        List<Loan_AccountAggre> res = new ArrayList<>();
+        byAccount.values().forEach(
+                el -> {
+                    LoanEntity ent;
+                    if (CollUtil.isNotEmpty(el) && null != (ent = el.get(0))) {
+                        Loan_AccountAggre accountAggre = new Loan_AccountAggre();
+                        accountAggre.setAccountId(ent.getFromAcctEntity().getId());
+                        accountAggre.setAccountName(ent.getFromAcctEntity().getName());
+                        accountAggre.setCount(el.size());
+                        accountAggre.setBillingCircle(ent.getFromAcctEntity().getBillingCycle());
+                        LocalDate nearestDeadline = ent.getFromAcctEntity().getNearestDeadline();
+                        accountAggre.setForcomingDeadline(nearestDeadline);
+                        BigDecimal repayment = el.stream()
+                                .flatMap(e -> e.getLoanScheduleEntitySet().stream().filter(s -> s.getDueDate().equals(nearestDeadline)))
+                                .map(schedule ->
+                                        (schedule.getPrincipal() != null ? schedule.getPrincipal() : BigDecimal.ZERO)
+                                                .add(schedule.getInterest() != null ? schedule.getInterest() : BigDecimal.ZERO))
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        accountAggre.setForcomingPaymentAmount(repayment);
+
+                        // set yearMonth Aggre list
+                        Map<YearMonth, List<LoanEntity>> byMonth =
+                                el.stream().collect(Collectors.groupingBy(
+                                        e -> YearMonth.from(e.getTransDate()),
+                                        LinkedHashMap::new,
+                                        Collectors.toList()));
+                        List<Loan_Account_YearMonthAggre> tmp = new ArrayList<>();
+                        byMonth.forEach(
+                                (k, v) -> {
+                                    Loan_Account_YearMonthAggre account_yearMonthAggre = new Loan_Account_YearMonthAggre();
+                                    account_yearMonthAggre.setYearMonth(k);
+                                    account_yearMonthAggre.setSumPrincipal(v.stream().map(LoanEntity::getPrincipal).reduce(BigDecimal.ZERO, BigDecimal::add));
+                                    account_yearMonthAggre.setSumInterest(v.stream().map(e -> Optional.ofNullable(e.getInterest()).orElse(BigDecimal.ZERO)).reduce(BigDecimal.ZERO, BigDecimal::add));
+                                    account_yearMonthAggre.setCount(v.size());
+                                    account_yearMonthAggre.setTransactions(v);
+                                    tmp.add(account_yearMonthAggre);
+                                }
+                        );
+                        accountAggre.setYearMonthAggres(tmp);
+                        res.add(accountAggre);
+                    }
+                }
+        );
+        return res;
     }
 }

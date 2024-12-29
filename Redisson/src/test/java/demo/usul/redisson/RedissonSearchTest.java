@@ -56,7 +56,6 @@ class RedissonSearchTest {
         jsonBucket.set(jsonString);
     }
 
-
     @Test
     void testLoopSetJsonLuaScript() {
         String sha1 = script.scriptLoad(LuaScript.LOOP_SET_JSON);

@@ -1,5 +1,6 @@
 package demo.usul.repository.fragments;
 
+import demo.usul.dto.TransactionQueryCriteria;
 import demo.usul.entity.ReckonerEntity;
 import org.springframework.data.domain.Pageable;
 
@@ -34,4 +35,6 @@ public interface ReckonerFragRepository {
                                                                    Optional<OffsetDateTime> timeEnd);
 
     ReckonerEntity persist(ReckonerEntity reckoner);
+
+    List<ReckonerEntity> findCriteria(TransactionQueryCriteria criteria);
 }

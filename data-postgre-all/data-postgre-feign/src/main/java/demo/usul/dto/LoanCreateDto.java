@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static cn.hutool.core.text.CharSequenceUtil.isNotBlank;
-import static demo.usul.Const.SHANG_HAI_NOW;
+import static demo.usul.Const.SHANG_HAI;
 
 @Data
 @NoArgsConstructor
@@ -28,6 +28,8 @@ public class LoanCreateDto {
 
     private String currency;
 
+    private BigDecimal toCny;
+
     private String status;
 
     private String loanType;
@@ -40,7 +42,7 @@ public class LoanCreateDto {
 
     private List<String> tags;
 
-    private OffsetDateTime transDate = SHANG_HAI_NOW;
+    private OffsetDateTime transDate = OffsetDateTime.now(SHANG_HAI);
 
     private List<BigDecimal> principals;
 

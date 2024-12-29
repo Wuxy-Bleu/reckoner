@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static cn.hutool.core.text.CharSequenceUtil.isNotBlank;
-import static demo.usul.Const.SHANG_HAI_NOW;
+import static demo.usul.Const.SHANG_HAI;
 
 @Data
 @NoArgsConstructor
@@ -30,6 +30,8 @@ public class LoanCreateReq {
 
     private String currency;
 
+    private BigDecimal toCny;
+
     private String interestType;
 
     private String loanType;
@@ -42,7 +44,7 @@ public class LoanCreateReq {
 
     // todo unit test
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssXXX")
-    private OffsetDateTime transDate = SHANG_HAI_NOW;
+    private OffsetDateTime transDate = OffsetDateTime.now(SHANG_HAI);
 
     @JsonProperty("is_installment")
     private Boolean isInstallment;

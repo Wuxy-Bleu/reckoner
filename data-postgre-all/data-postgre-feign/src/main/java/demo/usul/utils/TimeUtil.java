@@ -4,6 +4,9 @@ import java.time.OffsetDateTime;
 
 public class TimeUtil {
 
+    private TimeUtil() {
+    }
+
     public static boolean compareDayOfMonthStringWithOffsetDateTime(
             int dayOfMonth, OffsetDateTime target) {
 //        ZoneId zone = target.toZonedDateTime().getZone();

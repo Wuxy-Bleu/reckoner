@@ -65,7 +65,7 @@ public class LoanService {
             loanEntity.setSchedulePrincipalsInterestsIterable(loanCreateDto.getPrincipals(), loanCreateDto.getInterests());
         else
             loanEntity.getLoanScheduleEntitySet().get(0).setPrincipal(loanEntity.getPrincipal());
-        loanEntity.setScheduleDueDateWithFirstDate(fAcct.deadline(loanEntity.getTransDate()));
+        loanEntity.setScheduleDueDateFromFirstDeadline(fAcct.calculateDueDateOfTransDate(loanEntity.getTransDate()));
         // persist
         return loanRepository.save(loanEntity);
     }

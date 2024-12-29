@@ -10,7 +10,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static demo.usul.Const.SHANG_HAI_NOW;
+import static demo.usul.Const.SHANG_HAI;
 
 @Data
 @NoArgsConstructor
@@ -36,5 +36,5 @@ public class ReckonerCreate {
     private List<String> tags;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssXXX")
-    private OffsetDateTime transDate = SHANG_HAI_NOW;
+    private OffsetDateTime transDate = OffsetDateTime.now(SHANG_HAI);
 }

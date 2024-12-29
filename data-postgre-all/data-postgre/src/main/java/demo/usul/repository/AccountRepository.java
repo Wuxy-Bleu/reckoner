@@ -37,4 +37,7 @@ public interface AccountRepository extends JpaRepository<AccountEntity, UUID>, Q
 
     @Query("select a from AccountEntity a where a.id = :id and a.isActive = true")
     AccountEntity findByIdAndIsActiveTrue(@Param("id") UUID id);
+
+    @Query("select a from AccountEntity a where a.isActive = true order by a.balance DESC")
+    List<AccountEntity> findByIsActiveTrueOrderByBalanceDesc();
 }

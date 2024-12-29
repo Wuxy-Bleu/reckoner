@@ -29,4 +29,7 @@ public interface LoanRepository extends JpaRepository<LoanEntity, UUID>, JpaSpec
 
     @Query("select l from LoanEntity l where l.fromAcctEntity.id = :id and l.status <> 'deleted' order by l.transDate DESC")
     List<LoanEntity> findByFromAcctEntity_IdOrderByTransDateDesc(@Param("id") UUID id);
+
+    @Query("select l from LoanEntity l where l.status <> 'deleted' order by l.transDate DESC")
+    List<LoanEntity> findNonDeletedOrderByTransDateDesc();
 }

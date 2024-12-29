@@ -27,10 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static demo.usul.Const.SHANG_HAI_NOW;
+import static demo.usul.Const.SHANG_HAI;
 import static demo.usul.dto.LoanDto.LoanStatus.ACTIVE;
 import static demo.usul.dto.LoanDto.LoanType.NO_INSTALLMENT;
 
+// not use @data on jpa entity
 @Getter
 @Setter
 @Entity
@@ -54,7 +55,6 @@ public class LoanEntity {
     public static final String COLUMN_IMAGELINK_NAME = "image_link";
     public static final String COLUMN_DESCR_NAME = "descr";
     public static final String COLUMN_TAGS_NAME = "tags";
-
 
     @NotNull
     @Id
@@ -80,15 +80,15 @@ public class LoanEntity {
 
     @ColumnDefault("now()")
     @Column(name = COLUMN_CREATEDAT_NAME, nullable = false, insertable = false)
-    private OffsetDateTime createdAt = SHANG_HAI_NOW;
+    private OffsetDateTime createdAt = OffsetDateTime.now(SHANG_HAI);
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = COLUMN_LASTUPDATEDAT_NAME, nullable = false, insertable = false)
-    private OffsetDateTime lastUpdatedAt = SHANG_HAI_NOW;
+    private OffsetDateTime lastUpdatedAt = OffsetDateTime.now(SHANG_HAI);
 
     @ColumnDefault("now()")
     @Column(name = COLUMN_TRANSDATE_NAME, nullable = false)
-    private OffsetDateTime transDate = SHANG_HAI_NOW;
+    private OffsetDateTime transDate = OffsetDateTime.now(SHANG_HAI);
 
     @Column(name = COLUMN_STATUS_NAME, length = Integer.MAX_VALUE)
     private String status = ACTIVE.getStatus();
@@ -138,6 +138,7 @@ public class LoanEntity {
         }
     }
 
+    // 顺序不重要，只要principals interests list中相同index的在同一个shcedule中
     public void setSchedulePrincipalsInterestsIterable(List<BigDecimal> principals, List<BigDecimal> interests) {
         for (int i = 0; CollUtil.isNotEmpty(principals) && i < installmentNumber; i++)
             loanScheduleEntitySet.get(i).setPrincipal(principals.get(i));
@@ -145,7 +146,7 @@ public class LoanEntity {
             loanScheduleEntitySet.get(i).setInterest(interests.get(i));
     }
 
-    public void setScheduleDueDateWithFirstDate(LocalDate deadline) {
+    public void setScheduleDueDateFromFirstDeadline(LocalDate deadline) {
         if (null == installmentNumber)
             loanScheduleEntitySet.get(0).setDueDate(deadline);
         else {

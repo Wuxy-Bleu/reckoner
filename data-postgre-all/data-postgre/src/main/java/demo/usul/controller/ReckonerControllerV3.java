@@ -4,9 +4,12 @@ import demo.usul.convert.LoanMapper;
 import demo.usul.convert.ReckonerMapper;
 import demo.usul.dto.ReckonerCreate;
 import demo.usul.dto.TransactionPage;
+import demo.usul.dto.TransactionQueryCriteria;
 import demo.usul.entity.LoanEntity;
+import demo.usul.entity.Loan_AccountAggre;
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.service.LoanService;
+import demo.usul.service.ReckonerService;
 import demo.usul.service.ReckonerServiceV3;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -35,19 +38,26 @@ public class ReckonerControllerV3 {
     private final LoanMapper loanMapper;
     private final LoanService loanService;
     private final ReckonerMapper reckonerMapper;
+    private final ReckonerService reckonerService;
 
     @Autowired
-    public ReckonerControllerV3(LoanService loanService, ReckonerServiceV3 reckonerServiceV3, LoanMapper loanMapper, LoanService loanService1, ReckonerMapper reckonerMapper) {
+    public ReckonerControllerV3(LoanService loanService, ReckonerServiceV3 reckonerServiceV3, LoanMapper loanMapper, LoanService loanService1, ReckonerMapper reckonerMapper, ReckonerService reckonerService) {
         this.reckonerServiceV3 = reckonerServiceV3;
         this.loanMapper = loanMapper;
         this.loanService = loanService;
         this.reckonerMapper = reckonerMapper;
+        this.reckonerService = reckonerService;
     }
 
     // 分页获取所有的交易记录 loan+reckoner (not deleted)
     @GetMapping
     public TransactionPage getAllTransactions(@RequestParam int pageNum, @RequestParam int pageSize) {
         return loanMapper.mergeToTransactionPage(reckonerServiceV3.getAllTransactions(of(pageNum, pageSize)));
+    }
+
+    @PostMapping("/criteria")
+    public TransactionPage getAllTransactionsCriteria(@RequestBody TransactionQueryCriteria criteria) {
+        return loanMapper.mergeToTransactionPage(reckonerServiceV3.getAllTransactionsCriteria(criteria));
     }
 
     // 删除一条交易记录 reckoner or loan(loan会删除对应的schedules, 都是更改status-> deleted)
@@ -83,8 +93,7 @@ public class ReckonerControllerV3 {
 
     //资产状况
     @GetMapping("/asset")
-    public String assetAggre(@RequestParam("from_acct") UUID fromAcct) {
-        reckonerServiceV3.assetAggre(fromAcct);
-        return "";
+    public List<Loan_AccountAggre> assetAggre() {
+        return reckonerServiceV3.assetAggre();
     }
 }

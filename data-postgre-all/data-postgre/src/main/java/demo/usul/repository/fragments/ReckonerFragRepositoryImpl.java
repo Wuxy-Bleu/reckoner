@@ -7,6 +7,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import demo.usul.dto.TransactionQueryCriteria;
 import demo.usul.entity.QAccountEntity;
 import demo.usul.entity.QReckonerEntity;
 import demo.usul.entity.QReckonerTypeEntity;
@@ -22,12 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static cn.hutool.core.collection.CollUtil.addAll;
 
@@ -164,7 +167,6 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
                 .fetch();
     }
 
-
     private List<Stat> statsInflowAggregationWhereToAcc(UUID toAcc) {
         return jpaQueryFactory
                 .from(reckoner)
@@ -272,6 +274,30 @@ public class ReckonerFragRepositoryImpl implements ReckonerFragRepository {
     public ReckonerEntity persist(ReckonerEntity reckoner) {
         em.persist(reckoner);
         return reckoner;
+    }
+
+    @Override
+    public List<ReckonerEntity> findCriteria(TransactionQueryCriteria criteria) {
+        return jpaQueryFactory.from(reckoner)
+                .where(mapCriteria2Predicate(criteria))
+                .select(reckoner)
+                .orderBy(reckoner.transDate.desc())
+                .fetch();
+    }
+
+    private Predicate[] mapCriteria2Predicate(TransactionQueryCriteria criteria) {
+        List<Predicate> where = new ArrayList<>();
+        if (criteria.getFromAcct() != null)
+            where.add(reckoner.fromAcctObj.id.eq(criteria.getFromAcct()));
+        if (criteria.getFromAcctName() != null)
+            where.add(reckoner.fromAcctObj.name.eq(criteria.getFromAcctName()));
+//        if (criteria.getTagsContains() != null)
+//            where.add(Expressions.booleanTemplate("{0} @> {1}", reckoner.tags,
+//                    "'[" + criteria.getTagsContains().stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(" ")) + "]'"));
+        if (criteria.getTransMonth() != null)
+            where.add(reckoner.transDate.month().eq(criteria.getTransMonth()));
+        where.add(reckoner.isAlive.eq(true));
+        return where.toArray(new Predicate[0]);
     }
 
     private Predicate[] where(short fromTo, Optional<String> acc, Optional<OffsetDateTime> timeBegin, Optional<OffsetDateTime> timeEnd) {

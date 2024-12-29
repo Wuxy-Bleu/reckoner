@@ -1,6 +1,8 @@
 package demo.usul.entity;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import demo.usul.Const;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,7 +16,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,12 +34,10 @@ import static demo.usul.entity.AccountEntity.FIND_BY_IDS;
 import static demo.usul.entity.AccountEntity.FIND_BY_NAME;
 import static demo.usul.entity.AccountEntity.IF_ENTITIES_EXIST;
 import static demo.usul.entity.AccountEntity.SOFT_DELETE;
-import static demo.usul.utils.TimeUtil.compareDayOfMonthStringWithOffsetDateTime;
 
 @Setter
 @Getter
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = AccountEntity.TABLE_NAME, schema = "public", indexes = {
         @Index(name = "accounts_pk2", columnList = "name", unique = true)
@@ -64,7 +63,6 @@ public class AccountEntity extends CommonColumn {
     public static final String COLUMN_BILLINGCYCLE_NAME = "billing_cycle";
     public static final String COLUMN_DUEDATE_NAME = "due_date";
 
-    //    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = COLUMN_ID_NAME, nullable = false, updatable = false, unique = true)
@@ -119,18 +117,34 @@ public class AccountEntity extends CommonColumn {
 
     // 返回还款日，交易日期day of month < 入账周期的opening day of month, 也就是这笔交易在最近的还款日还清，else下一个还款日
     // 入账周期正好是月初到月末的话，还款日永远是下月的due date
-    public LocalDate deadline(OffsetDateTime target) {
+    // 周期14~+13 还款日7 12.25的交易 还款日就是2.7
+    public LocalDate calculateDueDateOfTransDate(OffsetDateTime target) {
         int opening = Integer.parseInt(getBillingCycle().split("~+")[0]);
+        int ending = Integer.parseInt(getBillingCycle().split("~+")[1]);
         int dealine = Integer.parseInt(getDueDate());
-        if (1 == opening)
-            return LocalDate.now().withDayOfMonth(dealine).plusMonths(1);
-        boolean ifLatestDeadline = compareDayOfMonthStringWithOffsetDateTime(opening, target);
-        if (ifLatestDeadline && dealine >= opening)
-            return LocalDate.now().withDayOfMonth(dealine);
-        else if (!ifLatestDeadline && dealine < opening)
-            return LocalDate.now().withDayOfMonth(dealine).plusMonths(2);
-        else
-            return LocalDate.now().withDayOfMonth(dealine).plusMonths(1);
 
+        LocalDate nextMonth = target.toLocalDate().withDayOfMonth(dealine).plusMonths(1);
+        LocalDate monthAfterNextMonth = nextMonth.plusMonths(1);
+
+        if (1 == opening)
+            // 入账周期正好是月初到月末，不跨月，那么还款日就是交易日下个月deadline
+            return nextMonth;
+        if (target.getDayOfMonth() >= opening)
+            return dealine >= ending ? nextMonth : monthAfterNextMonth;
+        else
+            return nextMonth;
+    }
+
+    public LocalDate getNearestDeadline() {
+        String dueDateStr;
+        if (CharSequenceUtil.isNotBlank(dueDateStr = getDueDate())) {
+            int dealine = Integer.parseInt(dueDateStr);
+            LocalDate now = LocalDate.now(Const.SHANG_HAI);
+            if (now.getDayOfMonth() <= dealine) {
+                return now.withDayOfMonth(dealine);
+            }
+            return now.withDayOfMonth(dealine).plusMonths(1);
+        }
+        return null;
     }
 }

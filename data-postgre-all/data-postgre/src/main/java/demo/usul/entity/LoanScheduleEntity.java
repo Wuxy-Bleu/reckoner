@@ -1,8 +1,6 @@
 package demo.usul.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import demo.usul.Const;
-import demo.usul.dto.LoanScheduleDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +19,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import static demo.usul.Const.SHANG_HAI;
 import static demo.usul.dto.LoanScheduleDto.LoanScheduleStatus.PENDING;
 
 @Getter
@@ -40,7 +39,6 @@ public class LoanScheduleEntity {
     public static final String COLUMN_RECKONERID_NAME = "reckoner_id";
     public static final String COLUMN_STATUS_NAME = "status";
 
-
     @Id
     @ColumnDefault("uuid_generate_v4()")
     @Column(name = COLUMN_ID_NAME, nullable = false)
@@ -58,12 +56,12 @@ public class LoanScheduleEntity {
     @NotNull
     @ColumnDefault("now()")
     @Column(name = COLUMN_CREATEDAT_NAME, nullable = false)
-    private OffsetDateTime createdAt = Const.SHANG_HAI_NOW;
+    private OffsetDateTime createdAt = OffsetDateTime.now(SHANG_HAI);
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = COLUMN_LASTUPDATEDAT_NAME, nullable = false)
-    private OffsetDateTime lastUpdatedAt = Const.SHANG_HAI_NOW;
+    private OffsetDateTime lastUpdatedAt = OffsetDateTime.now(SHANG_HAI);
 
     @Column(name = COLUMN_DUEDATE_NAME)
     private LocalDate dueDate;
