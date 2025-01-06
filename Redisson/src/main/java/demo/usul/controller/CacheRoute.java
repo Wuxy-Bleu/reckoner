@@ -1,6 +1,8 @@
 package demo.usul.controller;
 
 import demo.usul.controller.handler.CacheHandler;
+import demo.usul.dto.AccountDto;
+import jakarta.validation.Valid;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -12,6 +14,7 @@ import reactor.core.publisher.Hooks;
 import java.util.Arrays;
 import java.util.List;
 
+@Deprecated
 @Configuration
 public class CacheRoute {
 
@@ -27,6 +30,12 @@ public class CacheRoute {
             "dog"
     );
 
+    private final ValidationFilter validationFilter;
+
+    public CacheRoute(ValidationFilter validationFilter) {
+        this.validationFilter = validationFilter;
+    }
+
     public static void main(String[] args) {
         Hooks.resetOnOperatorDebug();
         Flux<String> manyLetters = Flux
@@ -41,9 +50,11 @@ public class CacheRoute {
     }
 
     @Bean
+    @Valid
     public RouterFunction<ServerResponse> route(CacheHandler cacheHandler) {
         return RouterFunctions.route()
                 .POST("/v3/cache/{ms}", cacheHandler::cacheAccounts)
+                .filter(validationFilter.validate(AccountDto.class))
                 .GET("/v3/cache/accts", cacheHandler::getCachedAccts)
                 .GET("/cache/accts/v3/{id}", cacheHandler::getCachedAcctById)
                 .build();

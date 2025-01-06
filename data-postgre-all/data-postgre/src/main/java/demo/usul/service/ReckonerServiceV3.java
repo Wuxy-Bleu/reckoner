@@ -7,7 +7,9 @@ import demo.usul.dto.LoanCreateDto;
 import demo.usul.dto.TransactionQueryCriteria;
 import demo.usul.entity.AccountEntity;
 import demo.usul.entity.LoanEntity;
+import demo.usul.entity.LoanScheduleEntity;
 import demo.usul.entity.Loan_AccountAggre;
+import demo.usul.entity.Loan_AccountAggre.Loan_Account_BillingCricleAggre;
 import demo.usul.entity.Loan_AccountAggre.Loan_Account_YearMonthAggre;
 import demo.usul.entity.ReckonerEntity;
 import demo.usul.entity.ReckonerLoanUnionPage;
@@ -26,9 +28,10 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +39,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static cn.hutool.core.util.NumberUtil.add;
 import static demo.usul.dto.LoanDto.LoanType.ADVANCED_CONSUMPTION;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 @Slf4j
 @Service
@@ -137,6 +142,7 @@ public class ReckonerServiceV3 {
     }
 
     // reckoner重新设定支付账号，并删除，
+    // 如果是信用账户，重新insert一条loan+schdule记录
     @Transactional
     public LoanEntity endAdvancedConsumption(UUID reckonerId, UUID acctId, OffsetDateTime transDate) {
         ReckonerEntity advancedConsumption = reckonerRepository.findByIdAndIsAliveTrue(reckonerId);
@@ -147,11 +153,13 @@ public class ReckonerServiceV3 {
             LoanCreateDto loanCreateDto = loanMapper.reckonerEntity2LoanCreateDto(advancedConsumption);
             loanCreateDto.setTransDate(transDate);
             loanCreateDto.setLoanType(ADVANCED_CONSUMPTION.getType());
+            loanCreateDto.setCol0(
+                    Map.of("original_trans_date",
+                            advancedConsumption.getTransDate().withOffsetSameInstant(ZoneOffset.ofHours(8)).format(ISO_OFFSET_DATE_TIME)));
             LoanEntity entity = loanService.create(loanCreateDto);
             Map<String, Object> json = new HashMap<>();
             json.put("loan", entity.getId());
             advancedConsumption.setCol0(json);
-            reckonerRepository.persist(advancedConsumption);
             return entity;
         }
         return null;
@@ -161,54 +169,85 @@ public class ReckonerServiceV3 {
         return reckonerRepository.findByInOutAndIsAliveTrueOrderByTransDateDesc((short) 2);
     }
 
-    // find by from acct id, status <> 'deleted', order by trans_date desc
     public List<Loan_AccountAggre> assetAggre() {
+        // find by from acct id, status <> 'deleted', order by trans_date desc
         List<LoanEntity> loans = loanRepository.findNonDeletedOrderByTransDateDesc();
-        Map<UUID, List<LoanEntity>> byAccount = loans.stream().collect(Collectors.groupingBy(e -> e.getFromAcctEntity().getId()));
+        Map<UUID, List<LoanEntity>> groupByAccount = loans.stream().collect(Collectors.groupingBy(e -> e.getFromAcctEntity().getId()));
 
         List<Loan_AccountAggre> res = new ArrayList<>();
-        byAccount.values().forEach(
-                el -> {
-                    LoanEntity ent;
-                    if (CollUtil.isNotEmpty(el) && null != (ent = el.get(0))) {
-                        Loan_AccountAggre accountAggre = new Loan_AccountAggre();
-                        accountAggre.setAccountId(ent.getFromAcctEntity().getId());
-                        accountAggre.setAccountName(ent.getFromAcctEntity().getName());
-                        accountAggre.setCount(el.size());
-                        accountAggre.setBillingCircle(ent.getFromAcctEntity().getBillingCycle());
-                        LocalDate nearestDeadline = ent.getFromAcctEntity().getNearestDeadline();
-                        accountAggre.setForcomingDeadline(nearestDeadline);
-                        BigDecimal repayment = el.stream()
-                                .flatMap(e -> e.getLoanScheduleEntitySet().stream().filter(s -> s.getDueDate().equals(nearestDeadline)))
-                                .map(schedule ->
-                                        (schedule.getPrincipal() != null ? schedule.getPrincipal() : BigDecimal.ZERO)
-                                                .add(schedule.getInterest() != null ? schedule.getInterest() : BigDecimal.ZERO))
-                                .reduce(BigDecimal.ZERO, BigDecimal::add);
-                        accountAggre.setForcomingPaymentAmount(repayment);
+        groupByAccount.values().forEach(el -> assembleNonListProperties(el, res));
+        return res;
+    }
 
-                        // set yearMonth Aggre list
-                        Map<YearMonth, List<LoanEntity>> byMonth =
-                                el.stream().collect(Collectors.groupingBy(
-                                        e -> YearMonth.from(e.getTransDate()),
-                                        LinkedHashMap::new,
-                                        Collectors.toList()));
-                        List<Loan_Account_YearMonthAggre> tmp = new ArrayList<>();
-                        byMonth.forEach(
-                                (k, v) -> {
-                                    Loan_Account_YearMonthAggre account_yearMonthAggre = new Loan_Account_YearMonthAggre();
-                                    account_yearMonthAggre.setYearMonth(k);
-                                    account_yearMonthAggre.setSumPrincipal(v.stream().map(LoanEntity::getPrincipal).reduce(BigDecimal.ZERO, BigDecimal::add));
-                                    account_yearMonthAggre.setSumInterest(v.stream().map(e -> Optional.ofNullable(e.getInterest()).orElse(BigDecimal.ZERO)).reduce(BigDecimal.ZERO, BigDecimal::add));
-                                    account_yearMonthAggre.setCount(v.size());
-                                    account_yearMonthAggre.setTransactions(v);
-                                    tmp.add(account_yearMonthAggre);
-                                }
-                        );
-                        accountAggre.setYearMonthAggres(tmp);
-                        res.add(accountAggre);
-                    }
-                }
-        );
+    // 暂时不可能出现非人民币币种分期的情况 并且当前表设计也无法表现这种情况
+    private void assembleNonListProperties(List<LoanEntity> loansOfAnAccount, List<Loan_AccountAggre> res) {
+        LoanEntity ent;
+        if (CollUtil.isNotEmpty(loansOfAnAccount) && null != (ent = loansOfAnAccount.get(0))) {
+            // 距离now最近的还款日
+            LocalDate nearestDeadline = ent.getFromAcctEntity().getNearestDeadline();
+
+            Loan_AccountAggre accountAggre = new Loan_AccountAggre();
+            accountAggre.setAccountId(ent.getFromAcctEntity().getId());
+            accountAggre.setAccountName(ent.getFromAcctEntity().getName());
+            accountAggre.setCount(loansOfAnAccount.size());
+            accountAggre.setBillingCircle(ent.getFromAcctEntity().getBillingCycle());
+            accountAggre.setForcomingDeadline(nearestDeadline);
+
+            // 计算距离now最近的还款日 已累计的账单
+            // loans record中过滤出 dueDate==离now最近还款日 的所有pending的schedules, 累加
+            BigDecimal repayment = loansOfAnAccount.stream()
+                    .flatMap(e -> e.getLoanScheduleEntitySet().stream().filter(s -> s.getDueDate().equals(nearestDeadline)))
+                    .map(schedule -> add(schedule.getPrincipal(), schedule.getInterest()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            accountAggre.setForcomingPaymentAmount(repayment);
+
+            // 除上面的信用账户基本信息之外，还会有两种聚合统计的方式 两者互不相关
+            accountAggre.setBillingCricleAggres(assembleBillingCricles(loansOfAnAccount));
+            accountAggre.setYearMonthAggres(assembleYearMonths(loansOfAnAccount));
+            res.add(accountAggre);
+        }
+    }
+
+    private List<Loan_Account_YearMonthAggre> assembleYearMonths(List<LoanEntity> loansOfAnAccount) {
+        // 按照yearMonth分组所有交易，并且每组之间key asc
+        Map<YearMonth, List<LoanEntity>> thenGroupByMonth =
+                loansOfAnAccount.stream().collect(Collectors.groupingBy(
+                        e -> YearMonth.from(e.getTransDate()), LinkedHashMap::new, Collectors.toList()));
+
+        List<Loan_Account_YearMonthAggre> tmp = new ArrayList<>();
+        thenGroupByMonth.forEach(
+                (k, v) -> {
+                    Loan_Account_YearMonthAggre account_yearMonthAggre = new Loan_Account_YearMonthAggre();
+                    account_yearMonthAggre.setYearMonth(k);
+                    account_yearMonthAggre.setSumPrincipal(
+                            v.stream().map(e -> !CharSequenceUtil.equals("CNY", e.getCurrency()) ? e.getToCny() : e.getPrincipal()).reduce(BigDecimal.ZERO, BigDecimal::add));
+                    account_yearMonthAggre.setSumInterest(
+                            v.stream().map(e -> Optional.ofNullable(e.getInterest()).orElse(BigDecimal.ZERO)).reduce(BigDecimal.ZERO, BigDecimal::add));
+                    account_yearMonthAggre.setCount(v.size());
+                    account_yearMonthAggre.setTransactions(v);
+                    tmp.add(account_yearMonthAggre);
+                });
+        return tmp;
+    }
+
+    private List<Loan_Account_BillingCricleAggre> assembleBillingCricles(List<LoanEntity> loansOfAnAccount) {
+        List<Loan_Account_BillingCricleAggre> res = new ArrayList<>();
+
+        loansOfAnAccount.stream()
+                .flatMap(loan -> loan.getLoanScheduleEntitySet().stream())
+                .collect(Collectors.groupingBy(LoanScheduleEntity::getDueDate, LinkedHashMap::new, Collectors.toList()))
+                .forEach((k, v) -> {
+                    Loan_Account_BillingCricleAggre tmp = new Loan_Account_BillingCricleAggre();
+                    tmp.setDueDate(k);
+                    //todo 这种有非人民币币种的记录 数据库表要改
+                    tmp.setSumPrincipal(
+                            v.stream().map(LoanScheduleEntity::getPrincipal).reduce(BigDecimal.ZERO, BigDecimal::add));
+                    tmp.setSumInterest(
+                            v.stream().map(e -> Optional.ofNullable(e.getInterest()).orElse(BigDecimal.ZERO)).reduce(BigDecimal.ZERO, BigDecimal::add));
+                    tmp.setCount(v.size());
+                    res.add(tmp);
+                });
+        res.sort(Comparator.comparing(Loan_Account_BillingCricleAggre::getDueDate));
         return res;
     }
 }

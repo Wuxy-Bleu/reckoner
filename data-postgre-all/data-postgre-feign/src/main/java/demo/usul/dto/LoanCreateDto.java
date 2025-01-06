@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static cn.hutool.core.text.CharSequenceUtil.isNotBlank;
@@ -47,6 +48,8 @@ public class LoanCreateDto {
     private List<BigDecimal> principals;
 
     private List<BigDecimal> interests;
+
+    private Map<String, Object> col0;
 
     @AssertTrue(message = "交易账户id或者名称至少有一个不为空")
     public boolean validate() {

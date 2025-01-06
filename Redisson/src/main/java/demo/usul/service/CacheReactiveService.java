@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static demo.usul.consta.Constants.ACCTS_CACHE_KEY;
@@ -66,9 +67,9 @@ public class CacheReactiveService {
         search = redissonReactiveClient.getSearch(typedJsonJacksonCodec);
     }
 
-    public Mono<CachedAcctsDto> getCachedAcctById(String id) {
+    public Mono<CachedAcctsDto> getCachedAcctById(UUID id) {
         return redissonReactiveClient
-                .getJsonBucket(ACCTS_CACHE_KEY + id, codec4Acct)
+                .getJsonBucket(ACCTS_CACHE_KEY + id.toString(), codec4Acct)
                 .get()
                 .map(e -> {
                     if (null != e)
@@ -109,8 +110,8 @@ public class CacheReactiveService {
                 );
     }
 
+    // optional参数是因为 之前使用router function, serverRequest.queryParam return optional, 就先不改了，影响不大
     public Mono<CachedAcctsDto> getCachedAccounts(Optional<String> name, Optional<String> cardType, Optional<String> currency) {
-
         // todo 分页还很简陋，未完成状态
         return Mono.just(new Pageable(0, 10, 0))
                 // query redisSearch返回IntermediateObj是因为没办法在reactive流中将多次分页请求的SearchResult(redisson search原本的返回obj type)整理为一个list

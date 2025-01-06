@@ -79,7 +79,6 @@ public class ReckonerController {
     @PostMapping("")
     public ReckonerDto createOne(@RequestBody @Valid ReckonerDto reckoner, @RequestParam(required = false) Optional<Boolean> trigger) {
         ReckonerEntity entity = reckonerService.createOne(reckoner, trigger.orElse(true));
-        accountService.refreshCache();
         return reckonerService.retrieveById(entity.getId());
     }
 

@@ -123,7 +123,8 @@ public class AccountEntity extends CommonColumn {
         int ending = Integer.parseInt(getBillingCycle().split("~+")[1]);
         int dealine = Integer.parseInt(getDueDate());
 
-        LocalDate nextMonth = target.toLocalDate().withDayOfMonth(dealine).plusMonths(1);
+        LocalDate thisMonth = target.toLocalDate().withDayOfMonth(dealine);
+        LocalDate nextMonth = thisMonth.plusMonths(1);
         LocalDate monthAfterNextMonth = nextMonth.plusMonths(1);
 
         if (1 == opening)
@@ -132,7 +133,7 @@ public class AccountEntity extends CommonColumn {
         if (target.getDayOfMonth() >= opening)
             return dealine >= ending ? nextMonth : monthAfterNextMonth;
         else
-            return nextMonth;
+            return dealine >= ending ? thisMonth : nextMonth;
     }
 
     public LocalDate getNearestDeadline() {

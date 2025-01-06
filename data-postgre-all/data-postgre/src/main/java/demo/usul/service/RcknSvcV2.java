@@ -2,6 +2,7 @@ package demo.usul.service;
 
 import demo.usul.convert.AccountMapper;
 import demo.usul.convert.ReckonerMapper;
+import demo.usul.dto.AccountCriteria;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AcctBlcCalculateDto;
 import demo.usul.dto.ReckonerDto;
@@ -61,7 +62,6 @@ public class RcknSvcV2 {
 
     /**
      * 不会update mongo document，只是add new document
-     *
      * @param id   reckoner to be updated
      * @param name new f_acct name
      * @return new reckoner
@@ -69,8 +69,8 @@ public class RcknSvcV2 {
     @Transactional
     public ReckonerDto updateFAcct(UUID id, String name) {
         ReckonerEntity reckoner = reckonerRepository.findById(id).orElseThrow();
-        AccountDto newAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
-        AccountDto oldAcc = accountService.getOrRefreshCache(null, reckoner.getFromAcctObj().getName(), null, null).get(0);
+        AccountDto newAcc = accountService.getOrRefreshCache(AccountCriteria.builder().name(name).build()).get(0);
+        AccountDto oldAcc = accountService.getOrRefreshCache(AccountCriteria.builder().name(reckoner.getFromAcctObj().getName()).build()).get(0);
 
         BigDecimal newAccBlcAfter = newAcc.getBalance().subtract(reckoner.getAmount().abs());
         BigDecimal oldAccBlcAfter = oldAcc.getBalance().add(reckoner.getAmount().abs());
@@ -104,15 +104,14 @@ public class RcknSvcV2 {
     }
 
     public Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsToAcc(String name) {
-        AccountDto toAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
+        AccountDto toAcc = accountService.getOrRefreshCache(AccountCriteria.builder().name(name).build()).get(0);
         return reckonerRepository.statsToAcc(toAcc.getId());
     }
 
     public Map<String, List<ReckonerFragRepositoryImpl.Stat>> statsFromAcc(String name) {
-        AccountDto fromAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
+        AccountDto fromAcc = accountService.getOrRefreshCache(AccountCriteria.builder().name(name).build()).get(0);
         return reckonerRepository.statsFromAcc(fromAcc.getId());
     }
-
 
     public Page<ReckonerDto> retrieveCondPageable(Optional<String> accName,
                                                   Optional<String> rcknType,
@@ -124,7 +123,7 @@ public class RcknSvcV2 {
             throw new RuntimeException("account reckonerType must exist one");
 
         Optional<UUID> accId = accName.map(acc ->
-                accountService.getOrRefreshCache(null, acc, null, null).get(0).getId());
+                accountService.getOrRefreshCache(AccountCriteria.builder().name(acc).build()).get(0).getId());
         return new PageImpl<>(
                 reckonerMapper.reckonerEntities2Dtos(
                         reckonerRepository.retrieveCondPageable(accId, rcknType, inOut, isOrderByTransDate, isOrderByAmount, page)),

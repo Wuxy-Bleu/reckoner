@@ -13,7 +13,7 @@ spring:
           mongo-client:
             url: "http://127.0.0.1:8222/v1/account-update-record"
           redisson-client:
-            url: "http://127.0.0.1:8311"
+            url: "http://127.0.0.1:8311/cache/v4"
           mongo-acct-blc-client:
             url: "http://127.0.0.1:8222/accts_balance_adjust/v1"
           postgresLoanClient:

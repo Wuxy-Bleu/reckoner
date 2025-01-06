@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
+import static demo.usul.dto.LoanDto.LoanType.ADVANCED_CONSUMPTION;
 import static demo.usul.dto.LoanDto.LoanType.INSTALLMENT;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -61,6 +62,8 @@ public interface LoanMapper {
             @Mapping(target = "interests", expression = "java(Loan2TransactionHelper.mapInterests(loanEntity))"),
             @Mapping(target = "dueDates", expression = "java(Loan2TransactionHelper.mapDueDates(loanEntity))"),
             @Mapping(target = "installmentNum", expression = "java(Loan2TransactionHelper.mapInstallmentNum(loanEntity))"),
+            @Mapping(target = "inOut", expression = "java(Loan2TransactionHelper.mapInOut(loanEntity))"),
+            @Mapping(target = "loanCol0", source = "col0")
 
     })
     Transaction loanEntity2Transaction(LoanEntity loanEntity);
@@ -77,7 +80,7 @@ public interface LoanMapper {
             @Mapping(source = "fromAcctObj.name", target = "fromAcct"),
             @Mapping(source = "toAcctObj.name", target = "toAcct"),
             @Mapping(source = "fromAcctObj.cardTypeEntity.typeName", target = "fromAcctType"),
-            @Mapping(source = "toAcctObj.cardTypeEntity.typeName", target = "toAcctType")
+            @Mapping(source = "toAcctObj.cardTypeEntity.typeName", target = "toAcctType"),
     })
     Transaction reckonerEntity2Transaction(ReckonerEntity reckoner);
 
@@ -138,6 +141,12 @@ public interface LoanMapper {
             return CharSequenceUtil.equals(loan.getLoanType(), INSTALLMENT.getType()) ?
                     loan.getLoanScheduleEntitySet().size() :
                     null;
+        }
+
+        static Short mapInOut(LoanEntity loan) {
+            return (short) (CharSequenceUtil.equals(loan.getLoanType(), ADVANCED_CONSUMPTION.getType()) ?
+                    2 :
+                    -1);
         }
     }
 

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import demo.usul.convert.AccountMapper;
 import demo.usul.convert.ReckonerMapper;
+import demo.usul.dto.AccountCriteria;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AcctBlcCalculateDto;
 import demo.usul.dto.ReckonerDto;
@@ -62,7 +63,7 @@ public class ReckonerService {
     }
 
     public Page<ReckonerEntity> retrieveByToAcctName(String name, Pageable page) {
-        AccountDto toAcc = accountService.getOrRefreshCache(null, name, null, null).get(0);
+        AccountDto toAcc = accountService.getOrRefreshCache(AccountCriteria.builder().name(name).build()).get(0);
         return reckonerRepository.findByToAcctOrderByInOutAscTypeIdAscTransDateDesc(toAcc.getId(), page);
     }
 
@@ -80,17 +81,7 @@ public class ReckonerService {
     }
 
     /**
-     * todo 得想办法在service层解决事务的问题
-     */
-    public ReckonerDto createOneWithTrigger(ReckonerDto dto, boolean trigger) {
-        ReckonerEntity entity = createOne(dto, trigger);
-        accountService.refreshCache();
-        return reckonerMapper.reckonerEntity2Dto(reckonerRepository.findById(entity.getId()).orElseThrow());
-    }
-
-    /**
      * will trigger accts balance changes
-     *
      * @param reckoner record will be inserted, child entity必须存在，且必须提供name, 只提供id不行
      * @return 从db中读取的被插入的record
      */
@@ -106,19 +97,19 @@ public class ReckonerService {
         // from cache
         switch (entity.getInOut()) {
             case 0:
-                fAcct = accountService.getOrRefreshCache(null, entity.getFromAcctObj().getName(), null, null).get(0);
-                tAcct = accountService.getOrRefreshCache(null, entity.getToAcctObj().getName(), null, null).get(0);
+                fAcct = accountService.getOrRefreshCache(AccountCriteria.builder().name(entity.getFromAcctObj().getName()).build()).get(0);
+                tAcct = accountService.getOrRefreshCache(AccountCriteria.builder().name(entity.getToAcctObj().getName()).build()).get(0);
                 entity.setFromAcctObj(accountMapper.accountDto2Entity(fAcct));
                 entity.setToAcct(tAcct.getId());
                 entity.setToAcctObj(accountMapper.accountDto2Entity(tAcct));
                 break;
             case 1:
-                tAcct = accountService.getOrRefreshCache(null, entity.getToAcctObj().getName(), null, null).get(0);
+                tAcct = accountService.getOrRefreshCache(AccountCriteria.builder().name(entity.getToAcctObj().getName()).build()).get(0);
                 entity.setToAcct(tAcct.getId());
                 entity.setToAcctObj(accountMapper.accountDto2Entity(tAcct));
                 break;
             case -1:
-                fAcct = accountService.getOrRefreshCache(null, entity.getFromAcctObj().getName(), null, null).get(0);
+                fAcct = accountService.getOrRefreshCache(AccountCriteria.builder().name(entity.getFromAcctObj().getName()).build()).get(0);
                 entity.setFromAcctObj(accountMapper.accountDto2Entity(fAcct));
                 break;
             default:

@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
+@Deprecated
 public class CacheHandler {
 
     private final CacheReactiveService cacheService;

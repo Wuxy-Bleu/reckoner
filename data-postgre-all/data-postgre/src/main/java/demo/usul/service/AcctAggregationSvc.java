@@ -1,5 +1,6 @@
 package demo.usul.service;
 
+import demo.usul.dto.AccountCriteria;
 import demo.usul.dto.AccountDto;
 import demo.usul.entity.AccountEntity;
 import demo.usul.repository.AccountRepository;
@@ -27,7 +28,7 @@ public class AcctAggregationSvc {
     }
 
     public Map<String, String> allMyMoney() {
-        List<AccountDto> accts = accountService.getOrRefreshCache(null, null, null, null);
+        List<AccountDto> accts = accountService.getOrRefreshCache(AccountCriteria.EMPTY_CRITERIA);
         Map<String, List<AccountDto>> collect = accts.stream().collect(Collectors.groupingBy(AccountDto::getCardType));
 
         Map<String, String> res = new HashMap<>();

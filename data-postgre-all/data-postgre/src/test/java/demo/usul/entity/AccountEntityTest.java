@@ -24,7 +24,8 @@ class AccountEntityTest {
     void tearDown() {
     }
 
-    @Test
+    // 单测的方法中用了now
+//    @Test
     void return_dueDateThisMonth_when_dayOfMonth_of_dueDate_largeThanOrEquals_now() {
         AccountEntity sut = new AccountEntity();
         sut.setDueDate("30");
@@ -38,7 +39,7 @@ class AccountEntityTest {
         assertThat(nearestDeadline2).hasDayOfMonth(28).hasMonthValue(12).hasYear(2024);
     }
 
-    @Test
+//    @Test
     void return_dueDateNextMonth_when_dayOfMonth_of_dueDate_largeThan_now() {
         AccountEntity sut = new AccountEntity();
         sut.setDueDate("12");
@@ -50,7 +51,7 @@ class AccountEntityTest {
 
     static Stream<OffsetDateTime> provideDates() {
         return Stream.of(
-                OffsetDateTime.now(), // 2024 12 29
+//                OffsetDateTime.now(), // 2024 12 29
                 OffsetDateTime.of(LocalDate.of(2024, 12, 14), LocalTime.now(), SHANG_HAI_OFFSET),
                 OffsetDateTime.of(LocalDate.of(2024, 12, 15), LocalTime.now(), SHANG_HAI_OFFSET),
                 OffsetDateTime.of(LocalDate.of(2024, 12, 31), LocalTime.now(), SHANG_HAI_OFFSET),
@@ -93,5 +94,92 @@ class AccountEntityTest {
         LocalDate localDate = sut.calculateDueDateOfTransDate(transactionDate);
 
         assertThat(localDate).isEqualTo(LocalDate.of(2025, 1, 7));
+    }
+
+    static Stream<OffsetDateTime> provideDates3() {
+        return Stream.of(
+                OffsetDateTime.of(LocalDate.of(2024, 12, 7), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 12, 8), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 12, 31), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2025, 1, 1), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2025, 1, 5), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2025, 1, 6), LocalTime.now(), SHANG_HAI_OFFSET)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideDates3")
+    void Jan24th2025_as_repaymentDate_of(OffsetDateTime transactionDate) {
+        AccountEntity sut = new AccountEntity();
+        sut.setBillingCycle("7~+6");
+        sut.setDueDate("24");
+
+        LocalDate localDate = sut.calculateDueDateOfTransDate(transactionDate);
+
+        assertThat(localDate).isEqualTo(LocalDate.of(2025, 1, 24));
+    }
+
+    static Stream<OffsetDateTime> provideDates4() {
+        return Stream.of(
+                OffsetDateTime.of(LocalDate.of(2024, 12, 6), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 12, 5), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 12, 1), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 11, 7), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 11, 8), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 11, 30), LocalTime.now(), SHANG_HAI_OFFSET)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideDates4")
+    void dec24th2024_as_repaymentDate_of(OffsetDateTime transactionDate) {
+        AccountEntity sut = new AccountEntity();
+        sut.setBillingCycle("7~+6");
+        sut.setDueDate("24");
+
+        LocalDate localDate = sut.calculateDueDateOfTransDate(transactionDate);
+
+        assertThat(localDate).isEqualTo(LocalDate.of(2024, 12, 24));
+    }
+
+    static Stream<OffsetDateTime> provideDates5() {
+        return Stream.of(
+                OffsetDateTime.of(LocalDate.of(2024, 12, 1), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 12, 2), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 12, 30), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 12, 31), LocalTime.now(), SHANG_HAI_OFFSET)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideDates5")
+    void jan8th2025_as_repaymentDate_of(OffsetDateTime transactionDate) {
+        AccountEntity sut = new AccountEntity();
+        sut.setBillingCycle("1~+0");
+        sut.setDueDate("8");
+
+        LocalDate localDate = sut.calculateDueDateOfTransDate(transactionDate);
+
+        assertThat(localDate).isEqualTo(LocalDate.of(2025, 1, 8));
+    }
+    static Stream<OffsetDateTime> provideDates6() {
+        return Stream.of(
+                OffsetDateTime.of(LocalDate.of(2024, 11, 1), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 11, 2), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 11, 30), LocalTime.now(), SHANG_HAI_OFFSET),
+                OffsetDateTime.of(LocalDate.of(2024, 11, 29), LocalTime.now(), SHANG_HAI_OFFSET)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideDates6")
+    void dec8th2024_as_repaymentDate_of(OffsetDateTime transactionDate) {
+        AccountEntity sut = new AccountEntity();
+        sut.setBillingCycle("1~+0");
+        sut.setDueDate("8");
+
+        LocalDate localDate = sut.calculateDueDateOfTransDate(transactionDate);
+
+        assertThat(localDate).isEqualTo(LocalDate.of(2024, 12, 8));
     }
 }

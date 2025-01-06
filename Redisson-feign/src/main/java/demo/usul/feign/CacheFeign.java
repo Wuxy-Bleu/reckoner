@@ -11,18 +11,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.UUID;
 
+// feign 和 controller返回值不同 controller包裹了一层mono
 @FeignClient(name = "redisson-client", configuration = {OptionalSniffer.class})
 public interface CacheFeign {
 
-    @GetMapping("/v3/cache/accts")
-    CachedAcctsDto getCachedAccts(@RequestParam(required = false) String name, @RequestParam(required = false) String cardType, @RequestParam(required = false) String currency);
+    @PostMapping("/{ms}")
+    Object cacheAccounts(@RequestBody List<AccountDto> accounts, @PathVariable Long ms);
 
-    @PostMapping("/v3/cache/{ms}")
-    void cacheAccounts(@PathVariable Long ms, @RequestBody List<AccountDto> accts);
+    @GetMapping
+    CachedAcctsDto getCachedAccounts(@RequestParam(required = false) String name,
+                                     @RequestParam(required = false) String cardType,
+                                     @RequestParam(required = false) String currency);
 
-    @GetMapping("/cache/accts/v3/{id}")
-    CachedAcctsDto getCachedAcctById(@PathVariable String id);
-
-
+    @GetMapping("/{id}")
+    CachedAcctsDto getById(@PathVariable UUID id);
 }
+

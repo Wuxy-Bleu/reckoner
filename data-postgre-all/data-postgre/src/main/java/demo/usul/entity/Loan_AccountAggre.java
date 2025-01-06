@@ -25,6 +25,8 @@ public class Loan_AccountAggre {
 
     private List<Loan_Account_YearMonthAggre> yearMonthAggres;
 
+    private List<Loan_Account_BillingCricleAggre> billingCricleAggres;
+
     private String billingCircle;
 
     private LocalDate forcomingDeadline;
@@ -44,5 +46,22 @@ public class Loan_AccountAggre {
         private int count;
 
         private List<LoanEntity> transactions;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class Loan_Account_BillingCricleAggre {
+
+        private LocalDate opening;
+
+        private LocalDate closing;
+
+        private BigDecimal sumPrincipal;
+
+        private BigDecimal sumInterest;
+
+        private int count;
+
+        private LocalDate dueDate;
     }
 }

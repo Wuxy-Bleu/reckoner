@@ -1,5 +1,6 @@
 package demo.usul.controller;
 
+import demo.usul.dto.AccountCriteria;
 import demo.usul.dto.AccountDto;
 import demo.usul.dto.AccountUpdateDto;
 import demo.usul.service.AccountService;
@@ -14,12 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static demo.usul.dto.AccountCriteria.builder;
 
 @Slf4j
 @RestController
@@ -30,19 +32,14 @@ public class AccountController {
     private final AccountService accountService;
     private final AcctAggregationSvc acctAggregationSvc;
 
-    // 其实这里复杂的查询过滤最好使用 自定义的requestObj 或者criteria 更通用
     @GetMapping
-    public List<AccountDto> retrieveActivatedByConditionsOrNot(
-            @RequestParam(required = false) String cardType,
-            @RequestParam(required = false) String currency) {
-        return accountService.getOrRefreshCache(null, null, cardType, currency);
+    public List<AccountDto> retrieveActivatedByConditionsOrNot(@RequestBody(required = false) AccountCriteria criteria) {
+        return accountService.getOrRefreshCache(criteria);
     }
 
-    // path variable for unique column查询
     @GetMapping("/{name}")
     public AccountDto retrieveActivatedByName(@PathVariable String name) {
-        // feign 数据传递，如果查不到是返回null好，还是抛出异常呢
-        return accountService.getOrRefreshCache(null, name, null, null).get(0);
+        return accountService.getOrRefreshCache(builder().name(name).build()).get(0);
     }
 
     // 如果部分插入成功，部分失败，那么是否能准确的插入成功的部分

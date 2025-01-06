@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static demo.usul.Const.SHANG_HAI;
@@ -55,6 +56,7 @@ public class LoanEntity {
     public static final String COLUMN_IMAGELINK_NAME = "image_link";
     public static final String COLUMN_DESCR_NAME = "descr";
     public static final String COLUMN_TAGS_NAME = "tags";
+    public static final String COLUMN_COL0_NAME = "col0";
 
     @NotNull
     @Id
@@ -120,6 +122,10 @@ public class LoanEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = LoanEntity.COLUMN_FROMACCT_NAME)
     private AccountEntity fromAcctEntity;
+
+    @Column(name = COLUMN_COL0_NAME)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> col0;
 
     public void add(LoanScheduleEntity entity) {
         getLoanScheduleEntitySet().add(entity);

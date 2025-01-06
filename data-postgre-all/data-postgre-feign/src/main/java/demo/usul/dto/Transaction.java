@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -17,6 +18,10 @@ public class Transaction {
     private UUID id;
 
     private BigDecimal amount;
+
+    private String currency;
+
+    private BigDecimal toCny;
 
     private Short inOut = -1;
 
@@ -50,4 +55,6 @@ public class Transaction {
     private Integer installmentNum;
 
     private String loanType;
+
+    private Map<String, Object> loanCol0;
 }
